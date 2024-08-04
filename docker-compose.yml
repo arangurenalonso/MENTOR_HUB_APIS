@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  postgres-db:
+    image: postgres
+    container_name: posgress-MentoHUB-db
+    ports:
+      - '5432:5432'
+    volumes:
+      - data-mentor-hub-db-vol:/var/lib/postgresql/data
+    networks:
+      - mentor-hub-network
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_DB_USER}
+      POSTGRES_DB: ${POSTGRES_DB_DATABASE}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    ports:
+      - '80:80'
+    networks:
+      - mentor-hub-network
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: ${PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION}
+      PGADMIN_CONFIG_LOGIN_BANNER: ${PGADMIN_CONFIG_LOGIN_BANNER}
+      PGADMIN_CONFIG_CONSOLE_LOG_LEVEL: ${PGADMIN_CONFIG_CONSOLE_LOG_LEVEL}
+    restart: always
+
+networks:
+  mentor-hub-network:
+    driver: bridge
+volumes:
+  data-mentor-hub-db-vol:
+  pgadmin-data:
+# docker-compose --env-file .env.production up -d
+# docker-compose --env-file .env.development up -d

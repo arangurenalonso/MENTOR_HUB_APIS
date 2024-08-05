@@ -1,7 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
-
+import { injectable } from 'inversify';
+@injectable()
 class AuthorizationMiddleware {
-  constructor() {}
+  constructor() {
+    this.build = this.build.bind(this);
+  }
   //Funcion que devuelve una funcion middleware
   public build(
     rolesAllowed: string[]

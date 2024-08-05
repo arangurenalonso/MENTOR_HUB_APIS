@@ -20,8 +20,6 @@ import IUserRepository from '@domain/user-aggregate/root/repositories/IUser.repo
 import UnitOfWork from '@persistence/repositories/commun/UnitOfWork';
 import UserRepository from '@persistence/repositories/user.repository.impl';
 import OutboxMessageRepository from '@persistence/repositories/outbox-message.repository.impl';
-import IRoleRepository from '@domain/user-aggregate/role/repositories/IRole.repository';
-import RoleRepository from '@persistence/repositories/role.repository.impl';
 import UserCreatedDomainEventHandler from '@application/features/auth/command/register/user-create.domain-event-handler';
 import UserCreatedDomainEvent from '@domain/user-aggregate/root/events/user-created.domain-event';
 import RegisterCommandHandler from '@application/features/auth/command/register/register.command.handler';
@@ -42,6 +40,11 @@ import IPersonRepository from '@domain/persona-aggregate/root/repository/person.
 import PersonRepository from '@persistence/repositories/person.repository.impl';
 import RoleSeeder from '@seed/role.seed';
 import UserSeeder from '@seed/user.seed';
+import InstructorController from '@rest/controller/instructor.controller';
+import InstructorRoutes from '@rest/routers/instructor/instructor.route';
+import AuthorizationMiddleware from '@rest/middlewares/authorization.middleware';
+import IInstructorRepository from '@domain/intructor-aggregate/root/repository/instructor.repository';
+import InstructorRepository from '@persistence/repositories/Instructor.repository.impl';
 class DependencyContainer {
   private readonly _container: Container;
 
@@ -78,6 +81,9 @@ class DependencyContainer {
     this._container
       .bind<AuthenticationMiddleware>(TYPES.AuthenticationMiddleware)
       .to(AuthenticationMiddleware);
+    this._container
+      .bind<AuthorizationMiddleware>(TYPES.AuthorizationMiddleware)
+      .to(AuthorizationMiddleware);
   }
   private bindCore(): void {
     this._container
@@ -122,20 +128,28 @@ class DependencyContainer {
     this._container
       .bind<IUserRepository>(TYPES.IUserRepository)
       .to(UserRepository);
+
     this._container
       .bind<IPersonRepository>(TYPES.IPersonRepository)
       .to(PersonRepository);
+
     this._container
-      .bind<IRoleRepository>(TYPES.RoleRepository)
-      .to(RoleRepository);
+      .bind<IInstructorRepository>(TYPES.InstructorRepository)
+      .to(InstructorRepository);
   }
   private bindControllers(): void {
     this._container
       .bind<AuthController>(TYPES.AuthController)
       .to(AuthController);
+    this._container
+      .bind<InstructorController>(TYPES.InstructorController)
+      .to(InstructorController);
   }
   private bindRouters(): void {
     this._container.bind<AuthRoutes>(TYPES.AuthRoutes).to(AuthRoutes);
+    this._container
+      .bind<InstructorRoutes>(TYPES.InstructorRoutes)
+      .to(InstructorRoutes);
     this._container.bind<ApiRouter>(TYPES.ApiRouter).to(ApiRouter);
   }
   private bindUseCase(): void {

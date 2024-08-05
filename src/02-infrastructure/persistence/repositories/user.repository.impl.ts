@@ -9,7 +9,6 @@ import BaseRepository from './commun/BaseRepository';
 import UserDTO from '../../dto/user-dto';
 import UserEntity from '@persistence/entities/user-aggregate/user.entity';
 import UserRoleEntity from '@persistence/entities/user-aggregate/user-role.entity';
-import { RoleEnum } from '@domain/user-aggregate/role/enum/role.enum';
 
 @injectable()
 class UserRepository

@@ -1,6 +1,6 @@
 import BaseDomain from '@domain/abstract/BaseDomain';
 import { err, ok, Result } from 'neverthrow';
-import PersonId from './value-object/person.value-object';
+import PersonId from './value-object/person-id.value-object';
 import PersonTypeEnum from './enum/person-type.enum';
 import EmailDomain from '../email/email.domain';
 // import UserDomain from '@domain/user-aggregate/root/user.domain';

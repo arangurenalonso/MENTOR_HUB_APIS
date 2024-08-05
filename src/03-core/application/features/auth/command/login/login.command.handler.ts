@@ -11,8 +11,8 @@ import UserDomain from '@domain/user-aggregate/root/user.domain';
 import { injectable, inject } from 'inversify';
 import { requestHandler, IRequestHandler } from 'mediatr-ts';
 import LoginCommand from './login.command';
-import IPersonRepository from '../../../../../domain/persona-aggregate/root/repository/person.repository';
 import PersonApplicationErrors from '@application/errors/person-application.error';
+import IPersonRepository from '@domain/persona-aggregate/root/repository/person.repository';
 
 @injectable()
 @requestHandler(LoginCommand)
@@ -56,8 +56,8 @@ class LoginCommandHandler
     if (person === null) {
       return err(PersonApplicationErrors.PERSON_NOT_FOUND);
     }
-    const token = await this._tokenService.generateToken({
-      userId: user.properties.id!,
+    const tokenResult = await this._tokenService.generateToken({
+      id: user.properties.id!,
       email: user.properties.email,
       name: person.properties.name,
       roles: user.properties.roles.map((x) => {
@@ -67,7 +67,10 @@ class LoginCommandHandler
         };
       }),
     });
-    return ok(new AuthenticationResult(token, true, ''));
+    if (tokenResult.isErr()) {
+      return err(tokenResult.error);
+    }
+    return ok(new AuthenticationResult(tokenResult.value, true, ''));
   }
   private validate(email: string, username: string): void {
     if (!email && !username) {

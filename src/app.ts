@@ -39,3 +39,55 @@ async function main() {
 })();
 
 // Generalización y Especialización de BD
+/**
+ * Soft skill:
+ * ---------------------------
+ * Comunication
+ * Teamwork
+ * Critical thinking
+ * problem solving
+ * creativity
+ * ñeadership
+ * work ethic
+ * conflict resolution
+ * interpersonal skills
+ * negotiation
+ * emotional intelligence
+ * attention to detail
+ * decision making
+ * stress management
+ * patience
+ * organization skills
+ * active listening
+ * public speaking
+ * customer service
+ * collaboration
+ * self motivation
+ * multitasking
+ * empathy
+ * networking
+ * flexibility
+ * mentoring
+ * persuasion
+ * delegation
+ * innovation
+ * tram building
+ * responsibility
+ * professionalism
+ * assertiveness
+ * cultural awareness
+ * positive attitude
+ * resilience
+ * open-mindedness
+ * tolerance
+ * motivating others
+ * givind an receiving feedback
+ * conflic management
+ * worklife balance
+ * goal setting
+ * initiatieve
+ * self discipline
+ * independence
+ * learning agility
+ * coaching
+ */

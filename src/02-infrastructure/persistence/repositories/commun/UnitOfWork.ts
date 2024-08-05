@@ -7,9 +7,7 @@ import TYPES from '@config/inversify/identifiers';
 import BaseDomain from '@domain/abstract/BaseDomain';
 import IUnitOfWork from '@domain/abstract/repository/IUnitOfWork';
 import IUserRepository from '@domain/user-aggregate/root/repositories/IUser.repository';
-import IRoleRepository from '@domain/user-aggregate/role/repositories/IRole.repository';
 import UserRepository from '../user.repository.impl';
-import RoleRepository from '../role.repository.impl';
 import IPersonRepository from '@domain/persona-aggregate/root/repository/person.repository';
 import PersonRepository from '../person.repository.impl';
 
@@ -19,7 +17,6 @@ class UnitOfWork implements IUnitOfWork {
   private _entityManager: EntityManager | null = null;
   private _userRepository: IUserRepository | null = null;
   private _personRepository: IPersonRepository | null = null;
-  private _roleRepository: IRoleRepository | null = null;
   private _domainEvents: IDomainEvent[] = [];
 
   constructor(
@@ -41,12 +38,6 @@ class UnitOfWork implements IUnitOfWork {
     return (this._personRepository ||= new PersonRepository(
       this._entityManager
     ));
-  }
-  get roleRepository(): IRoleRepository {
-    if (!this._entityManager) {
-      throw new Error('Transaction has not been started');
-    }
-    return (this._roleRepository ||= new RoleRepository(this._entityManager));
   }
 
   async startTransaction(): Promise<void> {

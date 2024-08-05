@@ -1,11 +1,9 @@
 import { Entity, PrimaryColumn, OneToOne, JoinColumn } from 'typeorm';
-import NaturalPersonEntity from './person-aggreagte/natural_person.entity';
+import BaseEntity from '../abstrations/base.entity';
+import NaturalPersonEntity from '../person-aggreagte/natural_person.entity';
 
 @Entity({ name: 'learner' })
-class LearnerEntity {
-  @PrimaryColumn('uuid')
-  id!: string;
-
+class LearnerEntity extends BaseEntity {
   @OneToOne(() => NaturalPersonEntity)
   @JoinColumn({ name: 'id' })
   naturalPerson!: NaturalPersonEntity;

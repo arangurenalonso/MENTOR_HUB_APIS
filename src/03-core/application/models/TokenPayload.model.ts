@@ -5,7 +5,7 @@ type rolesType = {
 
 type TokenPayload = {
   name: string;
-  userId: string;
+  id: string;
   email: string | null;
   roles: rolesType[];
 };

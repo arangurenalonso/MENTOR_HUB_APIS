@@ -79,8 +79,8 @@ class RegisterCommandHandler
 
       return err(UserApplicationErrors.USER_CREATE_ERROR(`${error}`));
     }
-    const token = await this._tokenService.generateToken({
-      userId: user.properties.id!,
+    const tokenResult = await this._tokenService.generateToken({
+      id: user.properties.id!,
       email: user.properties.email,
       name: person.properties.name,
       roles: user.properties.roles.map((x) => {
@@ -91,7 +91,10 @@ class RegisterCommandHandler
       }),
     });
 
-    return ok(new AuthenticationResult(token, true, ''));
+    if (tokenResult.isErr()) {
+      return err(tokenResult.error);
+    }
+    return ok(new AuthenticationResult(tokenResult.value, true, ''));
   }
   private async validate(email: string): Promise<Result<boolean, ErrorResult>> {
     const userEmail = await this._userRepository.getUserByEmail(email);

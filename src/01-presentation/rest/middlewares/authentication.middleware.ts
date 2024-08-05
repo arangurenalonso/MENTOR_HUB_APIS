@@ -7,7 +7,9 @@ import { inject, injectable } from 'inversify';
 class AuthenticationMiddleware {
   constructor(
     @inject(TYPES.ITokenService) private _tokenService: ITokenService
-  ) {}
+  ) {
+    this.use = this.use.bind(this);
+  }
 
   public async use(
     req: Request,
@@ -15,13 +17,13 @@ class AuthenticationMiddleware {
     next: NextFunction
   ): Promise<void> {
     try {
-      // const authorization = req.header('Authorization');
       const { authorization } = req.headers;
-      // if( !authorization ) return res.status(401).json({ error: 'No token provided' });
+
       if (!authorization) {
         res.status(401).json({ message: 'Token not provided' });
         return;
       }
+
       if (!authorization.startsWith('Bearer ')) {
         res.status(401).json({ error: 'Invalid Bearer token' });
         return;
@@ -32,20 +34,23 @@ class AuthenticationMiddleware {
         return;
       }
       const token = tokensParts.at(1) || '';
+
       const tokenValidationResult = await this._tokenService.verifyToken(token);
 
-      // if (tokenValidationResult..isErr()) {
-      //   res.status(401).json({
-      //     message: `${tokenValidationResult.error.type} ${tokenValidationResult.error.message}`,
-      //   });
-      //   return;
-      // }
-      // console.log('res.locals: ', res.locals);
-      res.locals.user = tokenValidationResult;
+      if (tokenValidationResult.isErr()) {
+        res.status(401).json({
+          message: `${tokenValidationResult.error.type} ${tokenValidationResult.error.message}`,
+        });
+        return;
+      }
+      const tokenDecoded = tokenValidationResult.value;
+      res.locals.user = tokenDecoded;
       // res.locals.roles = tokenValidationResult.value.roles;
       next();
     } catch (error) {
-      res.status(401).json({ message: 'Invalid token' });
+      console.log('error', error);
+
+      res.status(401).json({ message: 'Invalid token', error: error });
     }
   }
 }

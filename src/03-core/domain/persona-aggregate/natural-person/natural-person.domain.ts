@@ -6,7 +6,7 @@ import EmailDomain, {
   EmailDomainProperties,
 } from '../email/email.domain';
 import PersonTypeEnum from '../root/enum/person-type.enum';
-import PersonId from '../root/value-object/person.value-object';
+import PersonId from '../root/value-object/person-id.value-object';
 import Name from './value-object/name.value-object';
 import Birthdate from './value-object/birthdate.value-object';
 import PersonErrors from '../root/error/person.error';

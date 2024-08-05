@@ -48,6 +48,7 @@ class UserDomain extends BaseDomain<UserId> {
     if (!args.roles || args.roles?.length === 0) {
       return err(UserErrors.USER_NOT_ROLE_PROVIDE());
     }
+
     const resultId = UserId.create(args.id);
     if (resultId.isErr()) {
       return err(resultId.error);

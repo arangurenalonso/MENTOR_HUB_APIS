@@ -60,8 +60,8 @@ class UserCreatedDomainEventHandler
     userDomain: UserDomain,
     person: NaturalPersonDomain
   ) => {
-    const token = await this._tokenService.generateToken({
-      userId: userDomain.properties.id!,
+    const tokenResult = await this._tokenService.generateToken({
+      id: userDomain.properties.id!,
       email: userDomain.properties.email,
       name: person.properties.name,
       roles: userDomain.properties.roles.map((x) => {
@@ -72,6 +72,10 @@ class UserCreatedDomainEventHandler
       }),
     });
 
+    if (tokenResult.isErr()) {
+      return err(tokenResult.error);
+    }
+    const token = tokenResult.value;
     const link = `${this._envs.webserviceUrl}/auth/validate-email/${token}`;
     const html = `
       <h1>Welcome: ${person.properties.name}</h1>

@@ -22,7 +22,7 @@ class RoleDescription {
     return ok(new RoleDescription(value));
   }
 
-  private static validate(value: string): {
+  private static validate(value: string = ''): {
     isValid: boolean;
     reasons: string[];
   } {
@@ -30,9 +30,10 @@ class RoleDescription {
 
     if (!value) {
       reasons.push(messagesValidator.empty('Role Description'));
+      return { isValid: false, reasons };
     }
     if (!regularExps.roleDescription.test(value)) {
-      reasons.push(messagesValidator.descriptionInvalidFormat);
+      reasons.push(messagesValidator.roleDescriptionInvalidFormat);
     }
     if (value?.length < regularExps.roleDescriptionMinLength) {
       reasons.push(

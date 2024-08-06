@@ -7,5 +7,6 @@ interface IUserRepository {
   ): Promise<Result<UserDomain | null, ErrorResult>>;
   getUserById(id: string): Promise<Result<UserDomain | null, ErrorResult>>;
   register(user: UserDomain): Promise<void>;
+  modify(user: UserDomain): Promise<void>;
 }
 export default IUserRepository;

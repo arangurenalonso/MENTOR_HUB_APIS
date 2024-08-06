@@ -38,13 +38,16 @@ import ExecOutboxMessagesCommandHandler from '@application/features/outboxMessag
 import CronService from '@job/cron.service';
 import IPersonRepository from '@domain/persona-aggregate/root/repository/person.repository';
 import PersonRepository from '@persistence/repositories/person.repository.impl';
-import RoleSeeder from '@seed/role.seed';
-import UserSeeder from '@seed/user.seed';
+import RoleSeeder from '@config/seed/role.seed';
 import InstructorController from '@rest/controller/instructor.controller';
 import InstructorRoutes from '@rest/routers/instructor/instructor.route';
 import AuthorizationMiddleware from '@rest/middlewares/authorization.middleware';
 import IInstructorRepository from '@domain/intructor-aggregate/root/repository/instructor.repository';
 import InstructorRepository from '@persistence/repositories/Instructor.repository.impl';
+import SocialMediaSeeder from '@config/seed/social-media.seed';
+import UserSeeder from '@config/seed/user.seed';
+import CreateInstructorProfileCommand from '@application/features/instructor/command/createProfile/create-profile.command';
+import CreateInstructorProfileCommandHandler from '@application/features/instructor/command/createProfile/create-profile.command.handler';
 class DependencyContainer {
   private readonly _container: Container;
 
@@ -71,6 +74,9 @@ class DependencyContainer {
   private bindSeeder(): void {
     this._container.bind<UserSeeder>(TYPES.UserSeeder).to(UserSeeder);
     this._container.bind<RoleSeeder>(TYPES.RoleSeeder).to(RoleSeeder);
+    this._container
+      .bind<SocialMediaSeeder>(TYPES.SocialMediaSeeder)
+      .to(SocialMediaSeeder);
   }
   private bindJobs(): void {
     this._container
@@ -167,6 +173,15 @@ class DependencyContainer {
         >
       >('RegisterCommand')
       .to(RegisterCommandHandler);
+
+    this._container
+      .bind<
+        IRequestHandler<
+          CreateInstructorProfileCommand,
+          Result<AuthenticationResult, ErrorResult>
+        >
+      >('CreateInstructorProfileCommand')
+      .to(CreateInstructorProfileCommandHandler);
 
     this._container
       .bind<IRequestHandler<ExecOutboxMessagesCommand, void>>(

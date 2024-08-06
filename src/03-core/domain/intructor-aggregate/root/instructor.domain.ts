@@ -26,7 +26,7 @@ type InstructorDomainCreateArg = {
   websideURL?: string;
   headline?: string | null;
   socialMedia?: SocialMediaDomain | null | SocialMediaDomain[];
-  naturalPerson?: NaturalPersonDomain;
+  naturalPerson?: NaturalPersonDomain | null;
   introductionText?: string | null;
   teachingExperienceText?: string | null;
   motivationText?: string | null;
@@ -37,7 +37,7 @@ type InstructorDomainConstructor = {
   websideURL: WebsiteURL | null;
   headline: Heading | null;
   socialMedia: SocialMediaDomain[];
-  naturalPerson?: NaturalPersonDomain;
+  naturalPerson?: NaturalPersonDomain | null;
   aboutMe: AboutMe;
 };
 

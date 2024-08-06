@@ -23,10 +23,14 @@ const personMessage = {
   nameInvalidFormat: 'Name can only contain letters and spaces.',
 };
 const urlMessage = {
-  invalidProtocol: 'Invalid protocol.',
-  invalidDomain: 'Invalid domain name.',
-  invalidPath: 'Invalid URL path.',
-  invalidURLFormat: 'invalid URL format',
+  invalidProtocol: (field: string, value: string) =>
+    `The field '${field}' with the value '${value}' Invalid protocol.`,
+  invalidDomain: (field: string, value: string) =>
+    `The field '${field}' with the value '${value}' Invalid domain name.`,
+  invalidPath: (field: string, value: string) =>
+    `The field '${field}' with the value '${value}' Invalid URL path.`,
+  invalidURLFormat: (field: string, value: string) =>
+    `The field '${field}' with the value '${value}' invalid URL format.`,
 };
 const imageValidation = {
   invalidImageFormat: 'Invalid image format.',

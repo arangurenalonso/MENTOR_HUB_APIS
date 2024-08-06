@@ -38,5 +38,6 @@ const TYPES = {
   //SEED
   UserSeeder: Symbol.for('UserSeeder'),
   RoleSeeder: Symbol.for('RoleSeeder'),
+  SocialMediaSeeder: Symbol.for('SocialMediaSeeder'),
 };
 export default TYPES;

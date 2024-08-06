@@ -43,11 +43,11 @@ class BaseURL {
         url.port ? `:${url.port}` : ''
       }/`;
     } catch (error) {
-      reasons.push(messagesValidator.invalidURLFormat);
+      reasons.push(messagesValidator.invalidURLFormat('WebsiteURL', value));
     }
 
     if (!regularExps.protocolRegex.test(value)) {
-      reasons.push(messagesValidator.invalidProtocol);
+      reasons.push(messagesValidator.invalidProtocol('WebsiteURL', value));
     }
 
     return { isValid: reasons.length === 0, reasons };

@@ -35,20 +35,20 @@ class ImageURL {
     const reasons: string[] = [];
 
     if (!regularExps.protocolRegex.test(value)) {
-      reasons.push(messagesValidator.invalidProtocol);
+      reasons.push(messagesValidator.invalidProtocol('WebsiteURL', value));
     }
-
-    if (!regularExps.domainRegex.test(value)) {
-      reasons.push(messagesValidator.invalidDomain);
+    const domain = value.replace(regularExps.protocolRegex, '').split('/')[0];
+    if (!regularExps.domainRegex.test(domain)) {
+      reasons.push(messagesValidator.invalidDomain('WebsiteURL', domain));
     }
 
     if (!regularExps.pathRegex.test(value)) {
-      reasons.push(messagesValidator.invalidPath);
+      reasons.push(messagesValidator.invalidPath('WebsiteURL', value));
     }
 
-    if (!regularExps.imageExtension.test(value)) {
-      reasons.push(messagesValidator.invalidImageFormat);
-    }
+    // if (!regularExps.imageExtension.test(value)) {
+    //   reasons.push(messagesValidator.invalidImageFormat);
+    // }
 
     return { isValid: reasons.length === 0, reasons };
   }

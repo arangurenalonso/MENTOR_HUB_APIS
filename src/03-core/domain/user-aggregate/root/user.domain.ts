@@ -74,6 +74,16 @@ class UserDomain extends BaseDomain<UserId> {
     return ok(user);
   }
 
+  public addRol(role: RoleDomain) {
+    const roleAlreadyExistInList = this._roles.some(
+      (x) => x.properties.id === role.properties.id
+    );
+    if (roleAlreadyExistInList) {
+      return;
+    }
+
+    this._roles.push(role);
+  }
   get properties(): UserDomainProperties {
     return {
       id: this._id.value,

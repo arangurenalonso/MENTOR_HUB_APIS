@@ -35,15 +35,15 @@ class WebsiteURL {
     const reasons: string[] = [];
 
     if (!regularExps.protocolRegex.test(value)) {
-      reasons.push(messagesValidator.invalidProtocol);
+      reasons.push(messagesValidator.invalidProtocol('WebsiteURL', value));
     }
 
     if (!regularExps.domainRegex.test(value)) {
-      reasons.push(messagesValidator.invalidDomain);
+      reasons.push(messagesValidator.invalidDomain('WebsiteURL', value));
     }
 
     if (!regularExps.pathRegex.test(value)) {
-      reasons.push(messagesValidator.invalidPath);
+      reasons.push(messagesValidator.invalidPath('WebsiteURL', value));
     }
 
     return { isValid: reasons.length === 0, reasons };

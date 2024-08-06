@@ -11,31 +11,31 @@ export type SocialMediaDomainArgs = {
   id?: string;
   description: string;
   baseUrl: string;
-  urlProfile: string;
   urlmage?: string;
+  urlProfile: string;
 };
 
 export type SocialMediaDomainProperties = {
   id: string;
   description: string;
   baseUrl: string;
-  urlProfile: string;
   urlmage: string | null;
+  urlProfile: string;
 };
 
 type SocialMediaDomainConstructor = {
   id: SocialMediaId;
   description: SocialMediaDescription;
-  urlProfile: SocialMediaURLProfile;
   baseURL: BaseURL;
   urlmage: ImageURL | null;
+  urlProfile: SocialMediaURLProfile;
 };
 
 class SocialMediaDomain extends BaseDomain<SocialMediaId> {
   private _description: SocialMediaDescription;
-  private _urlProfile: SocialMediaURLProfile;
   private _baseURL: BaseURL;
   private _urlmage: ImageURL | null;
+  private _urlProfile: SocialMediaURLProfile;
 
   private constructor(properties: SocialMediaDomainConstructor) {
     super(properties.id);

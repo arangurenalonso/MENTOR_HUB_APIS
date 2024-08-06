@@ -21,6 +21,13 @@ class UserApplicationErrors {
       400
     );
   };
+  static readonly USER_NOT_FOUND = (value: string) => {
+    return new ErrorResult(
+      'User.NotFound',
+      `User with id '${value}' not found`,
+      404
+    );
+  };
 }
 
 export default UserApplicationErrors;

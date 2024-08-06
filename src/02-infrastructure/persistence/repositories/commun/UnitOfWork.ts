@@ -10,6 +10,8 @@ import IUserRepository from '@domain/user-aggregate/root/repositories/IUser.repo
 import UserRepository from '../user.repository.impl';
 import IPersonRepository from '@domain/persona-aggregate/root/repository/person.repository';
 import PersonRepository from '../person.repository.impl';
+import IInstructorRepository from '@domain/intructor-aggregate/root/repository/instructor.repository';
+import InstructorRepository from '../Instructor.repository.impl';
 
 @injectable()
 class UnitOfWork implements IUnitOfWork {
@@ -17,6 +19,8 @@ class UnitOfWork implements IUnitOfWork {
   private _entityManager: EntityManager | null = null;
   private _userRepository: IUserRepository | null = null;
   private _personRepository: IPersonRepository | null = null;
+  private _instructorRepository: IInstructorRepository | null = null;
+
   private _domainEvents: IDomainEvent[] = [];
 
   constructor(
@@ -36,6 +40,15 @@ class UnitOfWork implements IUnitOfWork {
       throw new Error('Transaction has not been started');
     }
     return (this._personRepository ||= new PersonRepository(
+      this._entityManager
+    ));
+  }
+
+  get instructorRepository(): IInstructorRepository {
+    if (!this._entityManager) {
+      throw new Error('Transaction has not been started');
+    }
+    return (this._instructorRepository ||= new InstructorRepository(
       this._entityManager
     ));
   }
@@ -90,8 +103,10 @@ class UnitOfWork implements IUnitOfWork {
       outboxMessage.content = JSON.stringify(event);
       return outboxMessage;
     });
+    if (outboxMessages.length > 0) {
+      await outboxRepository.save(outboxMessages);
+    }
 
-    await outboxRepository.save(outboxMessages);
     this._domainEvents = [];
   }
 }

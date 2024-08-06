@@ -8,6 +8,7 @@ import { Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { Mediator } from 'mediatr-ts';
 import TokenPayload from '@application/models/TokenPayload.model';
+import CreateInstructorProfileCommand from '@application/features/instructor/command/createProfile/create-profile.command';
 
 @injectable()
 class InstructorController {
@@ -16,20 +17,12 @@ class InstructorController {
   }
 
   public async createProfile(req: Request, res: Response) {
-    const { email, password, username } = req.body as {
-      email: string;
-      password: string;
-      username: string;
-    };
-    // Accediendo al usuario conectado desde res.locals.user
     const connectedUser = res.locals.user as TokenPayload;
 
-    // Ahora puedes usar connectedUser en tu lógica
-    // const command = new LoginCommand(username, email, password);
-    // const tokenResult: Result<AuthenticationResult, ErrorResult> =
-    //   await this._mediator.send(command);
-    // return tokenResult;
-    return connectedUser;
+    const command = new CreateInstructorProfileCommand(connectedUser);
+    const result: Result<AuthenticationResult, ErrorResult> =
+      await this._mediator.send(command);
+    return result;
   }
 }
 

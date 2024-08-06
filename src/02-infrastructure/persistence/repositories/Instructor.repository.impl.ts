@@ -4,12 +4,11 @@ import TYPES from '@config/inversify/identifiers';
 import { injectable, inject } from 'inversify';
 import { Repository, DataSource, EntityManager } from 'typeorm';
 import BaseRepository from './commun/BaseRepository';
-import NaturalPersonDomain from '@domain/persona-aggregate/natural-person/natural-person.domain';
-import PersonEntity from '@persistence/entities/person-aggreagte/person.entity';
-import PersonDTO from '@infrastructure/dto/person.dto';
 import InstructorEntity from '@persistence/entities/instructor-aggregate/instructor.entity';
 import IInstructorRepository from '@domain/intructor-aggregate/root/repository/instructor.repository';
-import RoleDomain from '@domain/user-aggregate/role/role.domain';
+import InstructorDTO from '@infrastructure/dto/instructor-aggregate/instructor.dto';
+import InstructorDomain from '@domain/intructor-aggregate/root/instructor.domain';
+import InstructorSocialMediaEntity from '@persistence/entities/instructor-aggregate/instructor-social-media.entity';
 
 @injectable()
 class InstructorRepository
@@ -17,6 +16,7 @@ class InstructorRepository
   implements IInstructorRepository
 {
   private _repository: Repository<InstructorEntity>;
+  private _instructorSocialMediarepository: Repository<InstructorSocialMediaEntity>;
   constructor(
     @inject(TYPES.DataSource)
     private readonly _dataSourceOrEntityManager: DataSource | EntityManager
@@ -31,32 +31,54 @@ class InstructorRepository
     }
     this._repository =
       this._dataSourceOrEntityManager.getRepository(InstructorEntity);
+    this._instructorSocialMediarepository =
+      this._dataSourceOrEntityManager.getRepository(
+        InstructorSocialMediaEntity
+      );
   }
 
   protected get repository(): Repository<InstructorEntity> {
     return this._repository;
   }
 
-  getById(id: string): Promise<Result<RoleDomain | null, ErrorResult>> {
-    throw new Error('Method not implemented.');
+  async getById(
+    id: string
+  ): Promise<Result<InstructorDomain | null, ErrorResult>> {
+    // const instructorEntity = await this._repository.findOne({
+    //   where: { id: id },
+    //   relations: ['instructorSocialMedia', 'instructorSocialMedia.socialMedia'],
+    // });
+
+    const instructorEntity = await this._repository
+      .createQueryBuilder('instructor')
+      .leftJoinAndSelect('instructor.instructorSocialMedia', 'socialMedia')
+      .leftJoinAndSelect('socialMedia.socialMedia', 'media')
+      .where('instructor.id = :id', { id })
+      .andWhere('instructor.active = :instructorActive', {
+        instructorActive: true,
+      })
+      .andWhere('socialMedia.active = :socialMediaActive', {
+        socialMediaActive: true,
+      })
+      .getOne();
+
+    if (!instructorEntity) {
+      return ok(null);
+    }
+    const instructorDomainResult = InstructorDTO.toDomain(instructorEntity);
+    if (instructorDomainResult.isErr()) {
+      return err(instructorDomainResult.error);
+    }
+    const instructor = instructorDomainResult.value;
+    return ok(instructor);
   }
-  //   async getPersonById(
-  //     id: string
-  //   ): Promise<Result<NaturalPersonDomain | null, ErrorResult>> {
-  //     const personEntity = await this._repository.findOne({
-  //       where: { id: id },
-  //       relations: ['naturalPerson', 'legalPerson', 'emails'],
-  //     });
-  //     console.log('personEntity', personEntity);
-  //     if (!personEntity) {
-  //       return ok(null);
-  //     }
-  //     const personDomainResult = PersonDTO.toDomain(personEntity);
-  //     if (personDomainResult.isErr()) {
-  //       return err(personDomainResult.error);
-  //     }
-  //     const person = personDomainResult.value;
-  //     return ok(person);
-  //   }
+
+  async register(instructorEntity: InstructorDomain): Promise<void> {
+    const instructorDomainResult = InstructorDTO.toEntity(instructorEntity);
+    await this.create(instructorDomainResult);
+    this._instructorSocialMediarepository.save(
+      instructorDomainResult.instructorSocialMedia
+    );
+  }
 }
 export default InstructorRepository;

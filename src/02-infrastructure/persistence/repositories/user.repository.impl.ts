@@ -71,19 +71,15 @@ class UserRepository
     if (!email) {
       return ok(null);
     }
-    const userEntity = await this._repository.findOne({
-      where: {
-        email: email,
-      },
-      relations: [
-        'userRoles',
-        'userRoles.role',
-        // 'person',
-        // 'person.naturalPerson',
-        // 'person.legalPerson',
-        // 'person.emails',
-      ],
-    });
+
+    const userEntity = await this._repository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.userRoles', 'userRole')
+      .leftJoinAndSelect('userRole.role', 'role')
+      .where('user.email = :email', { email })
+      .andWhere('user.active = :userActive', { userActive: true })
+      .andWhere('userRole.active = :userRoleActive', { userRoleActive: true })
+      .getOne();
 
     if (!userEntity) {
       return ok(null);
@@ -101,6 +97,16 @@ class UserRepository
     await this.create(userEntity);
 
     await this._userRolerepository.save(userEntity.userRoles);
+  }
+  async modify(user: UserDomain): Promise<void> {
+    const userEntity = UserDTO.toEntity(user);
+    console.log('userEntity', userEntity);
+
+    await this.repository.save(userEntity);
+    console.log('DDDDDDDDDDDDDD');
+
+    const userRoleEntity = UserDTO.userDomainToUserRoleToEntity(user);
+    await this._userRolerepository.save(userRoleEntity);
   }
 }
 export default UserRepository;

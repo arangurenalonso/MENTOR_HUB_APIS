@@ -6,15 +6,22 @@ import InversifyResolver from '@config/inversify/inversify-resolver';
 import TypeORMInitializer from '@persistence/config/typeorm.config';
 import { mediatorSettings } from 'mediatr-ts';
 import JobServer from '@job/job.server';
-import UserSeeder from './04-seed/user.seed';
-import RoleSeeder from './04-seed/role.seed';
+import UserSeeder from './00-config/seed/user.seed';
+import RoleSeeder from './00-config/seed/role.seed';
 import { Container } from 'inversify';
+import SocialMediaSeeder from '@config/seed/social-media.seed';
 
 async function executeSeed(container: Container) {
   const roleSeeder = container.get<RoleSeeder>(TYPES.RoleSeeder);
   await roleSeeder.seedRoles();
+
   const userSeeder = container.get<UserSeeder>(TYPES.UserSeeder);
   await userSeeder.seedAdminUser();
+
+  const socialMediaSeeder = container.get<SocialMediaSeeder>(
+    TYPES.SocialMediaSeeder
+  );
+  await socialMediaSeeder.seed();
 }
 
 async function main() {

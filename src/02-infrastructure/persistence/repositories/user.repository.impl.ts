@@ -1,5 +1,5 @@
 import { inject, injectable, optional } from 'inversify';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { Brackets, DataSource, EntityManager, Repository } from 'typeorm';
 import TYPES from '@config/inversify/identifiers';
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
@@ -78,8 +78,25 @@ class UserRepository
       .leftJoinAndSelect('userRole.role', 'role')
       .where('user.email = :email', { email })
       .andWhere('user.active = :userActive', { userActive: true })
-      .andWhere('userRole.active = :userRoleActive', { userRoleActive: true })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('userRole.active is null').orWhere(
+            'userRole.active = :userRoleActive',
+            {
+              userRoleActive: true,
+            }
+          );
+        })
+      )
       .getOne();
+    // SELECT * FROM instructor
+    // LEFT JOIN instructor_social_media ON ...
+    // LEFT JOIN social_media ON ...
+    // WHERE instructor.id = :id
+    //   AND instructor.active = :instructorActive
+    //   AND (socialMedia.active IS NULL OR socialMedia.active = :socialMediaActive)
+
+    console.log('userEntity', userEntity);
 
     if (!userEntity) {
       return ok(null);
@@ -96,14 +113,14 @@ class UserRepository
     const userEntity = UserDTO.toEntity(user);
     await this.create(userEntity);
 
-    await this._userRolerepository.save(userEntity.userRoles);
+    const userRoleEntity = UserDTO.userDomainToUserRoleToEntity(user);
+    await this._userRolerepository.save(userRoleEntity);
   }
+
   async modify(user: UserDomain): Promise<void> {
     const userEntity = UserDTO.toEntity(user);
-    console.log('userEntity', userEntity);
-
+    userEntity.active = false;
     await this.repository.save(userEntity);
-    console.log('DDDDDDDDDDDDDD');
 
     const userRoleEntity = UserDTO.userDomainToUserRoleToEntity(user);
     await this._userRolerepository.save(userRoleEntity);

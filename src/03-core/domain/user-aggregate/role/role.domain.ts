@@ -7,23 +7,28 @@ import RoleDescription from './value-object/role-descripcion.value-object';
 export type RoleDomainProperties = {
   id: string;
   description: string;
+  idRelation?: string;
 };
 export type RoleDomainArgs = {
   id?: string;
   description: string;
+  idRelation?: string;
 };
 
 type RoleDomainConstructor = {
   id: RoleId;
   description: RoleDescription;
+  idRelation?: string;
 };
 
 class RoleDomain extends BaseDomain<RoleId> {
   private _description: RoleDescription;
+  private _idRelation?: string;
 
   private constructor(properties: RoleDomainConstructor) {
     super(properties.id);
     this._description = properties.description;
+    this._idRelation = properties.idRelation;
   }
 
   public static create(args: RoleDomainArgs): Result<RoleDomain, ErrorResult> {
@@ -39,7 +44,11 @@ class RoleDomain extends BaseDomain<RoleId> {
     const id = resultId.value;
     const description = resultDescription.value;
 
-    const role = new RoleDomain({ id, description });
+    const role = new RoleDomain({
+      id,
+      description,
+      idRelation: args.idRelation,
+    });
     return ok(role);
   }
 
@@ -47,6 +56,7 @@ class RoleDomain extends BaseDomain<RoleId> {
     return {
       id: this._id.value,
       description: this._description.value,
+      idRelation: this._idRelation,
     };
   }
 }

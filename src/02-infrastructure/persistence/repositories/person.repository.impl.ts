@@ -50,11 +50,6 @@ class PersonRepository
     if (naturalPersonEntityResult.isErr()) {
       return err(naturalPersonEntityResult.error);
     }
-
-    console.log(
-      'naturalPersonEntityResult.value',
-      naturalPersonEntityResult.value
-    );
     const personEntity = naturalPersonEntityResult.value;
     await this._repository.save(personEntity);
     await this._emailRepository.save(personEntity.emails);
@@ -68,7 +63,6 @@ class PersonRepository
       where: { id: id },
       relations: ['naturalPerson', 'legalPerson', 'emails'],
     });
-    console.log('personEntity', personEntity);
     if (!personEntity) {
       return ok(null);
     }

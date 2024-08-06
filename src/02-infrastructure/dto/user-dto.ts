@@ -16,6 +16,7 @@ class UserDTO {
       const roleDomainResult = RoleDomain.create({
         id: userRole.role.id,
         description: userRole.role.description,
+        idRelation: userRole.id,
       });
       if (roleDomainResult.isErr()) {
         return err(roleDomainResult.error);
@@ -56,6 +57,8 @@ class UserDTO {
   ): userRoleEntity[] {
     const userRoles = domain.properties.roles.map((x) => {
       const userRoleEntity = new UserRoleEntity();
+
+      userRoleEntity.id = x.idRelation;
       userRoleEntity.idRol = x.id;
       userRoleEntity.idUser = domain.properties.id;
       return userRoleEntity;

@@ -80,10 +80,7 @@ class CreateInstructorProfileCommandHandler
   private async _getInstructorById(
     id: string
   ): Promise<Result<InstructorDomain | null, ErrorResult>> {
-    const [instructorDomainResult] = await Promise.all([
-      this._InstructorRepository.getById(id),
-    ]);
-
+    const instructorDomainResult = await this._InstructorRepository.getById(id);
     if (instructorDomainResult.isErr()) {
       return err(instructorDomainResult.error);
     }
@@ -142,13 +139,9 @@ class CreateInstructorProfileCommandHandler
     try {
       await this._unitOfWork.startTransaction();
       await this._unitOfWork.instructorRepository.register(instructor);
-      console.log('AAAAAAAAAAAAAAAAAA');
-
       await this._userRepository.modify(userDomain);
-      console.log('BBBBBBBBBBBBBBBBB');
       this._unitOfWork.collectDomainEvents([instructor, userDomain]);
       await this._unitOfWork.commit();
-      console.log('CCCCCCCCCCCCCCCCCCCCCC');
     } catch (error) {
       console.log('error', error);
 

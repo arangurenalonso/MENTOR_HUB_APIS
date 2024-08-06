@@ -44,6 +44,14 @@ async function main() {
 (async () => {
   await main();
 })();
+// delete from email;
+// delete from legal_person;
+// delete from  instructor_social_media;
+// delete from instructor;
+// delete from natural_person;
+// delete from person;
+// delete from user_roles;
+// delete from users;
 
 // Generalización y Especialización de BD
 /**

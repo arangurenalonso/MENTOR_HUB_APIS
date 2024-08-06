@@ -13,6 +13,7 @@ export type SocialMediaDomainArgs = {
   baseUrl: string;
   urlmage?: string;
   urlProfile: string;
+  idRelation?: string;
 };
 
 export type SocialMediaDomainProperties = {
@@ -21,6 +22,7 @@ export type SocialMediaDomainProperties = {
   baseUrl: string;
   urlmage: string | null;
   urlProfile: string;
+  idRelation?: string;
 };
 
 type SocialMediaDomainConstructor = {
@@ -29,6 +31,7 @@ type SocialMediaDomainConstructor = {
   baseURL: BaseURL;
   urlmage: ImageURL | null;
   urlProfile: SocialMediaURLProfile;
+  idRelation?: string;
 };
 
 class SocialMediaDomain extends BaseDomain<SocialMediaId> {
@@ -36,6 +39,7 @@ class SocialMediaDomain extends BaseDomain<SocialMediaId> {
   private _baseURL: BaseURL;
   private _urlmage: ImageURL | null;
   private _urlProfile: SocialMediaURLProfile;
+  private _idRelation?: string;
 
   private constructor(properties: SocialMediaDomainConstructor) {
     super(properties.id);
@@ -43,6 +47,7 @@ class SocialMediaDomain extends BaseDomain<SocialMediaId> {
     this._urlProfile = properties.urlProfile;
     this._baseURL = properties.baseURL;
     this._urlmage = properties.urlmage;
+    this._idRelation = properties.idRelation;
   }
 
   public static create(
@@ -85,6 +90,7 @@ class SocialMediaDomain extends BaseDomain<SocialMediaId> {
       baseURL,
       urlProfile,
       urlmage,
+      idRelation: args.idRelation,
     });
     return ok(socialMedia);
   }
@@ -96,6 +102,7 @@ class SocialMediaDomain extends BaseDomain<SocialMediaId> {
       baseUrl: this._baseURL.value,
       urlProfile: this._urlProfile.value,
       urlmage: this._urlmage?.value || null,
+      idRelation: this._idRelation,
     };
   }
 }

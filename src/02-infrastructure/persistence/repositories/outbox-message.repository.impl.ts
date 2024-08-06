@@ -65,7 +65,7 @@ class OutboxMessageRepository
 
       const event = plainToInstance(EventClass, JSON.parse(message.content));
       domainEvents.push({
-        outboxMessageId: message.id,
+        outboxMessageId: message.id!,
         event: event,
       });
     }

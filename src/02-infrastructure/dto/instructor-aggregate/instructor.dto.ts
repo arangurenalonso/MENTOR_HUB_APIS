@@ -15,6 +15,7 @@ class InstructorDTO {
       baseUrl: entity.socialMedia.baseURL,
       urlmage: entity.socialMedia.urlmage,
       urlProfile: entity.urlProfile,
+      idRelation: entity.id,
     });
     if (domainResult.isErr()) {
       return err(domainResult.error);
@@ -51,7 +52,7 @@ class InstructorDTO {
     const socialMedia = socialMediaResult.value;
 
     const domainResult = InstructorDomain.create({
-      id: entity.id,
+      id: entity.id!,
       websideURL: entity.websideURL,
       headline: entity.headline,
       socialMedia: socialMedia,
@@ -78,6 +79,7 @@ class InstructorDTO {
     const instructorSocialMediaEntity = domain.properties.socialMedia.map(
       (x) => {
         const socialMediaEntity = new InstructorSocialMediaEntity();
+        socialMediaEntity.id = x.idRelation;
         socialMediaEntity.idInstructor = domain.properties.id;
         socialMediaEntity.idSocialMedia = x.id;
         socialMediaEntity.urlProfile = x.urlProfile;

@@ -2,7 +2,7 @@ import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import TYPES from '@config/inversify/identifiers';
 import { injectable, inject } from 'inversify';
-import { Repository, DataSource, EntityManager } from 'typeorm';
+import { Repository, DataSource, EntityManager, Brackets } from 'typeorm';
 import BaseRepository from './commun/BaseRepository';
 import InstructorEntity from '@persistence/entities/instructor-aggregate/instructor.entity';
 import IInstructorRepository from '@domain/intructor-aggregate/root/repository/instructor.repository';
@@ -51,17 +51,28 @@ class InstructorRepository
 
     const instructorEntity = await this._repository
       .createQueryBuilder('instructor')
-      .leftJoinAndSelect('instructor.instructorSocialMedia', 'socialMedia')
-      .leftJoinAndSelect('socialMedia.socialMedia', 'media')
+      .leftJoinAndSelect(
+        'instructor.instructorSocialMedia',
+        'instructorSocialMedia'
+      )
+      .leftJoinAndSelect('instructorSocialMedia.socialMedia', 'socialMedia')
       .where('instructor.id = :id', { id })
       .andWhere('instructor.active = :instructorActive', {
         instructorActive: true,
       })
-      .andWhere('socialMedia.active = :socialMediaActive', {
-        socialMediaActive: true,
-      })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('socialMedia.active is null').orWhere(
+            'socialMedia.active = :socialMediaActive',
+            {
+              socialMediaActive: true,
+            }
+          );
+        })
+      )
       .getOne();
 
+    console.log('instructorEntity', instructorEntity);
     if (!instructorEntity) {
       return ok(null);
     }

@@ -39,17 +39,23 @@ class UserRepository
   async getUserById(
     id: string
   ): Promise<Result<UserDomain | null, ErrorResult>> {
-    const userEntity = await this._repository.findOne({
-      where: { id: id },
-      relations: [
-        'userRoles',
-        'userRoles.role',
-        // 'person',
-        // 'person.naturalPerson',
-        // 'person.legalPerson',
-        // 'person.emails',
-      ],
-    });
+    const userEntity = await this._repository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.userRoles', 'userRole')
+      .leftJoinAndSelect('userRole.role', 'role')
+      .where('user.id = :userId', { userId: id })
+      .andWhere('user.active = :userActive', { userActive: true })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('userRole.active is null').orWhere(
+            'userRole.active = :userRoleActive',
+            {
+              userRoleActive: true,
+            }
+          );
+        })
+      )
+      .getOne();
     if (!userEntity) {
       return ok(null);
     }
@@ -119,7 +125,6 @@ class UserRepository
 
   async modify(user: UserDomain): Promise<void> {
     const userEntity = UserDTO.toEntity(user);
-    userEntity.active = false;
     await this.repository.save(userEntity);
 
     const userRoleEntity = UserDTO.userDomainToUserRoleToEntity(user);

@@ -1,7 +1,15 @@
-import { Entity, Column, OneToMany, OneToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  OneToMany,
+  OneToOne,
+  JoinColumn,
+  ManyToOne,
+} from 'typeorm';
 import UserRoleEntity from './user-role.entity';
 import BaseEntity from '../abstrations/base.entity';
 import PersonEntity from '../person-aggreagte/person.entity';
+import TimeZoneEntity from './time-zone.entity';
 
 @Entity('users')
 class UserEntity extends BaseEntity {
@@ -12,6 +20,17 @@ class UserEntity extends BaseEntity {
 
   // @Column({ type: 'boolean', default: false })
   // emailValidated: boolean = false;
+
+  @Column({ type: 'uuid', nullable: false })
+  idTimeZone!: string;
+
+  @ManyToOne(() => TimeZoneEntity, (timeZone) => timeZone.users)
+  @JoinColumn({
+    name: 'idTimeZone',
+    referencedColumnName: 'id',
+    foreignKeyConstraintName: 'FK_User_TimeZone',
+  })
+  timeZone!: TimeZoneEntity;
 
   @OneToOne(() => PersonEntity, (person) => person.user)
   person?: PersonEntity;

@@ -60,6 +60,13 @@ class LoginCommandHandler
       id: user.properties.id!,
       email: user.properties.email,
       name: person.properties.name,
+      timeZone: {
+        id: user.properties.timeZone.id,
+        description: user.properties.timeZone.description,
+        offsetMinutes: user.properties.timeZone.offsetMinutes,
+        offsetHours: user.properties.timeZone.offsetHours,
+        timeZoneStringId: user.properties.timeZone.timeZoneStringId,
+      },
       roles: user.properties.roles.map((x) => {
         return {
           id: x.id,

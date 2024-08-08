@@ -171,6 +171,13 @@ class CreateInstructorProfileCommandHandler
       id: userDomain.properties.id!,
       email: userDomain.properties.email,
       name: person.properties.name,
+      timeZone: {
+        id: userDomain.properties.timeZone.id,
+        description: userDomain.properties.timeZone.description,
+        offsetMinutes: userDomain.properties.timeZone.offsetMinutes,
+        offsetHours: userDomain.properties.timeZone.offsetHours,
+        timeZoneStringId: userDomain.properties.timeZone.timeZoneStringId,
+      },
       roles: userDomain.properties.roles.map((x) => {
         return {
           id: x.id,

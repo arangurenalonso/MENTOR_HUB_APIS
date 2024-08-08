@@ -4,7 +4,6 @@ import {
   Column,
   CreateDateColumn,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -15,13 +14,33 @@ abstract class BaseEntity {
   @Column({ type: 'boolean', default: true })
   active: boolean = true;
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt?: Date = new Date();
+  // @CreateDateColumn({ name: 'created_at' })
+  // createdAt?: Date = new Date();
+  @CreateDateColumn({
+    name: 'created_at',
+    type: 'timestamp with time zone',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  createdAt?: Date;
 
-  @Column({ type: 'timestamp', name: 'updated_at', nullable: true })
+  // @Column({ type: 'timestamp', name: 'updated_at', nullable: true })
+  // updatedAt?: Date | null;
+
+  @Column({
+    type: 'timestamp with time zone',
+    name: 'updated_at',
+    nullable: true,
+  })
   updatedAt?: Date | null;
 
-  @Column({ type: 'timestamp', name: 'deleted_at', nullable: true })
+  // @Column({ type: 'timestamp', name: 'deleted_at', nullable: true })
+  // deletedAt?: Date | null;
+
+  @Column({
+    type: 'timestamp with time zone',
+    name: 'deleted_at',
+    nullable: true,
+  })
   deletedAt?: Date | null;
 
   @BeforeUpdate()

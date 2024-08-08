@@ -40,7 +40,11 @@ const headingMessage = {
   headingInvalidFormat:
     "Heading can only contain letters, numbers, spaces, and basic punctuation (.,'-).",
 };
+const invalidFormat = {
+  timeZoneInvalidFormat: `The time zone must be in the format 'Region/City', where 'Region' and 'City' can only contain letters, underscores, or hyphens. Example: 'America/New_York'.`,
+};
 const messagesValidator = {
+  ...invalidFormat,
   ...userMessage,
   ...roleMessage,
   ...socialMediaMessage,
@@ -63,5 +67,8 @@ const messagesValidator = {
   invalidURL: (field: string, reasons: string[]) =>
     `The ${field} is invalid URL. ${reasons.join(' ')}`,
   invalidFormat: (field: string) => `${field} contains invalid characters.`,
+  mustBeInteger: (field: string) => `${field} must be an integer.`,
+  range: (field: string, min: number, max: number) =>
+    `${field} must be between ${min} and ${max}.`,
 };
 export default messagesValidator;

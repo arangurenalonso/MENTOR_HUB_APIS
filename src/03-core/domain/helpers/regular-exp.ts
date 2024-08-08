@@ -46,8 +46,20 @@ const aboutMeValidation = {
 };
 const textValidation = {
   textValid: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\.,:;?!¡¿(){}\[\]\-_"&$%@#\/\\]+$/, // Permite letras, números, espacios y puntuaciones comunes
+  timeZoneRegex: /^[A-Za-z]+(?:\/[A-Za-z_-]+)+$/,
 };
+const minuteValidate = {
+  minMinuteValid: 0,
+  maxMinuteValid: 59,
+};
+const hoursOffSetValidate = {
+  minHoursOffSetValid: -12,
+  maxHoursOffSetValid: 14,
+};
+
 const regularExps = {
+  ...minuteValidate,
+  ...hoursOffSetValidate,
   ...headingValidation,
   ...socialMediaValidation,
   ...userValidation,

@@ -6,9 +6,13 @@ import { ErrorResult } from '@domain/abstract/result-abstract';
 import IUserRepository from '@domain/user-aggregate/root/repositories/IUser.repository';
 import UserDomain from '@domain/user-aggregate/root/user.domain';
 import BaseRepository from './commun/BaseRepository';
-import UserDTO from '../../dto/user-dto';
+import UserDTO from '../../dto/user-aggregate/user-dto';
 import UserEntity from '@persistence/entities/user-aggregate/user.entity';
 import UserRoleEntity from '@persistence/entities/user-aggregate/user-role.entity';
+import TimeZoneDomain from '@domain/user-aggregate/timezone/time-zone.domain';
+import { validate as uuidValidate } from 'uuid';
+import TimeZoneDTO from '@infrastructure/dto/user-aggregate/time-zone.dto';
+import TimeZoneEntity from '@persistence/entities/user-aggregate/time-zone.entity';
 
 @injectable()
 class UserRepository
@@ -16,8 +20,8 @@ class UserRepository
   implements IUserRepository
 {
   private _repository: Repository<UserEntity>;
-  private _userRolerepository: Repository<UserRoleEntity>;
-
+  private _userRoleRepository: Repository<UserRoleEntity>;
+  private _timeZoneRepository: Repository<TimeZoneEntity>;
   constructor(
     @inject(TYPES.DataSource)
     private readonly _dataSourceOrEntityManager: DataSource | EntityManager
@@ -32,8 +36,38 @@ class UserRepository
     }
     this._repository =
       this._dataSourceOrEntityManager.getRepository(UserEntity);
-    this._userRolerepository =
+    this._userRoleRepository =
       this._dataSourceOrEntityManager.getRepository(UserRoleEntity);
+    this._timeZoneRepository =
+      this._dataSourceOrEntityManager.getRepository(TimeZoneEntity);
+  }
+
+  protected get repository(): Repository<UserEntity> {
+    return this._repository;
+  }
+
+  async getTimeZoneById(
+    id: string
+  ): Promise<Result<TimeZoneDomain | null, ErrorResult>> {
+    let query = this._timeZoneRepository.createQueryBuilder('timeZone');
+
+    if (uuidValidate(id)) {
+      query = query.where('timeZone.id = :id', { id });
+    } else {
+      // Si no es un UUID, buscar por el campo 'timeZoneStringId'
+      query = query.where('timeZone.timeZoneStringId = :id', { id });
+    }
+    const timeZoneEntity = await query.getOne();
+
+    if (!timeZoneEntity) {
+      return ok(null);
+    }
+
+    const timeZoneResult = TimeZoneDTO.toDomain(timeZoneEntity);
+    if (timeZoneResult.isErr()) {
+      return err(timeZoneResult.error);
+    }
+    return ok(timeZoneResult.value);
   }
 
   async getUserById(
@@ -41,6 +75,7 @@ class UserRepository
   ): Promise<Result<UserDomain | null, ErrorResult>> {
     const userEntity = await this._repository
       .createQueryBuilder('user')
+      .leftJoinAndSelect('user.timeZone', 'timeZone')
       .leftJoinAndSelect('user.userRoles', 'userRole')
       .leftJoinAndSelect('userRole.role', 'role')
       .where('user.id = :userId', { userId: id })
@@ -67,10 +102,6 @@ class UserRepository
     return ok(user);
   }
 
-  protected get repository(): Repository<UserEntity> {
-    return this._repository;
-  }
-
   async getUserByEmail(
     email?: string
   ): Promise<Result<UserDomain | null, ErrorResult>> {
@@ -80,6 +111,7 @@ class UserRepository
 
     const userEntity = await this._repository
       .createQueryBuilder('user')
+      .leftJoinAndSelect('user.timeZone', 'timeZone')
       .leftJoinAndSelect('user.userRoles', 'userRole')
       .leftJoinAndSelect('userRole.role', 'role')
       .where('user.email = :email', { email })
@@ -120,7 +152,7 @@ class UserRepository
     await this.create(userEntity);
 
     const userRoleEntity = UserDTO.userDomainToUserRoleToEntity(user);
-    await this._userRolerepository.save(userRoleEntity);
+    await this._userRoleRepository.save(userRoleEntity);
   }
 
   async modify(user: UserDomain): Promise<void> {
@@ -128,7 +160,7 @@ class UserRepository
     await this.repository.save(userEntity);
 
     const userRoleEntity = UserDTO.userDomainToUserRoleToEntity(user);
-    await this._userRolerepository.save(userRoleEntity);
+    await this._userRoleRepository.save(userRoleEntity);
   }
 }
 export default UserRepository;

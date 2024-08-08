@@ -10,6 +10,7 @@ import UserSeeder from './00-config/seed/user.seed';
 import RoleSeeder from './00-config/seed/role.seed';
 import { Container } from 'inversify';
 import SocialMediaSeeder from '@config/seed/social-media.seed';
+import TimeZoneSeeder from '@config/seed/time-zone.seed';
 
 async function executeSeed(container: Container) {
   const roleSeeder = container.get<RoleSeeder>(TYPES.RoleSeeder);
@@ -18,9 +19,13 @@ async function executeSeed(container: Container) {
   const userSeeder = container.get<UserSeeder>(TYPES.UserSeeder);
   await userSeeder.seedAdminUser();
 
+  const timeZoneSeeder = container.get<TimeZoneSeeder>(TYPES.TimeZoneSeeder);
+  await timeZoneSeeder.seedTimeZones();
+
   const socialMediaSeeder = container.get<SocialMediaSeeder>(
     TYPES.SocialMediaSeeder
   );
+
   await socialMediaSeeder.seed();
 }
 

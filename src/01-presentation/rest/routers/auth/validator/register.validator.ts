@@ -31,5 +31,7 @@ const RegisterValidation = [
       }
       return true;
     }),
+
+  body('timeZone').exists().withMessage(messagesValidator.required('timeZone')),
 ];
 export default RegisterValidation;

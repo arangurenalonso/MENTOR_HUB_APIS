@@ -27,12 +27,13 @@ class AuthController {
     return tokenResult;
   }
   public async register(req: Request, res: Response) {
-    const { email, password, name } = req.body as {
+    const { email, password, name, timeZone } = req.body as {
       email: string;
       password: string;
       name: string;
+      timeZone: string;
     };
-    const command = new RegisterCommand(name, email, password);
+    const command = new RegisterCommand(name, email, password, timeZone);
     const tokenResult = await this._mediator.send(command);
     return tokenResult;
   }

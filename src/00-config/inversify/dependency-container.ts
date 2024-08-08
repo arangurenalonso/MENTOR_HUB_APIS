@@ -48,6 +48,7 @@ import SocialMediaSeeder from '@config/seed/social-media.seed';
 import UserSeeder from '@config/seed/user.seed';
 import CreateInstructorProfileCommand from '@application/features/instructor/command/createProfile/create-profile.command';
 import CreateInstructorProfileCommandHandler from '@application/features/instructor/command/createProfile/create-profile.command.handler';
+import TimeZoneSeeder from '@config/seed/time-zone.seed';
 class DependencyContainer {
   private readonly _container: Container;
 
@@ -77,6 +78,10 @@ class DependencyContainer {
     this._container
       .bind<SocialMediaSeeder>(TYPES.SocialMediaSeeder)
       .to(SocialMediaSeeder);
+
+    this._container
+      .bind<TimeZoneSeeder>(TYPES.TimeZoneSeeder)
+      .to(TimeZoneSeeder);
   }
   private bindJobs(): void {
     this._container

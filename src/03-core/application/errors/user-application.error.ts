@@ -28,6 +28,13 @@ class UserApplicationErrors {
       404
     );
   };
+  static readonly USER_TIMEZONE_NOT_FOUND = (value: string) => {
+    return new ErrorResult(
+      'User.TimeZoneNotFound',
+      `TimeZone with id '${value}' not found`,
+      404
+    );
+  };
 }
 
 export default UserApplicationErrors;

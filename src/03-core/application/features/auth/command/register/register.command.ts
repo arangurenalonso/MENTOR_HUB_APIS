@@ -5,7 +5,8 @@ class RegisterCommand implements IRequest<AuthenticationResult> {
   constructor(
     public readonly name: string,
     public readonly email: string,
-    public readonly password: string
+    public readonly password: string,
+    public readonly timeZoneIdString: string
   ) {}
 }
 export default RegisterCommand;

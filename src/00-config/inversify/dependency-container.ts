@@ -51,6 +51,8 @@ import CreateInstructorProfileCommandHandler from '@application/features/instruc
 import TimeZoneSeeder from '@config/seed/time-zone.seed';
 import DayOfWeekSeeder from '@config/seed/dayOfWeek.seed';
 import TimeOptionSeeder from '@config/seed/time-option.seed';
+import UpdateInstructorAvailabilityCommand from '@application/features/instructor/command/updateAvailability/updateAvailability.command';
+import UpdateInstructorAvailabilityCommandhandler from '@application/features/instructor/command/updateAvailability/updateAvailability.command.handler';
 class DependencyContainer {
   private readonly _container: Container;
 
@@ -177,6 +179,15 @@ class DependencyContainer {
         IRequestHandler<LoginCommand, Result<AuthenticationResult, ErrorResult>>
       >('LoginCommand')
       .to(LoginCommandHandler);
+
+    this._container
+      .bind<
+        IRequestHandler<
+          UpdateInstructorAvailabilityCommand,
+          Result<void, ErrorResult>
+        >
+      >('UpdateInstructorAvailabilityCommand')
+      .to(UpdateInstructorAvailabilityCommandhandler);
 
     this._container
       .bind<

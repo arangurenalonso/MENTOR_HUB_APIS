@@ -9,8 +9,13 @@ import IUserRepository from '@domain/user-aggregate/root/repositories/IUser.repo
 import IPersonRepository from '@domain/persona-aggregate/root/repository/person.repository';
 import ITokenService from '@application/contracts/IToken.service';
 import AuthenticationResult from '@application/models/AuthenticationResult';
-import CreateInstructorProfileCommand from '../createProfile/create-profile.command';
 import UpdateInstructorAvailabilityCommand from './updateAvailability.command';
+import InstructorAvailabilityDomain from '@domain/intructor-aggregate/availability/instructor-availability.domain';
+import AvailabilityRequestDTO from './availability.request.dto';
+import DayOfWeekDomain from '@domain/intructor-aggregate/availability/day-of-week.domain';
+import TimeOptionDomain from '@domain/intructor-aggregate/availability/time-option.domain';
+import CommonApplicationError from '@application/errors/common-application-error';
+import InstructorDomain from '@domain/intructor-aggregate/root/instructor.domain';
 
 @injectable()
 @requestHandler(UpdateInstructorAvailabilityCommand)
@@ -18,27 +23,142 @@ class UpdateInstructorAvailabilityCommandhandler
   implements
     IRequestHandler<
       UpdateInstructorAvailabilityCommand,
-      Result<AuthenticationResult, ErrorResult>
+      Result<void, ErrorResult>
     >
 {
   constructor(
     @inject(TYPES.InstructorRepository)
-    private _InstructorRepository: IInstructorRepository,
-    @inject(TYPES.IPersonRepository)
-    private _personRepository: IPersonRepository,
-    @inject(TYPES.IUserRepository) private _userRepository: IUserRepository,
-    @inject(TYPES.ITokenService) private _tokenService: ITokenService,
+    private _instructorRepository: IInstructorRepository,
     @inject(TYPES.IUnitOfWork) private readonly _unitOfWork: IUnitOfWork
   ) {}
   async handle(
     command: UpdateInstructorAvailabilityCommand
-  ): Promise<Result<AuthenticationResult, ErrorResult>> {
-    // const [instructorDomainResult, userDomainResult] = await Promise.all([
-    //   this._getInstructorById(command.userConnected.id),
-    //   this._getUserById(command.userConnected.id),
-    // ]);
+  ): Promise<Result<void, ErrorResult>> {
+    const fetchEntitiesResult = await this.fetchEntities(
+      command.availability,
+      command.idInstructor
+    );
+    if (fetchEntitiesResult.isErr()) {
+      return err(fetchEntitiesResult.error);
+    }
 
-    return ok(new AuthenticationResult('tokenResult.value', true, ''));
+    const {
+      dayOfWeekDomains: dayOfWeekEntities,
+      timeOptionDomains: timeOptionEntities,
+      instructorDomain,
+    } = fetchEntitiesResult.value;
+
+    const instructorAvailabilityDomainArrayResult = this.convertToDomainArray(
+      command.availability,
+      dayOfWeekEntities,
+      timeOptionEntities
+    );
+
+    if (instructorAvailabilityDomainArrayResult.isErr()) {
+      return err(instructorAvailabilityDomainArrayResult.error);
+    }
+    const resultUpdateAvailability = instructorDomain.updateAvailability(
+      instructorAvailabilityDomainArrayResult.value
+    );
+    if (resultUpdateAvailability.isErr()) {
+      return err(resultUpdateAvailability.error);
+    }
+
+    return ok(undefined);
+  }
+
+  private async fetchEntities(
+    availability: AvailabilityRequestDTO[],
+    idInstructor: string
+  ): Promise<
+    Result<
+      {
+        dayOfWeekDomains: DayOfWeekDomain[];
+        timeOptionDomains: TimeOptionDomain[];
+        instructorDomain: InstructorDomain;
+      },
+      ErrorResult
+    >
+  > {
+    const idsDayOfWeek = [...new Set(availability.map((x) => x.idDayOfWeek))];
+    const idsTimeOption = [
+      ...new Set([
+        ...availability.map((x) => x.idStartTime),
+        ...availability.map((x) => x.idFinalTime),
+      ]),
+    ];
+
+    const [
+      dayOfWeekEntitiesResult,
+      timeOptionEntitiesResult,
+      instructorDomainResult,
+    ] = await Promise.all([
+      this._instructorRepository.getDayOfWeekByIdArray(idsDayOfWeek),
+      this._instructorRepository.getTimeOptionsByIdArray(idsTimeOption),
+      this._instructorRepository.getInstructorById(idInstructor),
+    ]);
+
+    if (dayOfWeekEntitiesResult.isErr()) {
+      return err(dayOfWeekEntitiesResult.error);
+    }
+
+    if (timeOptionEntitiesResult.isErr()) {
+      return err(timeOptionEntitiesResult.error);
+    }
+    if (instructorDomainResult.isErr()) {
+      return err(instructorDomainResult.error);
+    }
+    const instructorDomain = instructorDomainResult.value;
+    if (!instructorDomain) {
+      return err(
+        CommonApplicationError.notFound('Instructor', [
+          {
+            property: 'id',
+            value: idInstructor,
+          },
+        ])
+      );
+    }
+    return ok({
+      dayOfWeekDomains: dayOfWeekEntitiesResult.value,
+      timeOptionDomains: timeOptionEntitiesResult.value,
+      instructorDomain: instructorDomain,
+    });
+  }
+
+  private convertToDomainArray(
+    availability: AvailabilityRequestDTO[],
+    dayOfWeekEntities: DayOfWeekDomain[],
+    timeOptionEntities: TimeOptionDomain[]
+  ): Result<InstructorAvailabilityDomain[], ErrorResult> {
+    const domainArray: InstructorAvailabilityDomain[] = [];
+
+    for (const item of availability) {
+      const dayOfWeek = dayOfWeekEntities.find(
+        (y) => y.properties.id === item.idDayOfWeek
+      );
+      const startTime = timeOptionEntities.find(
+        (y) => y.properties.id === item.idStartTime
+      );
+      const finalTime = timeOptionEntities.find(
+        (y) => y.properties.id === item.idFinalTime
+      );
+
+      const domain = InstructorAvailabilityDomain.create({
+        id: item.id,
+        dayOfWeek: dayOfWeek!,
+        startTime: startTime!,
+        finalTime: finalTime!,
+      });
+
+      if (domain.isErr()) {
+        return err(domain.error);
+      }
+
+      domainArray.push(domain.value);
+    }
+
+    return ok(domainArray);
   }
 }
 export default UpdateInstructorAvailabilityCommandhandler;

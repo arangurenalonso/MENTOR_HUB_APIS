@@ -27,8 +27,8 @@ class TimeOptionSeeder {
       const timeOptionEntity = new TimeOptionEntity();
 
       timeOptionEntity.id = x.id;
-      timeOptionEntity.time = x.time;
-      timeOptionEntity.order = x.order;
+      timeOptionEntity.value = x.time;
+      timeOptionEntity.index = x.order;
 
       return timeOptionEntity;
     });

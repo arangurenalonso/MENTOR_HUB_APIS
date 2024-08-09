@@ -65,7 +65,7 @@ class UserDTO {
     const userRoles = domain.properties.roles.map((x) => {
       const userRoleEntity = new UserRoleEntity();
 
-      userRoleEntity.id = x.idRelation;
+      userRoleEntity.id = x.idRelation!; //TODO
       userRoleEntity.idRol = x.id;
       userRoleEntity.idUser = domain.properties.id;
       return userRoleEntity;

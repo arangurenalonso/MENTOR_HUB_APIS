@@ -1,10 +1,13 @@
-export const dayOfWeekData = [
+export const dayOfWeekData: {
+  id: string;
+  dayName: string;
+  dayIndex: number;
+}[] = [
   {
     id: '1a2b3c4d-5e6f-7890-1234-56789abcdef0',
     dayName: 'Sunday',
     dayIndex: 0,
   },
-  ,
   {
     id: '2b3c4d5e-6f70-8901-2345-6789abcdef01',
     dayName: 'Monday',

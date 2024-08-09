@@ -11,7 +11,7 @@ class InstructorAvailabilityId {
   }
 
   public static create(
-    value?: string
+    value?: string | null
   ): Result<InstructorAvailabilityId, ErrorResult> {
     if (!value) {
       value = uuidv4();

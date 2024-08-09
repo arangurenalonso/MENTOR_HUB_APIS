@@ -17,7 +17,7 @@ export type InstructorAvailabilityDomainProperties = {
   finalTime: TimeOptionDomainProperties;
 };
 export type InstructorAvailabilityDomainArgs = {
-  id?: string;
+  id?: string | null;
   dayOfWeek: DayOfWeekDomain;
   startTime: TimeOptionDomain;
   finalTime: TimeOptionDomain;

@@ -60,6 +60,7 @@ const messagesValidator = {
   ...imageValidation,
   ...headingMessage,
   required: (field: string) => `The field '${field}' is required.`,
+  guidFile: (field: string) => `The field '${field}' must be a GUID.`,
   minLength: (field: string, min: number) =>
     `${field} must be at least ${min} characters long.`,
   maxLength: (field: string, max: number) =>

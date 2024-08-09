@@ -122,6 +122,17 @@ class InstructorDomain extends BaseDomain<InstructorId> {
     });
     return ok(instructorDomain);
   }
+  updateAvailability(
+    availability: InstructorAvailabilityDomain[]
+  ): Result<void, ErrorResult> {
+    const overlapCheck =
+      InstructorDomain.checkAvailabilityOverlap(availability);
+    if (overlapCheck.isErr()) {
+      return err(overlapCheck.error);
+    }
+    this._availability = availability;
+    return ok(undefined);
+  }
   private static checkAvailabilityOverlap(
     availability: InstructorAvailabilityDomain[]
   ): Result<void, ErrorResult> {

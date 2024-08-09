@@ -10,10 +10,10 @@ interface IInstructorRepository {
   ): Promise<Result<InstructorDomain | null, ErrorResult>>;
   getDayOfWeekByIdArray(
     ids: string[]
-  ): Promise<Result<DayOfWeekDomain[] | null, ErrorResult>>;
-  getTimeOptionByIdArray(
+  ): Promise<Result<DayOfWeekDomain[], ErrorResult>>;
+  getTimeOptionsByIdArray(
     ids: string[]
-  ): Promise<Result<TimeOptionDomain[] | null, ErrorResult>>;
+  ): Promise<Result<TimeOptionDomain[], ErrorResult>>;
 
   register(instructor: InstructorDomain): Promise<void>;
 }

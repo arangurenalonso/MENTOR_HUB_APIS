@@ -45,7 +45,7 @@ class AuthenticationMiddleware {
       }
       const tokenDecoded = tokenValidationResult.value;
       res.locals.user = tokenDecoded;
-      // res.locals.roles = tokenValidationResult.value.roles;
+      res.locals.roles = tokenDecoded.roles;
       next();
     } catch (error) {
       console.log('error', error);

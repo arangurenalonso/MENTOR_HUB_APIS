@@ -7,6 +7,8 @@ import LoginValidation from '../auth/validator/login.validator';
 import InstructorController from '@rest/controller/instructor.controller';
 import AuthenticationMiddleware from '@rest/middlewares/authentication.middleware';
 import AuthorizationMiddleware from '@rest/middlewares/authorization.middleware';
+import { RoleEnum } from '@domain/user-aggregate/role/enum/role.enum';
+import AvailabilityValidation from './validator/availability.validator';
 
 @injectable()
 export class InstructorRoutes {
@@ -29,7 +31,16 @@ export class InstructorRoutes {
       this._authenticationMiddleware.use,
       asyncHandlerMiddleware(this._instructorController.createProfile)
     );
+
+    this._router.put(
+      '/availability/:idInstructor',
+      AvailabilityValidation,
+      this._authenticationMiddleware.use,
+      this._authorizationMiddleware.build([RoleEnum.INSTRUCTOR.description]),
+      asyncHandlerMiddleware(this._instructorController.createProfile)
+    );
   }
+
   get router(): Router {
     return this._router;
   }

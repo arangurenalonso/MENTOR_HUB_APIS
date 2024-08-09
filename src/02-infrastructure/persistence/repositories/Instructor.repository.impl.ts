@@ -62,7 +62,7 @@ class InstructorRepository
 
   async getDayOfWeekByIdArray(
     ids: string[]
-  ): Promise<Result<DayOfWeekDomain[] | null, ErrorResult>> {
+  ): Promise<Result<DayOfWeekDomain[], ErrorResult>> {
     const dayOfWeekEntities = await this._dayOfWeekRepository.findBy({
       id: In(ids),
       active: true,
@@ -80,9 +80,9 @@ class InstructorRepository
     }
     return ok(dayOfWeekDomainResult.value);
   }
-  async getTimeOptionByIdArray(
+  async getTimeOptionsByIdArray(
     ids: string[]
-  ): Promise<Result<TimeOptionDomain[] | null, ErrorResult>> {
+  ): Promise<Result<TimeOptionDomain[], ErrorResult>> {
     const timeOptionEntities = await this._timeOptionRepository.findBy({
       id: In(ids),
       active: true,

@@ -1,8 +1,8 @@
-type rolesType = {
+export type rolesType = {
   id: string;
   description: string;
 };
-type timeZoneType = {
+export type timeZoneType = {
   id: string;
   offsetMinutes: number;
   offsetHours: number;

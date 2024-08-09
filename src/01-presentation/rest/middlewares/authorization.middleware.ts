@@ -1,3 +1,4 @@
+import { rolesType } from '@application/models/TokenPayload.model';
 import { NextFunction, Request, Response } from 'express';
 import { injectable } from 'inversify';
 @injectable()
@@ -15,12 +16,13 @@ class AuthorizationMiddleware {
       next: NextFunction
     ): Promise<void> => {
       try {
-        const roles = res.locals.roles;
-        // console.log("roles: ", roles);
-        // console.log("rolesAllowed: ", rolesAllowed);
+        const roles: rolesType[] = res.locals.roles;
+        const rolesString = roles.map((x) =>
+          x.description.trim().toUpperCase()
+        );
 
         for (const roleAllowed of rolesAllowed) {
-          if (roles.includes(roleAllowed)) {
+          if (rolesString.includes(roleAllowed.trim().toUpperCase())) {
             return next();
           }
         }

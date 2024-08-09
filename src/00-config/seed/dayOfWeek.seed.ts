@@ -26,8 +26,8 @@ class DayOfWeekSeeder {
       const dayOfWeekEntity = new DayOfWeekEntity();
 
       dayOfWeekEntity.id = x.id;
-      dayOfWeekEntity.dayName = x.dayName;
-      dayOfWeekEntity.dayIndex = x.dayIndex;
+      dayOfWeekEntity.name = x.dayName;
+      dayOfWeekEntity.index = x.dayIndex;
 
       return dayOfWeekEntity;
     });

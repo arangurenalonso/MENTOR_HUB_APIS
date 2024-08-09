@@ -2,13 +2,21 @@ import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import TYPES from '@config/inversify/identifiers';
 import { injectable, inject } from 'inversify';
-import { Repository, DataSource, EntityManager, Brackets } from 'typeorm';
+import { Repository, DataSource, EntityManager, Brackets, In } from 'typeorm';
 import BaseRepository from './commun/BaseRepository';
 import InstructorEntity from '@persistence/entities/instructor-aggregate/instructor.entity';
 import IInstructorRepository from '@domain/intructor-aggregate/root/repository/instructor.repository';
 import InstructorDTO from '@infrastructure/dto/instructor-aggregate/instructor.dto';
 import InstructorDomain from '@domain/intructor-aggregate/root/instructor.domain';
 import InstructorSocialMediaEntity from '@persistence/entities/instructor-aggregate/instructor-social-media.entity';
+import DayOfWeekEntity from '@persistence/entities/instructor-aggregate/day-of-week.entity';
+import InstructorAvailabilityEntity from '@persistence/entities/instructor-aggregate/intructor-availability.entity';
+import TimeOptionEntity from '@persistence/entities/instructor-aggregate/time-options.entity';
+import DayOfWeekDomain from '@domain/intructor-aggregate/availability/day-of-week.domain';
+import DayOfWeekDTO from '@infrastructure/dto/instructor-aggregate/day-of-week.dto';
+import CommonInfrastructureError from '@infrastructure/error/common-error';
+import TimeOptionDomain from '@domain/intructor-aggregate/availability/time-option.domain';
+import TimeOptionDTO from '@infrastructure/dto/instructor-aggregate/time-option.dto';
 
 @injectable()
 class InstructorRepository
@@ -16,7 +24,10 @@ class InstructorRepository
   implements IInstructorRepository
 {
   private _repository: Repository<InstructorEntity>;
-  private _instructorSocialMediarepository: Repository<InstructorSocialMediaEntity>;
+  private _instructorSocialMediaRepository: Repository<InstructorSocialMediaEntity>;
+  private _dayOfWeekRepository: Repository<DayOfWeekEntity>;
+  private _instructorAvailabilityRepository: Repository<InstructorAvailabilityEntity>;
+  private _timeOptionRepository: Repository<TimeOptionEntity>;
   constructor(
     @inject(TYPES.DataSource)
     private readonly _dataSourceOrEntityManager: DataSource | EntityManager
@@ -31,17 +42,69 @@ class InstructorRepository
     }
     this._repository =
       this._dataSourceOrEntityManager.getRepository(InstructorEntity);
-    this._instructorSocialMediarepository =
+    this._instructorSocialMediaRepository =
       this._dataSourceOrEntityManager.getRepository(
         InstructorSocialMediaEntity
       );
+    this._dayOfWeekRepository =
+      this._dataSourceOrEntityManager.getRepository(DayOfWeekEntity);
+    this._instructorAvailabilityRepository =
+      this._dataSourceOrEntityManager.getRepository(
+        InstructorAvailabilityEntity
+      );
+    this._timeOptionRepository =
+      this._dataSourceOrEntityManager.getRepository(TimeOptionEntity);
   }
 
   protected get repository(): Repository<InstructorEntity> {
     return this._repository;
   }
 
-  async getById(
+  async getDayOfWeekByIdArray(
+    ids: string[]
+  ): Promise<Result<DayOfWeekDomain[] | null, ErrorResult>> {
+    const dayOfWeekEntities = await this._dayOfWeekRepository.findBy({
+      id: In(ids),
+      active: true,
+    });
+    const foundIds = dayOfWeekEntities.map((entity) => entity.id);
+    const missingIds = ids.filter((id) => !foundIds.includes(id));
+
+    if (missingIds.length > 0) {
+      return err(CommonInfrastructureError.missingIds(missingIds, 'DayOfWeek'));
+    }
+
+    const dayOfWeekDomainResult = DayOfWeekDTO.toDomainArray(dayOfWeekEntities);
+    if (dayOfWeekDomainResult.isErr()) {
+      return err(dayOfWeekDomainResult.error);
+    }
+    return ok(dayOfWeekDomainResult.value);
+  }
+  async getTimeOptionByIdArray(
+    ids: string[]
+  ): Promise<Result<TimeOptionDomain[] | null, ErrorResult>> {
+    const timeOptionEntities = await this._timeOptionRepository.findBy({
+      id: In(ids),
+      active: true,
+    });
+    const foundIds = timeOptionEntities.map((entity) => entity.id);
+    const missingIds = ids.filter((id) => !foundIds.includes(id));
+
+    if (missingIds.length > 0) {
+      return err(
+        CommonInfrastructureError.missingIds(missingIds, 'TimeOptionEntity')
+      );
+    }
+
+    const timeOptionDomainResult =
+      TimeOptionDTO.toDomainArray(timeOptionEntities);
+    if (timeOptionDomainResult.isErr()) {
+      return err(timeOptionDomainResult.error);
+    }
+    return ok(timeOptionDomainResult.value);
+  }
+
+  async getInstructorById(
     id: string
   ): Promise<Result<InstructorDomain | null, ErrorResult>> {
     // const instructorEntity = await this._repository.findOne({
@@ -71,8 +134,6 @@ class InstructorRepository
         })
       )
       .getOne();
-
-    console.log('instructorEntity', instructorEntity);
     if (!instructorEntity) {
       return ok(null);
     }
@@ -87,7 +148,7 @@ class InstructorRepository
   async register(instructorEntity: InstructorDomain): Promise<void> {
     const instructorDomainResult = InstructorDTO.toEntity(instructorEntity);
     await this.create(instructorDomainResult);
-    this._instructorSocialMediarepository.save(
+    this._instructorSocialMediaRepository.save(
       instructorDomainResult.instructorSocialMedia
     );
   }

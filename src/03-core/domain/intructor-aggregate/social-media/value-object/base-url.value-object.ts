@@ -1,7 +1,7 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
-import regularExps from '@domain/helpers/regular-exp';
+import domainRules from '@domain/helpers/regular-exp';
 import SocialMediaErrors from '../error/social-media.error';
 
 class BaseURL {
@@ -46,7 +46,7 @@ class BaseURL {
       reasons.push(messagesValidator.invalidURLFormat('WebsiteURL', value));
     }
 
-    if (!regularExps.protocolRegex.test(value)) {
+    if (!domainRules.protocolRegex.test(value)) {
       reasons.push(messagesValidator.invalidProtocol('WebsiteURL', value));
     }
 

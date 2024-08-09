@@ -1,54 +1,25 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
-import SocialMediaDomain from '@domain/intructor-aggregate/social-media/social-media.domain';
-import InstructorSocialMediaEntity from '@persistence/entities/instructor-aggregate/instructor-social-media.entity';
 import InstructorEntity from '@persistence/entities/instructor-aggregate/instructor.entity';
 import InstructorDomain from '@domain/intructor-aggregate/root/instructor.domain';
+import InstructorSocialMediaDTO from './intructor-social-media.dto';
+import InstructorAvailabilityDTO from './instructor-availability';
 
 class InstructorDTO {
-  public static socialMediaToDomain(
-    entity: InstructorSocialMediaEntity
-  ): Result<SocialMediaDomain, ErrorResult> {
-    const domainResult = SocialMediaDomain.create({
-      id: entity.id,
-      description: entity.socialMedia.description,
-      baseUrl: entity.socialMedia.baseURL,
-      urlmage: entity.socialMedia.urlmage,
-      urlProfile: entity.urlProfile,
-      idRelation: entity.id,
-    });
-    if (domainResult.isErr()) {
-      return err(domainResult.error);
-    }
-    return ok(domainResult.value);
-  }
-
-  public static socialMediaToDomainArray(
-    entities?: InstructorSocialMediaEntity[] | null
-  ): Result<SocialMediaDomain[], ErrorResult> {
-    if (!entities) {
-      return ok([]);
-    }
-    const socialMediaDomain: SocialMediaDomain[] = [];
-    for (const entity of entities) {
-      const entityResult = this.socialMediaToDomain(entity);
-      if (entityResult.isErr()) {
-        return err(entityResult.error);
-      }
-      socialMediaDomain.push(entityResult.value);
-    }
-    return ok(socialMediaDomain);
-  }
   public static toDomain(
     entity: InstructorEntity
   ): Result<InstructorDomain, ErrorResult> {
-    const socialMediaResult = this.socialMediaToDomainArray(
+    const socialMediaResult = InstructorSocialMediaDTO.ToDomainArray(
       entity.instructorSocialMedia
     );
     if (socialMediaResult.isErr()) {
       return err(socialMediaResult.error);
     }
-
+    const instructorAvailabilityResult =
+      InstructorAvailabilityDTO.toDomainArray(entity.availability);
+    if (instructorAvailabilityResult.isErr()) {
+      return err(instructorAvailabilityResult.error);
+    }
     const socialMedia = socialMediaResult.value;
 
     const domainResult = InstructorDomain.create({
@@ -60,6 +31,7 @@ class InstructorDTO {
       introductionText: entity.introduction,
       teachingExperienceText: entity.teachingExperience,
       motivationText: entity.motivation,
+      availability: instructorAvailabilityResult.value,
     });
     if (domainResult.isErr()) {
       return err(domainResult.error);
@@ -76,16 +48,11 @@ class InstructorDTO {
     entity.teachingExperience = domain.properties.teachingExperienceText;
     entity.motivation = domain.properties.motivationText;
 
-    const instructorSocialMediaEntity = domain.properties.socialMedia.map(
-      (x) => {
-        const socialMediaEntity = new InstructorSocialMediaEntity();
-        socialMediaEntity.id = x.idRelation;
-        socialMediaEntity.idInstructor = domain.properties.id;
-        socialMediaEntity.idSocialMedia = x.id;
-        socialMediaEntity.urlProfile = x.urlProfile;
-        return socialMediaEntity;
-      }
+    const instructorSocialMediaEntity = InstructorSocialMediaDTO.toEntityArray(
+      domain.properties.id,
+      domain.properties.socialMedia
     );
+
     entity.instructorSocialMedia = instructorSocialMediaEntity;
     return entity;
   }

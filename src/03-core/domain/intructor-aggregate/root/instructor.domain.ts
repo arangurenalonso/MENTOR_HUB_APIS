@@ -9,6 +9,10 @@ import SocialMediaDomain, {
 import WebsiteURL from './value-object/website_url.value-object';
 import Heading from './value-object/heading.value-object';
 import AboutMe from './value-object/about-me.value-object';
+import InstructorAvailabilityDomain, {
+  InstructorAvailabilityDomainProperties,
+} from '../availability/instructor-availability.domain';
+import InstructorAvailabilityDomainErrors from '../availability/error/instructor.domain.error';
 
 type InstructorDomainProperties = {
   id: string;
@@ -19,6 +23,7 @@ type InstructorDomainProperties = {
   introductionText: string;
   teachingExperienceText: string;
   motivationText: string;
+  availability: InstructorAvailabilityDomainProperties[];
 };
 
 type InstructorDomainCreateArg = {
@@ -30,6 +35,7 @@ type InstructorDomainCreateArg = {
   introductionText?: string | null;
   teachingExperienceText?: string | null;
   motivationText?: string | null;
+  availability?: InstructorAvailabilityDomain[];
 };
 
 type InstructorDomainConstructor = {
@@ -39,6 +45,7 @@ type InstructorDomainConstructor = {
   socialMedia: SocialMediaDomain[];
   naturalPerson?: NaturalPersonDomain | null;
   aboutMe: AboutMe;
+  availability: InstructorAvailabilityDomain[];
 };
 
 class InstructorDomain extends BaseDomain<InstructorId> {
@@ -47,6 +54,7 @@ class InstructorDomain extends BaseDomain<InstructorId> {
   private _socialMedia: SocialMediaDomain[] = [];
   private _headline: Heading | null;
   private _aboutMe: AboutMe;
+  private _availability: InstructorAvailabilityDomain[];
 
   private constructor(properties: InstructorDomainConstructor) {
     super(properties.id);
@@ -55,6 +63,7 @@ class InstructorDomain extends BaseDomain<InstructorId> {
     this._socialMedia = properties.socialMedia || [];
     this._headline = properties.headline;
     this._aboutMe = properties.aboutMe;
+    this._availability = properties.availability;
   }
 
   public static create(
@@ -94,6 +103,13 @@ class InstructorDomain extends BaseDomain<InstructorId> {
       }
     }
     const headline = resultHeading.value;
+    const availability = args.availability || [];
+
+    const overlapCheck =
+      InstructorDomain.checkAvailabilityOverlap(availability);
+    if (overlapCheck.isErr()) {
+      return err(overlapCheck.error);
+    }
 
     const instructorDomain = new InstructorDomain({
       id,
@@ -102,8 +118,56 @@ class InstructorDomain extends BaseDomain<InstructorId> {
       socialMedia,
       headline,
       aboutMe,
+      availability,
     });
     return ok(instructorDomain);
+  }
+  private static checkAvailabilityOverlap(
+    availability: InstructorAvailabilityDomain[]
+  ): Result<void, ErrorResult> {
+    const availabilityByDay: { [key: number]: InstructorAvailabilityDomain[] } =
+      {};
+
+    availability.forEach((a) => {
+      const dayIndex = a.properties.dayOfWeek.dayIndex;
+      if (!availabilityByDay[dayIndex]) {
+        availabilityByDay[dayIndex] = [];
+      }
+      availabilityByDay[dayIndex].push(a);
+    });
+
+    // Comprobar solapamientos dentro de cada día
+    for (const dayIndex in availabilityByDay) {
+      const dayAvailabilities = availabilityByDay[dayIndex];
+
+      if (dayAvailabilities.length == 0 || dayAvailabilities.length == 1) {
+        continue;
+      }
+      // Ordenar las disponibilidades por hora de inicio para simplificar la comprobación
+      dayAvailabilities.sort(
+        (a, b) => a.properties.startTime.index - b.properties.startTime.index
+      );
+      for (let i = 0; i < dayAvailabilities.length - 1; i++) {
+        const current = dayAvailabilities[i];
+        const next = dayAvailabilities[i + 1];
+
+        if (
+          current.properties.finalTime.index > next.properties.startTime.index
+        ) {
+          return err(
+            InstructorAvailabilityDomainErrors.OVERLAPPING_TIME(
+              current.properties.dayOfWeek.dayName,
+              current.properties.startTime.value,
+              current.properties.finalTime.value,
+              next.properties.startTime.value,
+              next.properties.finalTime.value
+            )
+          );
+        }
+      }
+    }
+
+    return ok(undefined);
   }
 
   get properties(): InstructorDomainProperties {
@@ -118,6 +182,9 @@ class InstructorDomain extends BaseDomain<InstructorId> {
       introductionText: this._aboutMe.introduction.value,
       teachingExperienceText: this._aboutMe.teachingExperience.value,
       motivationText: this._aboutMe.motivation.value,
+      availability: this._availability.map(
+        (availability) => availability.properties
+      ),
     };
   }
 }

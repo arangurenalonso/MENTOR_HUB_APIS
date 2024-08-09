@@ -1,3 +1,5 @@
+import domainRules from './regular-exp';
+
 const userMessage = {
   emailValid: "It's not a valid email.",
 };
@@ -42,6 +44,10 @@ const headingMessage = {
 };
 const invalidFormat = {
   timeZoneInvalidFormat: `The time zone must be in the format 'Region/City', where 'Region' and 'City' can only contain letters, underscores, or hyphens. Example: 'America/New_York'.`,
+  invalidDayNameFormat: `The day name must be one of the following: ${domainRules.dayNameValid.join(
+    ', '
+  )}.`,
+  invalidTimeFormat: `The time must be in the format 'HH:mm', where 'HH' is a two-digit hour between 00 and 23, and 'mm' is a two-digit minute between 00 and 59. Example: '14:30'.`,
 };
 const messagesValidator = {
   ...invalidFormat,

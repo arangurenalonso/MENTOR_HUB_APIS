@@ -1,6 +1,6 @@
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
-import regularExps from '@domain/helpers/regular-exp';
+import domainRules from '@domain/helpers/regular-exp';
 import { err, ok, Result } from 'neverthrow';
 
 class Description {
@@ -19,7 +19,7 @@ class Description {
     }
     value = value.trim();
 
-    if (!regularExps.textValid.test(value)) {
+    if (!domainRules.textValid.test(value)) {
       return err(
         new ErrorResult(
           `${type.toUpperCase()}_INVALID`,

@@ -2,7 +2,7 @@ import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import Description from './description.value-object';
 import messagesValidator from '@domain/helpers/messages-validator';
-import regularExps from '@domain/helpers/regular-exp';
+import domainRules from '@domain/helpers/regular-exp';
 
 class AboutMe {
   private readonly _introduction: Description;
@@ -45,11 +45,11 @@ class AboutMe {
       teachingExperienceResult.value.value.length +
       motivationResult.value.value.length;
 
-    if (totalWords > regularExps.aboutMeMaxLength) {
+    if (totalWords > domainRules.aboutMeMaxLength) {
       return err(
         new ErrorResult(
           'ABOUT_ME_TOO_LONG',
-          messagesValidator.maxLength('About Me', regularExps.aboutMeMaxLength),
+          messagesValidator.maxLength('About Me', domainRules.aboutMeMaxLength),
           400
         )
       );

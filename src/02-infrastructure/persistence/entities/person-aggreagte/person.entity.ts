@@ -15,6 +15,9 @@ class PersonEntity extends BaseEntity {
   })
   personType?: PersonTypeEnum;
 
+  // @Column({ type: 'varchar', nullable: true })
+  // photoUrl?: string;
+
   @OneToOne(() => UserEntity)
   @JoinColumn({ name: 'id' })
   user!: UserEntity;

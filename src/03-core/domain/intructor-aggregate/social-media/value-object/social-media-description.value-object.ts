@@ -2,7 +2,7 @@ import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
 import SocialMediaErrors from '../error/social-media.error';
-import regularExps from '@domain/helpers/regular-exp';
+import domainRules from '@domain/helpers/regular-exp';
 
 class SocialMediaDescription {
   private readonly _value: string;
@@ -36,21 +36,21 @@ class SocialMediaDescription {
       reasons.push(messagesValidator.empty('Social Media Description'));
       return { isValid: false, reasons };
     }
-    if (!regularExps.socialMediaDescription.test(value)) {
+    if (!domainRules.socialMediaDescription.test(value)) {
       reasons.push(messagesValidator.socialMediaDescriptionInvalidFormat);
     }
-    if (value?.length < regularExps.socialMediaDescriptionMinLength) {
+    if (value?.length < domainRules.socialMediaDescriptionMinLength) {
       reasons.push(
         messagesValidator.minLength(
           'Social Media Description',
-          regularExps.socialMediaDescriptionMinLength
+          domainRules.socialMediaDescriptionMinLength
         )
       );
     }
-    if (value?.length > regularExps.socialMediaDescriptionMaxLength) {
+    if (value?.length > domainRules.socialMediaDescriptionMaxLength) {
       messagesValidator.maxLength(
         'Social Media Description',
-        regularExps.socialMediaDescriptionMaxLength
+        domainRules.socialMediaDescriptionMaxLength
       );
     }
 

@@ -1,7 +1,7 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
-import regularExps from '@domain/helpers/regular-exp';
+import domainRules from '@domain/helpers/regular-exp';
 import InstructorDomainErrors from '../error/instructor.domain.error';
 
 class Heading {
@@ -38,17 +38,17 @@ class Heading {
     if (!value) {
       reasons.push(messagesValidator.empty('Heading'));
     }
-    if (value.length < regularExps.headingMinLength) {
+    if (value.length < domainRules.headingMinLength) {
       reasons.push(
-        messagesValidator.minLength('Heading', regularExps.headingMinLength)
+        messagesValidator.minLength('Heading', domainRules.headingMinLength)
       );
     }
-    if (value.length > regularExps.headingMaxLength) {
+    if (value.length > domainRules.headingMaxLength) {
       reasons.push(
-        messagesValidator.maxLength('Heading', regularExps.headingMaxLength)
+        messagesValidator.maxLength('Heading', domainRules.headingMaxLength)
       );
     }
-    if (!regularExps.headingValid.test(value)) {
+    if (!domainRules.headingValid.test(value)) {
       reasons.push(messagesValidator.headingInvalidFormat);
     }
 

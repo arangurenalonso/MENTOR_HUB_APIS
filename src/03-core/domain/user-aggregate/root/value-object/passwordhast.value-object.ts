@@ -1,6 +1,6 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
-import regularExps from '@domain/helpers/regular-exp';
+import domainRules from '@domain/helpers/regular-exp';
 import UserErrors from '../error/user-error';
 import messagesValidator from '@domain/helpers/messages-validator';
 
@@ -29,7 +29,7 @@ class PasswordHash {
   }
   private static isHashed(value: string): boolean {
     // Bcrypt hashes start with $2a$, $2b$, $2y$, or $2x$, followed by the cost factor (2 digits) and a 22-character salt
-    return regularExps.bcryptHash.test(value);
+    return domainRules.bcryptHash.test(value);
   }
   private static validate(value: string): {
     isValid: boolean;
@@ -37,19 +37,19 @@ class PasswordHash {
   } {
     const reasons: string[] = [];
 
-    if (!value.match(regularExps.passwordLength)) {
+    if (!value.match(domainRules.passwordLength)) {
       reasons.push(messagesValidator.passwordLength);
     }
-    if (!value.match(regularExps.passwordLowercase)) {
+    if (!value.match(domainRules.passwordLowercase)) {
       reasons.push(messagesValidator.passwordLowercase);
     }
-    if (!value.match(regularExps.passwordUppercase)) {
+    if (!value.match(domainRules.passwordUppercase)) {
       reasons.push(messagesValidator.passwordUppercase);
     }
-    if (!value.match(regularExps.passwordNumber)) {
+    if (!value.match(domainRules.passwordNumber)) {
       reasons.push(messagesValidator.passwordNumber);
     }
-    if (!value.match(regularExps.passwordSpecialChar)) {
+    if (!value.match(domainRules.passwordSpecialChar)) {
       reasons.push(messagesValidator.passwordSpecialChar);
     }
 

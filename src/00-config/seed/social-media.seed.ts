@@ -12,7 +12,7 @@ class SocialMediaSeeder {
     this.dataSource = dataSource;
   }
 
-  async seed(): Promise<void> {
+  async seedData(): Promise<void> {
     const socialMediaRepository =
       this.dataSource.getRepository(SocialMediaEntity);
 

@@ -2,7 +2,7 @@ import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
 import TimeZoneErrors from '@domain/user-aggregate/timezone/error/time-zone.error';
-import regularExps from '@domain/helpers/regular-exp';
+import domainRules from '@domain/helpers/regular-exp';
 
 class TimeZoneStringId {
   private readonly _value: string;
@@ -34,7 +34,7 @@ class TimeZoneStringId {
       return { isValid: false, reasons };
     }
 
-    if (!regularExps.timeZoneRegex.test(value)) {
+    if (!domainRules.timeZoneRegex.test(value)) {
       reasons.push(messagesValidator.timeZoneInvalidFormat);
     }
 

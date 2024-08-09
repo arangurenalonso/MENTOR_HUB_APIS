@@ -12,11 +12,11 @@ class TimeZoneSeeder {
     this.dataSource = dataSource;
   }
 
-  async seedTimeZones(): Promise<void> {
+  async seedData(): Promise<void> {
     const timeZoneRepository = this.dataSource.getRepository(TimeZoneEntity);
 
     // Verificar si existen registros en la tabla
-    const count = await timeZoneRepository.count();
+    // const count = await timeZoneRepository.count();
 
     // if (count > 0) {
     //   console.log('TimeZone data already exists, skipping seeding.');

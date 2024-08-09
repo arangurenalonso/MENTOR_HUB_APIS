@@ -1,7 +1,7 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
-import regularExps from '@domain/helpers/regular-exp';
+import domainRules from '@domain/helpers/regular-exp';
 import InstructorDomainErrors from '@domain/intructor-aggregate/root/error/instructor.domain.error';
 
 class ImageURL {
@@ -34,15 +34,15 @@ class ImageURL {
   } {
     const reasons: string[] = [];
 
-    if (!regularExps.protocolRegex.test(value)) {
+    if (!domainRules.protocolRegex.test(value)) {
       reasons.push(messagesValidator.invalidProtocol('WebsiteURL', value));
     }
-    const domain = value.replace(regularExps.protocolRegex, '').split('/')[0];
-    if (!regularExps.domainRegex.test(domain)) {
+    const domain = value.replace(domainRules.protocolRegex, '').split('/')[0];
+    if (!domainRules.domainRegex.test(domain)) {
       reasons.push(messagesValidator.invalidDomain('WebsiteURL', domain));
     }
 
-    if (!regularExps.pathRegex.test(value)) {
+    if (!domainRules.pathRegex.test(value)) {
       reasons.push(messagesValidator.invalidPath('WebsiteURL', value));
     }
 

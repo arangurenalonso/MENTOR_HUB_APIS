@@ -1,7 +1,7 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
-import regularExps from '@domain/helpers/regular-exp';
+import domainRules from '@domain/helpers/regular-exp';
 import InstructorDomainErrors from '../error/instructor.domain.error';
 
 class WebsiteURL {
@@ -34,15 +34,15 @@ class WebsiteURL {
   } {
     const reasons: string[] = [];
 
-    if (!regularExps.protocolRegex.test(value)) {
+    if (!domainRules.protocolRegex.test(value)) {
       reasons.push(messagesValidator.invalidProtocol('WebsiteURL', value));
     }
 
-    if (!regularExps.domainRegex.test(value)) {
+    if (!domainRules.domainRegex.test(value)) {
       reasons.push(messagesValidator.invalidDomain('WebsiteURL', value));
     }
 
-    if (!regularExps.pathRegex.test(value)) {
+    if (!domainRules.pathRegex.test(value)) {
       reasons.push(messagesValidator.invalidPath('WebsiteURL', value));
     }
 

@@ -13,7 +13,7 @@ export type SocialMediaDomainArgs = {
   baseUrl: string;
   urlmage?: string;
   urlProfile: string;
-  idRelation?: string;
+  idRelation: string;
 };
 
 export type SocialMediaDomainProperties = {
@@ -22,7 +22,7 @@ export type SocialMediaDomainProperties = {
   baseUrl: string;
   urlmage: string | null;
   urlProfile: string;
-  idRelation?: string;
+  idRelation: string;
 };
 
 type SocialMediaDomainConstructor = {
@@ -31,7 +31,7 @@ type SocialMediaDomainConstructor = {
   baseURL: BaseURL;
   urlmage: ImageURL | null;
   urlProfile: SocialMediaURLProfile;
-  idRelation?: string;
+  idRelation: string;
 };
 
 class SocialMediaDomain extends BaseDomain<SocialMediaId> {
@@ -39,7 +39,7 @@ class SocialMediaDomain extends BaseDomain<SocialMediaId> {
   private _baseURL: BaseURL;
   private _urlmage: ImageURL | null;
   private _urlProfile: SocialMediaURLProfile;
-  private _idRelation?: string;
+  private _idRelation: string;
 
   private constructor(properties: SocialMediaDomainConstructor) {
     super(properties.id);

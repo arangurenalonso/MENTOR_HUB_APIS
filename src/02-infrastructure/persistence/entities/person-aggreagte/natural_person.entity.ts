@@ -12,9 +12,6 @@ class NaturalPersonEntity {
   @Column({ type: 'date', nullable: true })
   birthdate?: Date | null;
 
-  // @Column({ type: 'varchar', nullable: true })
-  // photoUrl?: string;
-
   @OneToOne(() => PersonEntity)
   @JoinColumn({ name: 'id' })
   person!: PersonEntity;

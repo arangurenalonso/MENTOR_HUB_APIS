@@ -2,7 +2,7 @@ import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import PersonErrors from '../../root/error/person.error';
 import messagesValidator from '@domain/helpers/messages-validator';
-import regularExps from '@domain/helpers/regular-exp';
+import domainRules from '@domain/helpers/regular-exp';
 
 class Name {
   private readonly _value: string;
@@ -33,17 +33,17 @@ class Name {
     if (!value) {
       reasons.push(messagesValidator.empty('name'));
     }
-    if (value?.length < regularExps.nameMinLength) {
+    if (value?.length < domainRules.personNameMinLength) {
       reasons.push(
-        messagesValidator.minLength('name', regularExps.nameMinLength)
+        messagesValidator.minLength('name', domainRules.personNameMinLength)
       );
     }
-    if (value?.length > regularExps.nameMaxLength) {
+    if (value?.length > domainRules.personNameMaxLength) {
       reasons.push(
-        messagesValidator.maxLength('name', regularExps.nameMaxLength)
+        messagesValidator.maxLength('name', domainRules.personNameMaxLength)
       );
     }
-    if (!regularExps.nameValid.test(value)) {
+    if (!domainRules.personNameValid.test(value)) {
       reasons.push(messagesValidator.nameInvalidFormat);
     }
 

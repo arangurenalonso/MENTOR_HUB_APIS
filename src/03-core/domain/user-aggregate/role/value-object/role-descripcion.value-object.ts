@@ -2,7 +2,7 @@ import RoleErrors from '../error/role.error';
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
-import regularExps from '@domain/helpers/regular-exp';
+import domainRules from '@domain/helpers/regular-exp';
 
 class RoleDescription {
   private readonly _value: string;
@@ -32,24 +32,24 @@ class RoleDescription {
       reasons.push(messagesValidator.empty('Role Description'));
       return { isValid: false, reasons };
     }
-    if (!regularExps.roleDescription.test(value)) {
+    if (!domainRules.roleDescription.test(value)) {
       reasons.push(messagesValidator.roleDescriptionInvalidFormat);
     }
-    if (value?.length < regularExps.roleDescriptionMinLength) {
+    if (value?.length < domainRules.roleDescriptionMinLength) {
       reasons.push(
         messagesValidator.minLength(
           'Role Description',
-          regularExps.roleDescriptionMinLength
+          domainRules.roleDescriptionMinLength
         )
       );
     }
-    if (value?.length > regularExps.roleDescriptionMaxLength) {
+    if (value?.length > domainRules.roleDescriptionMaxLength) {
       messagesValidator.maxLength(
         'Role Description',
-        regularExps.roleDescriptionMaxLength
+        domainRules.roleDescriptionMaxLength
       );
     }
-    if (regularExps.blankSpace.test(value)) {
+    if (domainRules.blankSpace.test(value)) {
       // No permite espacios
       reasons.push(messagesValidator.blankSpace('Role Description'));
     }

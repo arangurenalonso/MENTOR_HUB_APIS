@@ -1,5 +1,5 @@
 import messagesValidator from '@domain/helpers/messages-validator';
-import regularExps from '@domain/helpers/regular-exp';
+import domainRules from '@domain/helpers/regular-exp';
 
 import { body } from 'express-validator';
 
@@ -12,15 +12,15 @@ const LoginValidation = [
   body('password')
     .exists()
     .withMessage(messagesValidator.required('password'))
-    .matches(regularExps.passwordLength)
+    .matches(domainRules.passwordLength)
     .withMessage(messagesValidator.passwordLength)
-    .matches(regularExps.passwordLowercase)
+    .matches(domainRules.passwordLowercase)
     .withMessage(messagesValidator.passwordLowercase)
-    .matches(regularExps.passwordUppercase)
+    .matches(domainRules.passwordUppercase)
     .withMessage(messagesValidator.passwordUppercase)
-    .matches(regularExps.passwordNumber)
+    .matches(domainRules.passwordNumber)
     .withMessage(messagesValidator.passwordNumber)
-    .matches(regularExps.passwordSpecialChar)
+    .matches(domainRules.passwordSpecialChar)
     .withMessage(messagesValidator.passwordSpecialChar),
 ];
 export default LoginValidation;

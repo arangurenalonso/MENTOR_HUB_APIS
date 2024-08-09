@@ -2,7 +2,7 @@ import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
 import TimeZoneErrors from '../error/time-zone.error';
-import regularExps from '@domain/helpers/regular-exp';
+import domainRules from '@domain/helpers/regular-exp';
 
 class OffsetMinutes {
   private readonly _value: number;
@@ -33,14 +33,14 @@ class OffsetMinutes {
       reasons.push(messagesValidator.mustBeInteger('Offset Minutes'));
     }
     if (
-      value < regularExps.minMinuteValid ||
-      value > regularExps.maxMinuteValid
+      value < domainRules.minMinuteValid ||
+      value > domainRules.maxMinuteValid
     ) {
       reasons.push(
         messagesValidator.range(
           'Offset Minutes',
-          regularExps.minMinuteValid,
-          regularExps.maxMinuteValid
+          domainRules.minMinuteValid,
+          domainRules.maxMinuteValid
         )
       );
     }

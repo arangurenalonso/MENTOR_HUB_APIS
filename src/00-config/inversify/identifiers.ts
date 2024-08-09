@@ -40,5 +40,7 @@ const TYPES = {
   RoleSeeder: Symbol.for('RoleSeeder'),
   SocialMediaSeeder: Symbol.for('SocialMediaSeeder'),
   TimeZoneSeeder: Symbol.for('TimeZoneSeeder'),
+  TimeOptionSeeder: Symbol.for('TimeOptionSeeder'),
+  DayOfWeekSeeder: Symbol.for('DayOfWeekSeeder'),
 };
 export default TYPES;

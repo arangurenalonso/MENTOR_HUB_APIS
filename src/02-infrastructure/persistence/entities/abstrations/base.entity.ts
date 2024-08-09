@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 abstract class BaseEntity {
   @PrimaryGeneratedColumn('uuid')
-  id?: string = uuidv4();
+  id: string = uuidv4();
 
   @Column({ type: 'boolean', default: true })
   active: boolean = true;

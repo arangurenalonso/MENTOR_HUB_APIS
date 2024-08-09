@@ -11,22 +11,29 @@ import RoleSeeder from './00-config/seed/role.seed';
 import { Container } from 'inversify';
 import SocialMediaSeeder from '@config/seed/social-media.seed';
 import TimeZoneSeeder from '@config/seed/time-zone.seed';
+import DayOfWeekSeeder from '@config/seed/dayOfWeek.seed';
+import TimeOptionSeeder from '@config/seed/time-option.seed';
 
 async function executeSeed(container: Container) {
   const roleSeeder = container.get<RoleSeeder>(TYPES.RoleSeeder);
-  await roleSeeder.seedRoles();
-
   const userSeeder = container.get<UserSeeder>(TYPES.UserSeeder);
-  await userSeeder.seedAdminUser();
-
   const timeZoneSeeder = container.get<TimeZoneSeeder>(TYPES.TimeZoneSeeder);
-  await timeZoneSeeder.seedTimeZones();
-
   const socialMediaSeeder = container.get<SocialMediaSeeder>(
     TYPES.SocialMediaSeeder
   );
+  const dayOfWeekSeeder = container.get<DayOfWeekSeeder>(TYPES.DayOfWeekSeeder);
+  const timeOptionSeeder = container.get<TimeOptionSeeder>(
+    TYPES.TimeOptionSeeder
+  );
 
-  await socialMediaSeeder.seed();
+  await Promise.all([
+    roleSeeder.seedData(),
+    userSeeder.seedAdminUser(),
+    timeZoneSeeder.seedData(),
+    socialMediaSeeder.seedData(),
+    dayOfWeekSeeder.seedData(),
+    timeOptionSeeder.seedData(),
+  ]);
 }
 
 async function main() {

@@ -49,6 +49,8 @@ import UserSeeder from '@config/seed/user.seed';
 import CreateInstructorProfileCommand from '@application/features/instructor/command/createProfile/create-profile.command';
 import CreateInstructorProfileCommandHandler from '@application/features/instructor/command/createProfile/create-profile.command.handler';
 import TimeZoneSeeder from '@config/seed/time-zone.seed';
+import DayOfWeekSeeder from '@config/seed/dayOfWeek.seed';
+import TimeOptionSeeder from '@config/seed/time-option.seed';
 class DependencyContainer {
   private readonly _container: Container;
 
@@ -78,11 +80,17 @@ class DependencyContainer {
     this._container
       .bind<SocialMediaSeeder>(TYPES.SocialMediaSeeder)
       .to(SocialMediaSeeder);
-
     this._container
       .bind<TimeZoneSeeder>(TYPES.TimeZoneSeeder)
       .to(TimeZoneSeeder);
+    this._container
+      .bind<TimeOptionSeeder>(TYPES.TimeOptionSeeder)
+      .to(TimeOptionSeeder);
+    this._container
+      .bind<DayOfWeekSeeder>(TYPES.DayOfWeekSeeder)
+      .to(DayOfWeekSeeder);
   }
+
   private bindJobs(): void {
     this._container
       .bind<OutboxMessageJob>(TYPES.OutboxMessageJob)

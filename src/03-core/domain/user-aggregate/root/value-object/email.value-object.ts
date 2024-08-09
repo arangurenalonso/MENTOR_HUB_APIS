@@ -1,6 +1,6 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
-import regularExps from '@domain/helpers/regular-exp';
+import domainRules from '@domain/helpers/regular-exp';
 import UserErrors from '../error/user-error';
 
 class Email {
@@ -20,7 +20,7 @@ class Email {
     return ok(new Email(value));
   }
   private static validate(value: string): boolean {
-    return regularExps.email.test(value);
+    return domainRules.email.test(value);
   }
 
   get value(): string {

@@ -12,7 +12,7 @@ class RoleSeeder {
     this.dataSource = dataSource;
   }
 
-  async seedRoles(): Promise<void> {
+  async seedData(): Promise<void> {
     const roleRepository = this.dataSource.getRepository(RoleEntity);
 
     for (const key of Object.keys(RoleEnum) as (keyof typeof RoleEnum)[]) {

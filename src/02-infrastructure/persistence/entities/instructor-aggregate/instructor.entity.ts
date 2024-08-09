@@ -1,14 +1,8 @@
-import {
-  Entity,
-  PrimaryColumn,
-  OneToOne,
-  JoinColumn,
-  OneToMany,
-  Column,
-} from 'typeorm';
+import { Entity, OneToOne, JoinColumn, OneToMany, Column } from 'typeorm';
 import NaturalPersonEntity from '../person-aggreagte/natural_person.entity';
 import BaseEntity from '../abstrations/base.entity';
 import InstructorSocialMediaEntity from './instructor-social-media.entity';
+import InstructorAvailabilityEntity from './intructor-availability.entity';
 
 @Entity({ name: 'instructor' })
 class InstructorEntity extends BaseEntity {
@@ -36,6 +30,12 @@ class InstructorEntity extends BaseEntity {
     (instructorSocialMedia) => instructorSocialMedia.instructor
   )
   instructorSocialMedia!: InstructorSocialMediaEntity[];
+
+  @OneToMany(
+    () => InstructorAvailabilityEntity,
+    (availability) => availability.instructor
+  )
+  availability!: InstructorAvailabilityEntity[];
 }
 
 export default InstructorEntity;

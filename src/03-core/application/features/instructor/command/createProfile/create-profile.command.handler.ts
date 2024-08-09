@@ -80,7 +80,8 @@ class CreateInstructorProfileCommandHandler
   private async _getInstructorById(
     id: string
   ): Promise<Result<InstructorDomain | null, ErrorResult>> {
-    const instructorDomainResult = await this._InstructorRepository.getById(id);
+    const instructorDomainResult =
+      await this._InstructorRepository.getInstructorById(id);
     if (instructorDomainResult.isErr()) {
       return err(instructorDomainResult.error);
     }

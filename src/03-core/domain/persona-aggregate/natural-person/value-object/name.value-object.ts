@@ -30,7 +30,7 @@ class Name {
   } {
     const reasons: string[] = [];
 
-    if (!value) {
+    if (value === null || value === undefined) {
       reasons.push(messagesValidator.empty('name'));
     }
     if (value?.length < domainRules.personNameMinLength) {

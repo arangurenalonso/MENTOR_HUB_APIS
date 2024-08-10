@@ -65,6 +65,9 @@ async function main() {
 // delete from user_roles;
 // delete from users;
 
+// delete from time_option
+// delete from day_of_week
+
 // Generalización y Especialización de BD
 /**
  * Soft skill:

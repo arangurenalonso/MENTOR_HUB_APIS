@@ -32,7 +32,7 @@ class SocialMediaDescription {
   } {
     const reasons: string[] = [];
 
-    if (!value) {
+    if (value === null || value === undefined) {
       reasons.push(messagesValidator.empty('Social Media Description'));
       return { isValid: false, reasons };
     }

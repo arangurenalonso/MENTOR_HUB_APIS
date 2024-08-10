@@ -28,7 +28,7 @@ class RoleDescription {
   } {
     const reasons: string[] = [];
 
-    if (!value) {
+    if (value === null || value === undefined) {
       reasons.push(messagesValidator.empty('Role Description'));
       return { isValid: false, reasons };
     }

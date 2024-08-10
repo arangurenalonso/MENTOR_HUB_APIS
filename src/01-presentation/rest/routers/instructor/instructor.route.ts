@@ -35,9 +35,10 @@ export class InstructorRoutes {
     this._router.put(
       '/availability/:idInstructor',
       AvailabilityValidation,
+      ValidatorMiddleware.validate,
       this._authenticationMiddleware.use,
       this._authorizationMiddleware.build([RoleEnum.INSTRUCTOR.description]),
-      asyncHandlerMiddleware(this._instructorController.createProfile)
+      asyncHandlerMiddleware(this._instructorController.updateAvailability)
     );
   }
 

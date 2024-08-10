@@ -2,7 +2,14 @@ import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import TYPES from '@config/inversify/identifiers';
 import { injectable, inject } from 'inversify';
-import { Repository, DataSource, EntityManager, Brackets, In } from 'typeorm';
+import {
+  Repository,
+  DataSource,
+  EntityManager,
+  Brackets,
+  In,
+  Not,
+} from 'typeorm';
 import BaseRepository from './commun/BaseRepository';
 import InstructorEntity from '@persistence/entities/instructor-aggregate/instructor.entity';
 import IInstructorRepository from '@domain/intructor-aggregate/root/repository/instructor.repository';
@@ -68,6 +75,8 @@ class InstructorRepository
       active: true,
     });
     const foundIds = dayOfWeekEntities.map((entity) => entity.id);
+    console.log('dayOfWeekEntities', dayOfWeekEntities);
+
     const missingIds = ids.filter((id) => !foundIds.includes(id));
 
     if (missingIds.length > 0) {
@@ -151,6 +160,36 @@ class InstructorRepository
     this._instructorSocialMediaRepository.save(
       instructorDomainResult.instructorSocialMedia
     );
+  }
+
+  async updateAvailability(
+    availability: InstructorAvailabilityEntity[]
+  ): Promise<void> {
+    console.log('availability', availability);
+
+    const availabilityIds = availability.map((a) => a.id);
+    const availabilitiesToDeactivate =
+      await this._instructorAvailabilityRepository.find({
+        where: {
+          id: Not(In(availabilityIds)),
+          active: true,
+        },
+      });
+
+    availabilitiesToDeactivate.forEach((availability) => {
+      availability.active = false;
+    });
+
+    await this._instructorAvailabilityRepository.save(
+      availabilitiesToDeactivate
+    );
+
+    await this._instructorAvailabilityRepository.save(availability);
+  }
+
+  async modify(instructor: InstructorDomain): Promise<void> {
+    const instructorEntity = InstructorDTO.toEntity(instructor);
+    await this.updateAvailability(instructorEntity.availability);
   }
 }
 export default InstructorRepository;

@@ -40,6 +40,7 @@ class DayOfWeekDomain extends BaseDomain<DayOfWeekId> {
     if (resultId.isErr()) {
       return err(resultId.error);
     }
+
     const resultDayIndex = DayIndex.create(args.dayIndex);
     if (resultDayIndex.isErr()) {
       return err(resultDayIndex.error);

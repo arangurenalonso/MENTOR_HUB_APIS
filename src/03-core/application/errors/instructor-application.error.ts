@@ -16,6 +16,13 @@ class InstructorApplicationErrors {
       500
     );
   };
+  static readonly UPDATE_ERROR = (error: string): ErrorResult => {
+    return new ErrorResult(
+      'INSTRUCTOR.UPDATE',
+      `Error while Instructor Update:  ${error}`,
+      500
+    );
+  };
 }
 
 export default InstructorApplicationErrors;

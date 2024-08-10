@@ -33,7 +33,6 @@ class EmailService implements IEmailService {
         html: htmlBody,
         attachments: attachments,
       });
-      // console.log(sentInformation);
       return true;
     } catch (error) {
       console.error(error);

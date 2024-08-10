@@ -30,7 +30,7 @@ class DayName {
   } {
     const reasons: string[] = [];
 
-    if (!value) {
+    if (value === null || value === undefined) {
       reasons.push(messagesValidator.empty('Day Name'));
       return { isValid: false, reasons };
     }
@@ -41,7 +41,7 @@ class DayName {
     );
 
     if (!validDayNames.includes(normalizedValue)) {
-      reasons.push(messagesValidator.invalidDayNameFormat);
+      reasons.push(messagesValidator.invalidDayNameFormat(normalizedValue));
     }
 
     value = value.trim().toLowerCase();

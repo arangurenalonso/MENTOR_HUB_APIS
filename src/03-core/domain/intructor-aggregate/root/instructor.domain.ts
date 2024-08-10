@@ -20,9 +20,9 @@ type InstructorDomainProperties = {
   headline: string | null;
   socialMedia: SocialMediaDomainProperties[];
   naturalPerson: NaturalPersonDomain | null;
-  introductionText: string;
-  teachingExperienceText: string;
-  motivationText: string;
+  introductionText: string | null;
+  teachingExperienceText: string | null;
+  motivationText: string | null;
   availability: InstructorAvailabilityDomainProperties[];
 };
 
@@ -44,7 +44,7 @@ type InstructorDomainConstructor = {
   headline: Heading | null;
   socialMedia: SocialMediaDomain[];
   naturalPerson?: NaturalPersonDomain | null;
-  aboutMe: AboutMe;
+  aboutMe: AboutMe | null;
   availability: InstructorAvailabilityDomain[];
 };
 
@@ -53,7 +53,7 @@ class InstructorDomain extends BaseDomain<InstructorId> {
   private _naturalPerson: NaturalPersonDomain | null;
   private _socialMedia: SocialMediaDomain[] = [];
   private _headline: Heading | null;
-  private _aboutMe: AboutMe;
+  private _aboutMe: AboutMe | null;
   private _availability: InstructorAvailabilityDomain[];
 
   private constructor(properties: InstructorDomainConstructor) {
@@ -190,9 +190,9 @@ class InstructorDomain extends BaseDomain<InstructorId> {
         (socialMedia) => socialMedia.properties
       ),
       naturalPerson: this._naturalPerson,
-      introductionText: this._aboutMe.introduction.value,
-      teachingExperienceText: this._aboutMe.teachingExperience.value,
-      motivationText: this._aboutMe.motivation.value,
+      introductionText: this._aboutMe?.introduction.value || null,
+      teachingExperienceText: this._aboutMe?.teachingExperience.value || null,
+      motivationText: this._aboutMe?.motivation.value || null,
       availability: this._availability.map(
         (availability) => availability.properties
       ),

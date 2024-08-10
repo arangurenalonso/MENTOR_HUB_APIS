@@ -29,13 +29,13 @@ class TimeZoneStringId {
   } {
     const reasons: string[] = [];
 
-    if (!value) {
+    if (value === null || value === undefined) {
       reasons.push(messagesValidator.empty('Time Zone String ID'));
       return { isValid: false, reasons };
     }
 
     if (!domainRules.timeZoneRegex.test(value)) {
-      reasons.push(messagesValidator.timeZoneInvalidFormat);
+      reasons.push(messagesValidator.timeZoneInvalidFormat(value));
     }
 
     return { isValid: reasons.length === 0, reasons };

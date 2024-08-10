@@ -16,6 +16,8 @@ import DayOfWeekDomain from '@domain/intructor-aggregate/availability/day-of-wee
 import TimeOptionDomain from '@domain/intructor-aggregate/availability/time-option.domain';
 import CommonApplicationError from '@application/errors/common-application-error';
 import InstructorDomain from '@domain/intructor-aggregate/root/instructor.domain';
+import dayOfWeekDomain from '@domain/intructor-aggregate/availability/day-of-week.domain';
+import InstructorApplicationErrors from '@application/errors/instructor-application.error';
 
 @injectable()
 @requestHandler(UpdateInstructorAvailabilityCommand)
@@ -42,26 +44,38 @@ class UpdateInstructorAvailabilityCommandhandler
       return err(fetchEntitiesResult.error);
     }
 
-    const {
-      dayOfWeekDomains: dayOfWeekEntities,
-      timeOptionDomains: timeOptionEntities,
-      instructorDomain,
-    } = fetchEntitiesResult.value;
+    const { dayOfWeekDomains, timeOptionDomains, instructorDomain } =
+      fetchEntitiesResult.value;
 
-    const instructorAvailabilityDomainArrayResult = this.convertToDomainArray(
-      command.availability,
-      dayOfWeekEntities,
-      timeOptionEntities
-    );
+    console.log('instructorDomain', instructorDomain);
+
+    const instructorAvailabilityDomainArrayResult =
+      this.convertInstructorAvailabilityArray(
+        command.availability,
+        dayOfWeekDomains,
+        timeOptionDomains
+      );
 
     if (instructorAvailabilityDomainArrayResult.isErr()) {
       return err(instructorAvailabilityDomainArrayResult.error);
     }
+    const instructorAvailabilityDomainArray =
+      instructorAvailabilityDomainArrayResult.value;
+
     const resultUpdateAvailability = instructorDomain.updateAvailability(
-      instructorAvailabilityDomainArrayResult.value
+      instructorAvailabilityDomainArray
     );
     if (resultUpdateAvailability.isErr()) {
       return err(resultUpdateAvailability.error);
+    }
+    try {
+      await this._unitOfWork.startTransaction();
+      await this._unitOfWork.instructorRepository.modify(instructorDomain);
+      await this._unitOfWork.commit();
+    } catch (error) {
+      console.log('error', error);
+      await this._unitOfWork.rollback();
+      return err(InstructorApplicationErrors.UPDATE_ERROR(`${error}`));
     }
 
     return ok(undefined);
@@ -126,7 +140,7 @@ class UpdateInstructorAvailabilityCommandhandler
     });
   }
 
-  private convertToDomainArray(
+  private convertInstructorAvailabilityArray(
     availability: AvailabilityRequestDTO[],
     dayOfWeekEntities: DayOfWeekDomain[],
     timeOptionEntities: TimeOptionDomain[]

@@ -35,7 +35,7 @@ class Time {
     // Expresión regular para validar el formato de hora HH:mm
 
     if (!domainRules.timeValidation.test(value)) {
-      reasons.push(messagesValidator.invalidTimeFormat);
+      reasons.push(messagesValidator.invalidTimeFormat(value));
     }
 
     return { isValid: reasons.length === 0, reasons };

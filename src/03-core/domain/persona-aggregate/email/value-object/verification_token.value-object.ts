@@ -18,7 +18,7 @@ class VerificationToken {
   }
 
   private static validate(value: string): boolean {
-    if (!value) {
+    if (value === null || value === undefined) {
       return false;
     }
     if (!uuidValidate(value)) {

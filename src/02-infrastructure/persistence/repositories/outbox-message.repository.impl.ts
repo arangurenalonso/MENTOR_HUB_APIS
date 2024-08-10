@@ -21,16 +21,14 @@ class OutboxMessageRepository
   ) {
     super();
     if (this._dataSourceOrEntityManager instanceof DataSource) {
-      // console.log('instance of DataSource');
-      this._repository =
-        this._dataSourceOrEntityManager.getRepository(OutboxMessageEntity);
+      console.log('instance of DataSource');
     } else if (this._dataSourceOrEntityManager instanceof EntityManager) {
-      // console.log('instance of EntityManager');
-      this._repository =
-        this._dataSourceOrEntityManager.getRepository(OutboxMessageEntity);
+      console.log('instance of EntityManager');
     } else {
       throw new Error('Invalid constructor argument');
     }
+    this._repository =
+      this._dataSourceOrEntityManager.getRepository(OutboxMessageEntity);
   }
   async getDomainEvents(): Promise<
     { outboxMessageId: string; event: IDomainEvent }[]

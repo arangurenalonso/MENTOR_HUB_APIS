@@ -118,10 +118,7 @@ class RegisterCommandHandler
     return ok(new AuthenticationResult(tokenResult.value, true, ''));
   }
   private async validate(email: string): Promise<Result<boolean, ErrorResult>> {
-    console.log('email', email);
-
     const userEmail = await this._userRepository.getUserByEmail(email);
-    console.log('userEmail', userEmail);
     if (userEmail.isErr()) {
       return err(userEmail.error);
     }

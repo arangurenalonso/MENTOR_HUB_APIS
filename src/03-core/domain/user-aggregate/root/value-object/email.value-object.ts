@@ -11,7 +11,7 @@ class Email {
   }
 
   public static create(value?: string): Result<Email, ErrorResult> {
-    if (!value) {
+    if (value === null || value === undefined) {
       return err(UserErrors.USER_INVALID_EMAIL(value));
     }
     if (!this.validate(value)) {

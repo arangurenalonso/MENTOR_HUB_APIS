@@ -16,5 +16,6 @@ interface IInstructorRepository {
   ): Promise<Result<TimeOptionDomain[], ErrorResult>>;
 
   register(instructor: InstructorDomain): Promise<void>;
+  modify(instructor: InstructorDomain): Promise<void>;
 }
 export default IInstructorRepository;

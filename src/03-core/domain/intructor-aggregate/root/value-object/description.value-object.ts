@@ -13,9 +13,9 @@ class Description {
   public static create(
     type: string,
     value?: string | null
-  ): Result<Description, ErrorResult> {
-    if (!value) {
-      return ok(new Description(''));
+  ): Result<Description | null, ErrorResult> {
+    if (value === null || value === undefined) {
+      return ok(null);
     }
     value = value.trim();
 

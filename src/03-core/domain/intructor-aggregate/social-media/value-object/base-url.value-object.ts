@@ -31,7 +31,7 @@ class BaseURL {
   } {
     const reasons: string[] = [];
 
-    if (!value) {
+    if (value === null || value === undefined) {
       reasons.push(messagesValidator.empty('Base URL'));
       return { isValid: false, reasons };
     }

@@ -30,7 +30,7 @@ class DayIndex {
   } {
     const reasons: string[] = [];
 
-    if (!value) {
+    if (value === null || value === undefined) {
       reasons.push(messagesValidator.empty('Day Index'));
       return { isValid: false, reasons };
     }

@@ -31,7 +31,8 @@ class InstructorController {
   public async updateAvailability(req: Request, res: Response) {
     const idInstructor = req.params.idInstructor;
     const connectedUser = res.locals.user as TokenPayload;
-    const availability = req.body.map(
+
+    const availability = req.body.availability.map(
       (item: any) =>
         new AvailabilityRequestDTO(
           item.idDayOfWeek,

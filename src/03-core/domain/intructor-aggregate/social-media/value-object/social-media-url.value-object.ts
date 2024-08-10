@@ -13,7 +13,7 @@ class SocialMediaURLProfile {
     value: string,
     baseURL: string
   ): Result<SocialMediaURLProfile, ErrorResult> {
-    if (!value) {
+    if (value === null || value === undefined) {
       return err(SocialMediaErrors.URL_PROFILE_REQUIRED);
     }
 

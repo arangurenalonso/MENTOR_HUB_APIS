@@ -15,13 +15,6 @@ class DayOfWeekSeeder {
   async seedData(): Promise<void> {
     const dayOfWeekRepository = this.dataSource.getRepository(DayOfWeekEntity);
 
-    // Verificar si existen registros en la tabla
-    // const count = await timeZoneRepository.count();
-
-    // if (count > 0) {
-    //   console.log('TimeZone data already exists, skipping seeding.');
-    //   return;
-    // }
     const dateOfWeekDataToInsert = dayOfWeekData.map((x) => {
       const dayOfWeekEntity = new DayOfWeekEntity();
 

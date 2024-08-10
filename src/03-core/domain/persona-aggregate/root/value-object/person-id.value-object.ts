@@ -11,7 +11,7 @@ class PersonId {
   }
 
   public static create(value?: string): Result<PersonId, ErrorResult> {
-    if (!value) {
+    if (value === null || value === undefined) {
       value = uuidv4();
     }
     if (!this.validate(value)) {
@@ -21,7 +21,7 @@ class PersonId {
   }
 
   private static validate(value: string): boolean {
-    if (!value) {
+    if (value === null || value === undefined) {
       return false;
     }
     if (!uuidValidate(value)) {

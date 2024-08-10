@@ -30,7 +30,7 @@ class TimeIndex {
   } {
     const reasons: string[] = [];
 
-    if (!value) {
+    if (value === null || value === undefined) {
       reasons.push(messagesValidator.empty('Time Option index'));
       return { isValid: false, reasons };
     }

@@ -12,13 +12,13 @@ class InstructorEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 60, nullable: true })
   headline?: string;
 
-  @Column({ type: 'varchar', length: 600, default: '' })
-  introduction!: string;
+  @Column({ type: 'varchar', length: 600, nullable: true })
+  introduction?: string;
 
-  @Column({ type: 'varchar', length: 600, default: '' })
-  teachingExperience!: string;
+  @Column({ type: 'varchar', length: 600, nullable: true })
+  teachingExperience?: string;
 
-  @Column({ type: 'varchar', length: 600, default: '' })
+  @Column({ type: 'varchar', length: 600, nullable: true })
   motivation?: string;
 
   @OneToOne(() => NaturalPersonEntity)

@@ -14,7 +14,7 @@ class WebsiteURL {
   public static create(
     value?: string | null
   ): Result<WebsiteURL | null, ErrorResult> {
-    if (!value) {
+    if (value === null || value === undefined) {
       return ok(null);
     }
 

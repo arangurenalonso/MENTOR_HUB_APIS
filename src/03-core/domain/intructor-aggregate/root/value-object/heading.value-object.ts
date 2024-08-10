@@ -14,7 +14,7 @@ class Heading {
   public static create(
     value?: string | null
   ): Result<Heading | null, ErrorResult> {
-    if (!value) {
+    if (value === null || value === undefined) {
       return ok(null);
     }
     value = value.trim();
@@ -35,7 +35,7 @@ class Heading {
   } {
     const reasons: string[] = [];
 
-    if (!value) {
+    if (value === null || value === undefined) {
       reasons.push(messagesValidator.empty('Heading'));
     }
     if (value.length < domainRules.headingMinLength) {

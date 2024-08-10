@@ -43,11 +43,14 @@ const headingMessage = {
     "Heading can only contain letters, numbers, spaces, and basic punctuation (.,'-).",
 };
 const invalidFormat = {
-  timeZoneInvalidFormat: `The time zone must be in the format 'Region/City', where 'Region' and 'City' can only contain letters, underscores, or hyphens. Example: 'America/New_York'.`,
-  invalidDayNameFormat: `The day name must be one of the following: ${domainRules.dayNameValid.join(
-    ', '
-  )}.`,
-  invalidTimeFormat: `The time must be in the format 'HH:mm', where 'HH' is a two-digit hour between 00 and 23, and 'mm' is a two-digit minute between 00 and 59. Example: '14:30'.`,
+  timeZoneInvalidFormat: (value: string) =>
+    `The time zone '${value}' must be in the format 'Region/City', where 'Region' and 'City' can only contain letters, underscores, or hyphens. Example: 'America/New_York'.`,
+  invalidDayNameFormat: (value: string) =>
+    `The day name '${value}' must be one of the following: ${domainRules.dayNameValid.join(
+      ', '
+    )}.`,
+  invalidTimeFormat: (value: string) =>
+    `The time '${value}' must be in the format 'HH:mm' or 'HH:mm:ss', where 'HH' is a two-digit hour between 00 and 23, 'mm' is a two-digit minute between 00 and 59, and 'ss' (optional) is a two-digit second between 00 and 59. Example: '14:30' or '14:30:00'.`,
 };
 const messagesValidator = {
   ...invalidFormat,
@@ -77,5 +80,8 @@ const messagesValidator = {
   mustBeInteger: (field: string) => `${field} must be an integer.`,
   range: (field: string, min: number, max: number) =>
     `${field} must be between ${min} and ${max}.`,
+  array: (field: string) => `El campo '${field}' debe ser un array`,
+  notEmptyArray: (field: string) =>
+    `El campo '${field}' no puede estar vacío y debe contener al menos un elemento`,
 };
 export default messagesValidator;

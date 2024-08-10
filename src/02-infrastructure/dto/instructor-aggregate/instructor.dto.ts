@@ -44,9 +44,10 @@ class InstructorDTO {
     entity.id = domain.properties.id;
     entity.websideURL = domain.properties.websideURL || undefined;
     entity.headline = domain.properties.headline || undefined;
-    entity.introduction = domain.properties.introductionText;
-    entity.teachingExperience = domain.properties.teachingExperienceText;
-    entity.motivation = domain.properties.motivationText;
+    entity.introduction = domain.properties.introductionText || undefined;
+    entity.teachingExperience =
+      domain.properties.teachingExperienceText || undefined;
+    entity.motivation = domain.properties.motivationText || undefined;
 
     const instructorSocialMediaEntity = InstructorSocialMediaDTO.toEntityArray(
       domain.properties.id,
@@ -54,6 +55,14 @@ class InstructorDTO {
     );
 
     entity.instructorSocialMedia = instructorSocialMediaEntity;
+
+    const instructorAvailabilityEntity =
+      InstructorAvailabilityDTO.toEntityArray(
+        domain.properties.id,
+        domain.properties.availability
+      );
+    entity.availability = instructorAvailabilityEntity;
+
     return entity;
   }
 }

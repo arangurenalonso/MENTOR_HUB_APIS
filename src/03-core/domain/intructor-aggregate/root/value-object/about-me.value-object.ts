@@ -23,7 +23,7 @@ class AboutMe {
     introductionText?: string | null,
     teachingExperienceText?: string | null,
     motivationText?: string | null
-  ): Result<AboutMe, ErrorResult> {
+  ): Result<AboutMe | null, ErrorResult> {
     const introductionResult = Description.create(
       'Introduction',
       introductionText
@@ -40,10 +40,35 @@ class AboutMe {
     const motivationResult = Description.create('Motivation', motivationText);
     if (motivationResult.isErr()) return err(motivationResult.error);
 
+    const intruduction = introductionResult.value;
+    const teachingExperience = teachingExperienceResult.value;
+    const motivation = motivationResult.value;
+
+    if (
+      intruduction == null &&
+      teachingExperience == null &&
+      motivation == null
+    ) {
+      return ok(null);
+    }
+    if (
+      intruduction == null ||
+      teachingExperience == null ||
+      motivation == null
+    ) {
+      return err(
+        new ErrorResult(
+          'ABOUT_ME_INVALID',
+          messagesValidator.invalidFormat('About Me'),
+          400
+        )
+      );
+    }
+
     const totalWords =
-      introductionResult.value.value.length +
-      teachingExperienceResult.value.value.length +
-      motivationResult.value.value.length;
+      intruduction.value.length +
+      teachingExperience.value.length +
+      motivation.value.length;
 
     if (totalWords > domainRules.aboutMeMaxLength) {
       return err(
@@ -55,13 +80,7 @@ class AboutMe {
       );
     }
 
-    return ok(
-      new AboutMe(
-        introductionResult.value,
-        teachingExperienceResult.value,
-        motivationResult.value
-      )
-    );
+    return ok(new AboutMe(intruduction, teachingExperience, motivation));
   }
 
   get introduction(): Description {

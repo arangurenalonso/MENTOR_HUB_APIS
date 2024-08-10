@@ -17,6 +17,7 @@ class AuthorizationMiddleware {
     ): Promise<void> => {
       try {
         const roles: rolesType[] = res.locals.roles;
+
         const rolesString = roles.map((x) =>
           x.description.trim().toUpperCase()
         );

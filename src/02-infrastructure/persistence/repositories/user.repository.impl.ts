@@ -134,8 +134,6 @@ class UserRepository
     //   AND instructor.active = :instructorActive
     //   AND (socialMedia.active IS NULL OR socialMedia.active = :socialMediaActive)
 
-    console.log('userEntity', userEntity);
-
     if (!userEntity) {
       return ok(null);
     }

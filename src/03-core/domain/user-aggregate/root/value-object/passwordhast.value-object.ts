@@ -8,7 +8,7 @@ class PasswordHash {
   private readonly _value: string;
 
   private constructor(value: string) {
-    if (!value || value?.length === 0) {
+    if (value === null || value === undefined || value?.length === 0) {
       throw new Error('Password hash cannot be empty.');
     }
     this._value = value;

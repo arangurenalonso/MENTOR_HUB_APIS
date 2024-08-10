@@ -14,7 +14,7 @@ class ImageURL {
   public static create(
     value?: string | null
   ): Result<ImageURL | null, ErrorResult> {
-    if (!value) {
+    if (value === null || value === undefined) {
       return ok(null);
     }
 

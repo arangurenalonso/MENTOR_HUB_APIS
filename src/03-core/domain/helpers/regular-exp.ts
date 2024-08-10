@@ -63,7 +63,7 @@ const dateIndexRule = {
 const timeOptionRule = {
   minTimeOptionValid: 0,
   maxTimeOptionValid: 49,
-  timeValidation: /^([01]\d|2[0-3]):([0-5]\d)$/,
+  timeValidation: /^([01]\d|2[0-3]):([0-5]\d)(:([0-5]\d))?$/,
 };
 const dateRules = {
   dayNameValid: [

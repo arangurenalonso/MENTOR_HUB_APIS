@@ -165,8 +165,6 @@ class InstructorRepository
   async updateAvailability(
     availability: InstructorAvailabilityEntity[]
   ): Promise<void> {
-    console.log('availability', availability);
-
     const availabilityIds = availability.map((a) => a.id);
     const availabilitiesToDeactivate =
       await this._instructorAvailabilityRepository.find({

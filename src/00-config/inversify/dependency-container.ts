@@ -53,6 +53,10 @@ import DayOfWeekSeeder from '@config/seed/dayOfWeek.seed';
 import TimeOptionSeeder from '@config/seed/time-option.seed';
 import UpdateInstructorAvailabilityCommand from '@application/features/instructor/command/updateAvailability/updateAvailability.command';
 import UpdateInstructorAvailabilityCommandhandler from '@application/features/instructor/command/updateAvailability/updateAvailability.command.handler';
+import SocialProviderCommand from '@application/features/auth/command/social-provider/social-provider.command';
+import SocialProviderCommandHandler from '@application/features/auth/command/social-provider/social-provider.command.handler';
+import AuthenticationResultQuery from '@application/features/auth/query/authentication-result/authentication-result.query';
+import AuthenticationResultQueryHandler from '@application/features/auth/query/authentication-result/authentication-result.query.handler';
 class DependencyContainer {
   private readonly _container: Container;
 
@@ -198,6 +202,23 @@ class DependencyContainer {
       >('RegisterCommand')
       .to(RegisterCommandHandler);
 
+    this._container
+      .bind<
+        IRequestHandler<
+          SocialProviderCommand,
+          Result<AuthenticationResult, ErrorResult>
+        >
+      >('SocialProviderCommand')
+      .to(SocialProviderCommandHandler);
+
+    this._container
+      .bind<
+        IRequestHandler<
+          AuthenticationResultQuery,
+          Result<AuthenticationResult, ErrorResult>
+        >
+      >('AuthenticationResultQuery')
+      .to(AuthenticationResultQueryHandler);
     this._container
       .bind<
         IRequestHandler<

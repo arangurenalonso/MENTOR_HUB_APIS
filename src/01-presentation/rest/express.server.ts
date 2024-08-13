@@ -4,6 +4,7 @@ import ApiRouter from '@rest/routers/api.router';
 import Environment from '@config/enviroment';
 import { inject, injectable } from 'inversify';
 import TYPES from '@config/inversify/identifiers';
+import cors from 'cors';
 
 @injectable()
 class ExpressServer {
@@ -17,6 +18,8 @@ class ExpressServer {
   }
 
   private initializeMiddlewares() {
+    this._app.use(cors());
+
     this._app.use(express.json());
     this._app.use(express.urlencoded({ extended: true }));
     this._app.use(express.static(this._env.publicPath));

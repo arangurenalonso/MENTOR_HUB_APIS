@@ -6,6 +6,7 @@ import UserRoleEntity from '@persistence/entities/user-aggregate/user-role.entit
 import UserEntity from '@persistence/entities/user-aggregate/user.entity';
 import userRoleEntity from '@persistence/entities/user-aggregate/user-role.entity';
 import TimeZoneDTO from './time-zone.dto';
+import ProviderDTO from './provider.dto';
 
 class UserDTO {
   private static convertUserRoles(
@@ -35,6 +36,12 @@ class UserDTO {
     if (timeZoneResult.isErr()) {
       return err(timeZoneResult.error);
     }
+    const providerResult = ProviderDTO.toDomainArray(entity.authProviders);
+    if (providerResult.isErr()) {
+      return err(providerResult.error);
+    }
+    const providers = providerResult.value;
+
     const timeZone = timeZoneResult.value;
     const domainResult = UserDomain.create({
       id: entity.id,
@@ -42,6 +49,7 @@ class UserDTO {
       passwordHash: entity.passwordHash,
       roles: rolesResult.value,
       timeZone,
+      providers,
     });
     if (domainResult.isErr()) {
       return err(domainResult.error);
@@ -56,7 +64,7 @@ class UserDTO {
     }
     entity.email = domain.properties.email;
     entity.idTimeZone = domain.properties.timeZone.id;
-    entity.passwordHash = domain.properties.passwordHash;
+    entity.passwordHash = domain.properties.passwordHash || undefined;
     return entity;
   }
   public static userDomainToUserRoleToEntity(

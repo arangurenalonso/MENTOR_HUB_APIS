@@ -1,7 +1,7 @@
 import IDomainEvent from './IDomainEvent';
 
 abstract class BaseDomain<T> {
-  _id: T;
+  protected _id: T;
 
   private readonly _domainEvents: IDomainEvent[] = [];
 

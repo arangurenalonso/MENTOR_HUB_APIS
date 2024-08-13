@@ -23,6 +23,7 @@ type NaturalPersonDomainProperties = {
 type NaturalPersonDomainCreateArg = {
   id?: string;
   name: string;
+  photoUrl?: string | null;
   email: EmailDomainCreateArg | EmailDomainCreateArg[];
   birthdate?: Date | null;
 };

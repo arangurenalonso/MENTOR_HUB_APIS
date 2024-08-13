@@ -6,6 +6,7 @@ import { inject, injectable } from 'inversify';
 import TYPES from '@config/inversify/identifiers';
 import asyncHandlerMiddleware from '@rest/middlewares/asyncHandler.middleware';
 import ValidatorMiddleware from '@rest/middlewares/validator.middleware';
+import GoogleSignUpValidation from './validator/social-provider-google';
 @injectable()
 export class AuthRoutes {
   constructor(
@@ -29,6 +30,12 @@ export class AuthRoutes {
       RegisterValidation,
       ValidatorMiddleware.validate,
       asyncHandlerMiddleware(this._authController.register)
+    );
+    this._router.post(
+      '/social-provider/:provider',
+      GoogleSignUpValidation,
+      ValidatorMiddleware.validate,
+      asyncHandlerMiddleware(this._authController.socialProvider)
     );
   }
   get router(): Router {

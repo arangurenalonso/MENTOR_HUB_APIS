@@ -12,5 +12,8 @@ interface IUserRepository {
   getTimeZoneById(
     id: string
   ): Promise<Result<TimeZoneDomain | null, ErrorResult>>;
+  getIdUserByUidProvider(
+    uid: string
+  ): Promise<Result<UserDomain | null, ErrorResult>>;
 }
 export default IUserRepository;

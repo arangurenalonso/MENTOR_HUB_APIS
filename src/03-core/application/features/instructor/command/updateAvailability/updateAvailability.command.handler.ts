@@ -5,10 +5,6 @@ import { injectable, inject } from 'inversify';
 import { requestHandler, IRequestHandler } from 'mediatr-ts';
 import IInstructorRepository from '@domain/intructor-aggregate/root/repository/instructor.repository';
 import IUnitOfWork from '@domain/abstract/repository/IUnitOfWork';
-import IUserRepository from '@domain/user-aggregate/root/repositories/IUser.repository';
-import IPersonRepository from '@domain/persona-aggregate/root/repository/person.repository';
-import ITokenService from '@application/contracts/IToken.service';
-import AuthenticationResult from '@application/models/AuthenticationResult';
 import UpdateInstructorAvailabilityCommand from './updateAvailability.command';
 import InstructorAvailabilityDomain from '@domain/intructor-aggregate/availability/instructor-availability.domain';
 import AvailabilityRequestDTO from './availability.request.dto';
@@ -16,7 +12,6 @@ import DayOfWeekDomain from '@domain/intructor-aggregate/availability/day-of-wee
 import TimeOptionDomain from '@domain/intructor-aggregate/availability/time-option.domain';
 import CommonApplicationError from '@application/errors/common-application-error';
 import InstructorDomain from '@domain/intructor-aggregate/root/instructor.domain';
-import dayOfWeekDomain from '@domain/intructor-aggregate/availability/day-of-week.domain';
 import InstructorApplicationErrors from '@application/errors/instructor-application.error';
 
 @injectable()

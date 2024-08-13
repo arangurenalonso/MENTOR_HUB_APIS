@@ -1,3 +1,4 @@
+import { ProviderEnum } from '@domain/user-aggregate/provider/enum/provider.enum';
 import domainRules from './regular-exp';
 
 const userMessage = {
@@ -23,6 +24,12 @@ const socialMediaMessage = {
 };
 const personMessage = {
   nameInvalidFormat: 'Name can only contain letters and spaces.',
+};
+const providerMessage = {
+  invalidProviderMessage: (providedValue: string) => {
+    const validProviders = Object.values(ProviderEnum).join(', ');
+    return `Invalid provider: ${providedValue}. Valid providers are: ${validProviders}.`;
+  },
 };
 const urlMessage = {
   invalidProtocol: (field: string, value: string) =>
@@ -53,6 +60,7 @@ const invalidFormat = {
     `The time '${value}' must be in the format 'HH:mm' or 'HH:mm:ss', where 'HH' is a two-digit hour between 00 and 23, 'mm' is a two-digit minute between 00 and 59, and 'ss' (optional) is a two-digit second between 00 and 59. Example: '14:30' or '14:30:00'.`,
 };
 const messagesValidator = {
+  ...providerMessage,
   ...invalidFormat,
   ...userMessage,
   ...roleMessage,
@@ -73,9 +81,7 @@ const messagesValidator = {
   invalidDateFormat: (field: string) =>
     `The field '${field}' must be a valid date.`,
   dateInFuture: (field: string) =>
-    `The field '${field}' cannot be a future date.`, // Expresión regular para URLs
-  invalidURL: (field: string, reasons: string[]) =>
-    `The ${field} is invalid URL. ${reasons.join(' ')}`,
+    `The field '${field}' cannot be a future date.`,
   invalidFormat: (field: string) => `${field} contains invalid characters.`,
   mustBeInteger: (field: string) => `${field} must be an integer.`,
   range: (field: string, min: number, max: number) =>
@@ -83,5 +89,10 @@ const messagesValidator = {
   array: (field: string) => `El campo '${field}' debe ser un array`,
   notEmptyArray: (field: string) =>
     `El campo '${field}' no puede estar vacío y debe contener al menos un elemento`,
+  invalidURL: (field: string) => `${field} must be a valid URL.`,
+  invalidEnum: (field: string, enumObj: object) => {
+    const validValues = Object.values(enumObj).join(', ');
+    return `${field} contains an invalid value. Valid values are: ${validValues}.`;
+  },
 };
 export default messagesValidator;

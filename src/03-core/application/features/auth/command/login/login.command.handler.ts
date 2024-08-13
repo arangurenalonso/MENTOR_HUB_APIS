@@ -38,6 +38,11 @@ class LoginCommandHandler
     }
 
     const user = userResult.value;
+    if (user.properties.passwordHash == null) {
+      return err(
+        AuthApplicationErrors.USER_CREATION_WITH_SOCIAL_PROVIDER_ERROR()
+      );
+    }
 
     const isValidPassword = await this._passwordService.decrypt(
       command.password,

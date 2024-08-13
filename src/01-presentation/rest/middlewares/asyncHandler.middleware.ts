@@ -2,6 +2,11 @@ import { Err, err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import { Request, Response, NextFunction } from 'express';
 
+type errorData = {
+  type: string;
+  error: string;
+  stack?: string;
+};
 function isResult(input: any): input is Result<any, ErrorResult> {
   return (
     input &&
@@ -23,9 +28,11 @@ const asyncHandlerMiddleware = (
         if (result.isOk()) {
           res.status(200).json(result.value);
         } else {
-          res
-            .status(result.error.statusCode)
-            .json({ type: result.error.type, error: result.error.message });
+          const errorData: errorData = {
+            type: result.error.type,
+            error: result.error.message,
+          };
+          res.status(result.error.statusCode).json(errorData);
         }
       } else {
         res.json(result);
@@ -33,11 +40,12 @@ const asyncHandlerMiddleware = (
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : `${error}`;
       const errorStack = error instanceof Error ? error.stack : '';
-      res.status(500).json({
+      const errorData: errorData = {
         type: 'Internal Server Error',
         error: `Unexpected error: ${errorMessage}`,
         stack: errorStack,
-      });
+      };
+      res.status(500).json(errorData);
     }
   };
 };

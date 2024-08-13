@@ -1,5 +1,12 @@
 import { inject, injectable, optional } from 'inversify';
-import { Brackets, DataSource, EntityManager, Repository } from 'typeorm';
+import {
+  Brackets,
+  DataSource,
+  EntityManager,
+  ObjectLiteral,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 import TYPES from '@config/inversify/identifiers';
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
@@ -13,6 +20,8 @@ import TimeZoneDomain from '@domain/user-aggregate/timezone/time-zone.domain';
 import { validate as uuidValidate } from 'uuid';
 import TimeZoneDTO from '@infrastructure/dto/user-aggregate/time-zone.dto';
 import TimeZoneEntity from '@persistence/entities/user-aggregate/time-zone.entity';
+import AuthProviderEntity from '@persistence/entities/user-aggregate/user-auth-provider.entity';
+import ProviderDTO from '@infrastructure/dto/user-aggregate/provider.dto';
 
 @injectable()
 class UserRepository
@@ -22,6 +31,7 @@ class UserRepository
   private _repository: Repository<UserEntity>;
   private _userRoleRepository: Repository<UserRoleEntity>;
   private _timeZoneRepository: Repository<TimeZoneEntity>;
+  private _authProviderRepository: Repository<AuthProviderEntity>;
   constructor(
     @inject(TYPES.DataSource)
     private readonly _dataSourceOrEntityManager: DataSource | EntityManager
@@ -40,12 +50,27 @@ class UserRepository
       this._dataSourceOrEntityManager.getRepository(UserRoleEntity);
     this._timeZoneRepository =
       this._dataSourceOrEntityManager.getRepository(TimeZoneEntity);
+    this._authProviderRepository =
+      this._dataSourceOrEntityManager.getRepository(AuthProviderEntity);
   }
 
   protected get repository(): Repository<UserEntity> {
     return this._repository;
   }
+  async getIdUserByUidProvider(
+    uid: string
+  ): Promise<Result<UserDomain | null, ErrorResult>> {
+    let query = this._authProviderRepository.createQueryBuilder('provider');
 
+    query = query.where('provider.uidProvider = :uid', { uid });
+    const authProviderEntity = await query.getOne();
+
+    if (!authProviderEntity) {
+      return ok(null);
+    }
+    const userEntity = await this.getUserById(authProviderEntity.idUser);
+    return userEntity;
+  }
   async getTimeZoneById(
     id: string
   ): Promise<Result<TimeZoneDomain | null, ErrorResult>> {
@@ -70,15 +95,22 @@ class UserRepository
     return ok(timeZoneResult.value);
   }
 
-  async getUserById(
-    id: string
-  ): Promise<Result<UserDomain | null, ErrorResult>> {
-    const userEntity = await this._repository
+  userQueryBuilderWithRelations = (
+    where:
+      | Brackets
+      | string
+      | ((qb: this) => string)
+      | ObjectLiteral
+      | ObjectLiteral[],
+    parameters?: ObjectLiteral
+  ): SelectQueryBuilder<UserEntity> => {
+    const userEntity = this._repository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.timeZone', 'timeZone')
       .leftJoinAndSelect('user.userRoles', 'userRole')
       .leftJoinAndSelect('userRole.role', 'role')
-      .where('user.id = :userId', { userId: id })
+      .leftJoinAndSelect('user.authProviders', 'authProviders')
+      .where(where, parameters)
       .andWhere('user.active = :userActive', { userActive: true })
       .andWhere(
         new Brackets((qb) => {
@@ -90,7 +122,29 @@ class UserRepository
           );
         })
       )
-      .getOne();
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('authProviders.active is null').orWhere(
+            'authProviders.active = :authProvidersActive',
+            {
+              authProvidersActive: true,
+            }
+          );
+        })
+      );
+    return userEntity;
+  };
+
+  async getUserById(
+    id: string
+  ): Promise<Result<UserDomain | null, ErrorResult>> {
+    const userEntity = await this.userQueryBuilderWithRelations(
+      'user.id = :userId',
+      {
+        userId: id,
+      }
+    ).getOne();
+
     if (!userEntity) {
       return ok(null);
     }
@@ -108,31 +162,10 @@ class UserRepository
     if (!email) {
       return ok(null);
     }
-
-    const userEntity = await this._repository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.timeZone', 'timeZone')
-      .leftJoinAndSelect('user.userRoles', 'userRole')
-      .leftJoinAndSelect('userRole.role', 'role')
-      .where('user.email = :email', { email })
-      .andWhere('user.active = :userActive', { userActive: true })
-      .andWhere(
-        new Brackets((qb) => {
-          qb.where('userRole.active is null').orWhere(
-            'userRole.active = :userRoleActive',
-            {
-              userRoleActive: true,
-            }
-          );
-        })
-      )
-      .getOne();
-    // SELECT * FROM instructor
-    // LEFT JOIN instructor_social_media ON ...
-    // LEFT JOIN social_media ON ...
-    // WHERE instructor.id = :id
-    //   AND instructor.active = :instructorActive
-    //   AND (socialMedia.active IS NULL OR socialMedia.active = :socialMediaActive)
+    const userEntity = await this.userQueryBuilderWithRelations(
+      'user.email = :email',
+      { email }
+    ).getOne();
 
     if (!userEntity) {
       return ok(null);
@@ -151,6 +184,12 @@ class UserRepository
 
     const userRoleEntity = UserDTO.userDomainToUserRoleToEntity(user);
     await this._userRoleRepository.save(userRoleEntity);
+
+    const authProviderEntity = ProviderDTO.toEntityArray(
+      user.properties.id,
+      user.properties.providers
+    );
+    await this._authProviderRepository.save(authProviderEntity);
   }
 
   async modify(user: UserDomain): Promise<void> {

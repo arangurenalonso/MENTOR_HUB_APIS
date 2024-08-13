@@ -59,12 +59,15 @@ async function main() {
 // delete from email;
 // delete from legal_person;
 // delete from  instructor_social_media;
+// delete from instructor_availability;
 // delete from instructor;
 // delete from natural_person;
 // delete from person;
+// delete from user_auth_providers;
 // delete from user_roles;
 // delete from users;
 
+// delete from time_zone;
 // delete from time_option
 // delete from day_of_week
 

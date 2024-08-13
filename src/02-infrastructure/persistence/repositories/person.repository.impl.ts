@@ -43,19 +43,6 @@ class PersonRepository
     return this._repository;
   }
 
-  async register(
-    naturalPersonDomain: NaturalPersonDomain
-  ): Promise<Result<void, ErrorResult>> {
-    const naturalPersonEntityResult = PersonDTO.toEntity(naturalPersonDomain);
-    if (naturalPersonEntityResult.isErr()) {
-      return err(naturalPersonEntityResult.error);
-    }
-    const personEntity = naturalPersonEntityResult.value;
-    await this._repository.save(personEntity);
-    await this._emailRepository.save(personEntity.emails);
-    await this._naturalPersonRepository.save(personEntity.naturalPerson!);
-    return ok(undefined);
-  }
   async getPersonById(
     id: string
   ): Promise<Result<NaturalPersonDomain | null, ErrorResult>> {
@@ -72,6 +59,41 @@ class PersonRepository
     }
     const person = personDomainResult.value;
     return ok(person);
+  }
+  async register(
+    naturalPersonDomain: NaturalPersonDomain
+  ): Promise<Result<void, ErrorResult>> {
+    const naturalPersonEntityResult = PersonDTO.toEntity(naturalPersonDomain);
+    if (naturalPersonEntityResult.isErr()) {
+      return err(naturalPersonEntityResult.error);
+    }
+    const personEntity = naturalPersonEntityResult.value;
+    Promise.all([
+      this._repository.save(personEntity),
+      this._emailRepository.save(personEntity.emails),
+      this._naturalPersonRepository.save(personEntity.naturalPerson!),
+    ]);
+
+    return ok(undefined);
+  }
+  async modify(
+    naturalPersonDomain: NaturalPersonDomain
+  ): Promise<Result<void, ErrorResult>> {
+    const naturalPersonEntityResult = PersonDTO.toEntity(naturalPersonDomain);
+    if (naturalPersonEntityResult.isErr()) {
+      return err(naturalPersonEntityResult.error);
+    }
+    const personEntity = naturalPersonEntityResult.value;
+    await Promise.all([
+      this._repository.save(personEntity),
+      this.updateEntities<EmailEntity>(
+        personEntity.emails,
+        this._emailRepository
+      ),
+      this._naturalPersonRepository.save(personEntity.naturalPerson!),
+    ]);
+
+    return ok(undefined);
   }
 }
 export default PersonRepository;

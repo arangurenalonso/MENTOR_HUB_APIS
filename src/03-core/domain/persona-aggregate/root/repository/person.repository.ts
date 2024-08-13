@@ -10,5 +10,8 @@ interface IPersonRepository {
   register(
     naturalPersonDomain: NaturalPersonDomain
   ): Promise<Result<void, ErrorResult>>;
+  modify(
+    naturalPersonDomain: NaturalPersonDomain
+  ): Promise<Result<void, ErrorResult>>;
 }
 export default IPersonRepository;

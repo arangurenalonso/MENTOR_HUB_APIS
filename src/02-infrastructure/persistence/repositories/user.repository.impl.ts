@@ -1,4 +1,4 @@
-import { inject, injectable, optional } from 'inversify';
+import { inject, injectable } from 'inversify';
 import {
   Brackets,
   DataSource,
@@ -15,13 +15,14 @@ import UserDomain from '@domain/user-aggregate/root/user.domain';
 import BaseRepository from './commun/BaseRepository';
 import UserDTO from '../../dto/user-aggregate/user-dto';
 import UserEntity from '@persistence/entities/user-aggregate/user.entity';
-import UserRoleEntity from '@persistence/entities/user-aggregate/user-role.entity';
 import TimeZoneDomain from '@domain/user-aggregate/timezone/time-zone.domain';
 import { validate as uuidValidate } from 'uuid';
 import TimeZoneDTO from '@infrastructure/dto/user-aggregate/time-zone.dto';
 import TimeZoneEntity from '@persistence/entities/user-aggregate/time-zone.entity';
-import AuthProviderEntity from '@persistence/entities/user-aggregate/user-auth-provider.entity';
 import ProviderDTO from '@infrastructure/dto/user-aggregate/provider.dto';
+import UserRoleDTO from '@infrastructure/dto/user-aggregate/user-role.dto';
+import AuthProviderEntity from '@persistence/entities/user-aggregate/user-auth-provider.entity';
+import UserRoleEntity from '@persistence/entities/user-aggregate/user-role.entity';
 
 @injectable()
 class UserRepository
@@ -180,24 +181,44 @@ class UserRepository
 
   async register(user: UserDomain): Promise<void> {
     const userEntity = UserDTO.toEntity(user);
-    await this.create(userEntity);
 
-    const userRoleEntity = UserDTO.userDomainToUserRoleToEntity(user);
-    await this._userRoleRepository.save(userRoleEntity);
+    const userRoleEntity = UserRoleDTO.toEntityArray(
+      user.properties.id,
+      user.properties.roles
+    );
 
     const authProviderEntity = ProviderDTO.toEntityArray(
       user.properties.id,
       user.properties.providers
     );
-    await this._authProviderRepository.save(authProviderEntity);
+    await Promise.all([
+      this.create(userEntity),
+      this._userRoleRepository.save(userRoleEntity),
+      this._authProviderRepository.save(authProviderEntity),
+    ]);
   }
 
   async modify(user: UserDomain): Promise<void> {
     const userEntity = UserDTO.toEntity(user);
-    await this.repository.save(userEntity);
-
-    const userRoleEntity = UserDTO.userDomainToUserRoleToEntity(user);
-    await this._userRoleRepository.save(userRoleEntity);
+    const userRoleEntity = UserRoleDTO.toEntityArray(
+      user.properties.id,
+      user.properties.roles
+    );
+    const authProviderEntity = ProviderDTO.toEntityArray(
+      user.properties.id,
+      user.properties.providers
+    );
+    await Promise.all([
+      this.updateEntities<UserRoleEntity>(
+        userRoleEntity,
+        this._userRoleRepository
+      ),
+      this.updateEntities<AuthProviderEntity>(
+        authProviderEntity,
+        this._authProviderRepository
+      ),
+      this.repository.save(userEntity),
+    ]);
   }
 }
 export default UserRepository;

@@ -1,34 +1,14 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import UserDomain from '@domain/user-aggregate/root/user.domain';
-import RoleDomain from '@domain/user-aggregate/role/role.domain';
-import UserRoleEntity from '@persistence/entities/user-aggregate/user-role.entity';
 import UserEntity from '@persistence/entities/user-aggregate/user.entity';
-import userRoleEntity from '@persistence/entities/user-aggregate/user-role.entity';
 import TimeZoneDTO from './time-zone.dto';
 import ProviderDTO from './provider.dto';
+import UserRoleDTO from './user-role.dto';
 
 class UserDTO {
-  private static convertUserRoles(
-    userRoles: UserRoleEntity[]
-  ): Result<RoleDomain[], ErrorResult> {
-    const roleDomains: RoleDomain[] = [];
-    for (const userRole of userRoles) {
-      const roleDomainResult = RoleDomain.create({
-        id: userRole.role.id,
-        description: userRole.role.description,
-        idRelation: userRole.id,
-      });
-      if (roleDomainResult.isErr()) {
-        return err(roleDomainResult.error);
-      }
-      roleDomains.push(roleDomainResult.value);
-    }
-    return ok(roleDomains);
-  }
-
   public static toDomain(entity: UserEntity): Result<UserDomain, ErrorResult> {
-    const rolesResult = this.convertUserRoles(entity.userRoles);
+    const rolesResult = UserRoleDTO.ToDomainArray(entity.userRoles);
     if (rolesResult.isErr()) {
       return err(rolesResult.error);
     }
@@ -66,19 +46,6 @@ class UserDTO {
     entity.idTimeZone = domain.properties.timeZone.id;
     entity.passwordHash = domain.properties.passwordHash || undefined;
     return entity;
-  }
-  public static userDomainToUserRoleToEntity(
-    domain: UserDomain
-  ): userRoleEntity[] {
-    const userRoles = domain.properties.roles.map((x) => {
-      const userRoleEntity = new UserRoleEntity();
-
-      userRoleEntity.id = x.idRelation!; //TODO
-      userRoleEntity.idRol = x.id;
-      userRoleEntity.idUser = domain.properties.id;
-      return userRoleEntity;
-    });
-    return userRoles;
   }
 }
 export default UserDTO;

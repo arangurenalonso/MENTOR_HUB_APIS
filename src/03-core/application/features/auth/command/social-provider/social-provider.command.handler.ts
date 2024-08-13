@@ -49,8 +49,6 @@ class SocialProviderCommandHandler
     }
     const userDomainByUid = userDomainByUidResult.value;
     if (userDomainByUid) {
-      console.log('userDomainByUid', userDomainByUid);
-
       return await this._mediator.send(
         new AuthenticationResultQuery(userDomainByUid.properties.id)
       );
@@ -62,6 +60,15 @@ class SocialProviderCommandHandler
     }
     const userDomainByEmail = userDomainByEmailResult.value;
     if (userDomainByEmail) {
+      const result = await this.addSocialProvierToUser(
+        userDomainByEmail,
+        command.email,
+        command.uid,
+        command.provider
+      );
+      if (result.isErr()) {
+        return err(result.error);
+      }
       return await this._mediator.send(
         new AuthenticationResultQuery(userDomainByEmail.properties.id)
       );
@@ -83,6 +90,55 @@ class SocialProviderCommandHandler
     );
   }
 
+  private async addSocialProvierToUser(
+    user: UserDomain,
+    email: string,
+    uid: string,
+    provider: ProviderEnum
+  ): Promise<Result<UserDomain, ErrorResult>> {
+    const personResult = await this._personRepository.getPersonById(
+      user.properties.id
+    );
+
+    if (personResult.isErr()) {
+      return err(personResult.error);
+    }
+    const person = personResult.value;
+    if (!person) {
+      return err(PersonApplicationErrors.PERSON_NOT_FOUND(user.properties.id));
+    }
+    person.verifyEmail(email);
+    const providerDomainResult = await AuthProviderDomain.create({
+      provider: provider,
+      uid: uid,
+    });
+    if (providerDomainResult.isErr()) {
+      return err(providerDomainResult.error);
+    }
+    const providerDomain = providerDomainResult.value;
+    user.addSocialMediaProvider(providerDomain);
+
+    try {
+      await this._unitOfWork.startTransaction();
+
+      await Promise.all([
+        this._unitOfWork.userRepository.modify(user),
+        this._unitOfWork.personRepository.modify(person),
+      ]);
+      // await this._unitOfWork.userRepository.modify(user);
+      // await this._unitOfWork.personRepository.modify(person);
+
+      this._unitOfWork.collectDomainEvents([user]);
+
+      await this._unitOfWork.commit();
+    } catch (error) {
+      await this._unitOfWork.rollback();
+
+      return err(UserApplicationErrors.USER_CREATE_ERROR(`${error}`));
+    }
+
+    return ok(user);
+  }
   private async getUserByEmail(
     email: string
   ): Promise<Result<UserDomain | null, ErrorResult>> {

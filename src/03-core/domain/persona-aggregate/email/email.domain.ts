@@ -80,7 +80,9 @@ class EmailDomain extends BaseDomain<EmailId> {
 
     return ok(emailDomain);
   }
-
+  public verify() {
+    this._is_verified = true;
+  }
   get properties(): EmailDomainProperties {
     return {
       id: this._id.value,

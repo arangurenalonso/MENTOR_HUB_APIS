@@ -165,7 +165,7 @@ class CreateInstructorProfileCommandHandler
     const person = personResult.value;
 
     if (person === null) {
-      return err(PersonApplicationErrors.PERSON_NOT_FOUND);
+      return err(PersonApplicationErrors.PERSON_NOT_FOUND(userId));
     }
 
     const tokenResult = await this._tokenService.generateToken({

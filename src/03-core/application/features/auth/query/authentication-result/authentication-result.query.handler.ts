@@ -48,7 +48,7 @@ class AuthenticationResultQueryHandler
       return err(UserErrors.USER_NOT_FOUND);
     }
     if (person === null) {
-      return err(PersonApplicationErrors.PERSON_NOT_FOUND);
+      return err(PersonApplicationErrors.PERSON_NOT_FOUND(command.idUser));
     }
 
     const tokenResult = await this._tokenService.generateToken({

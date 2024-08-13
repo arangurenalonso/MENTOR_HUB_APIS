@@ -1,6 +1,7 @@
-import { Repository, ObjectLiteral } from 'typeorm';
+import { Repository, ObjectLiteral, FindOptionsWhere, In, Not } from 'typeorm';
 import { injectable } from 'inversify';
 import IBaseRepository from '@domain/abstract/repository/IBaseRepository';
+import BaseEntity from '@persistence/entities/abstrations/base.entity';
 
 @injectable()
 abstract class BaseRepository<T extends ObjectLiteral>
@@ -10,7 +11,25 @@ abstract class BaseRepository<T extends ObjectLiteral>
   // constructor(dataSource: DataSource, entity: new () => T) {
   //   this.repository = dataSource.getRepository(entity);
   // }
+  async updateEntities<T extends BaseEntity>(
+    entities: T[],
+    repository: Repository<T>
+  ): Promise<void> {
+    const entityIds = entities.map((entity) => entity.id);
+    const entitiesToDeactivate = await repository.find({
+      where: {
+        id: Not(In(entityIds)),
+        active: true,
+      } as FindOptionsWhere<T>,
+    });
 
+    entitiesToDeactivate.forEach((entity) => {
+      entity.active = false;
+    });
+
+    await repository.save(entitiesToDeactivate);
+    await repository.save(entities);
+  }
   async getAll(): Promise<T[]> {
     return await this.repository.find();
   }

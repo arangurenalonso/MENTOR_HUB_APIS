@@ -29,26 +29,28 @@ class InstructorSocialMediaDTO {
     if (!entities) {
       return ok([]);
     }
-    const socialMediaDomain: SocialMediaDomain[] = [];
+    const domainArray: SocialMediaDomain[] = [];
     for (const entity of entities) {
       const entityResult = this.ToDomain(entity);
       if (entityResult.isErr()) {
         return err(entityResult.error);
       }
-      socialMediaDomain.push(entityResult.value);
+      domainArray.push(entityResult.value);
     }
-    return ok(socialMediaDomain);
+    return ok(domainArray);
   }
   public static toEntity(
     idInstructor: string,
     domain: SocialMediaDomainProperties
   ): InstructorSocialMediaEntity {
-    const socialMediaEntity = new InstructorSocialMediaEntity();
-    socialMediaEntity.id = domain.idRelation;
-    socialMediaEntity.idInstructor = idInstructor;
-    socialMediaEntity.idSocialMedia = domain.id;
-    socialMediaEntity.urlProfile = domain.urlProfile;
-    return socialMediaEntity;
+    const entity = new InstructorSocialMediaEntity();
+    if (domain.idRelation) {
+      entity.id = domain.idRelation;
+    }
+    entity.idInstructor = idInstructor;
+    entity.idSocialMedia = domain.id;
+    entity.urlProfile = domain.urlProfile;
+    return entity;
   }
 
   public static toEntityArray(

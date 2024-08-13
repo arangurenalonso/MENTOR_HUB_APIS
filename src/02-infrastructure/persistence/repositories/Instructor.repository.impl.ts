@@ -162,32 +162,35 @@ class InstructorRepository
     );
   }
 
-  async updateAvailability(
-    availability: InstructorAvailabilityEntity[]
-  ): Promise<void> {
-    const availabilityIds = availability.map((a) => a.id);
-    const availabilitiesToDeactivate =
-      await this._instructorAvailabilityRepository.find({
-        where: {
-          id: Not(In(availabilityIds)),
-          active: true,
-        },
-      });
-
-    availabilitiesToDeactivate.forEach((availability) => {
-      availability.active = false;
-    });
-
-    await this._instructorAvailabilityRepository.save(
-      availabilitiesToDeactivate
-    );
-
-    await this._instructorAvailabilityRepository.save(availability);
-  }
-
   async modify(instructor: InstructorDomain): Promise<void> {
     const instructorEntity = InstructorDTO.toEntity(instructor);
-    await this.updateAvailability(instructorEntity.availability);
+    await this.updateEntities<InstructorAvailabilityEntity>(
+      instructorEntity.availability,
+      this._instructorAvailabilityRepository
+    );
+    // await this.updateAvailability(instructorEntity.availability);
   }
+  // async updateAvailability(
+  //   availability: InstructorAvailabilityEntity[]
+  // ): Promise<void> {
+  //   const availabilityIds = availability.map((a) => a.id);
+  //   const availabilitiesToDeactivate =
+  //     await this._instructorAvailabilityRepository.find({
+  //       where: {
+  //         id: Not(In(availabilityIds)),
+  //         active: true,
+  //       },
+  //     });
+
+  //   availabilitiesToDeactivate.forEach((availability) => {
+  //     availability.active = false;
+  //   });
+
+  //   await this._instructorAvailabilityRepository.save(
+  //     availabilitiesToDeactivate
+  //   );
+
+  //   await this._instructorAvailabilityRepository.save(availability);
+  // }
 }
 export default InstructorRepository;

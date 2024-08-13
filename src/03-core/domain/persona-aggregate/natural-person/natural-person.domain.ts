@@ -10,34 +10,38 @@ import PersonId from '../root/value-object/person-id.value-object';
 import Name from './value-object/name.value-object';
 import Birthdate from './value-object/birthdate.value-object';
 import PersonErrors from '../root/error/person.error';
+import ImageURL from '@domain/intructor-aggregate/social-media/value-object/image-url.value-object';
 
 type NaturalPersonDomainProperties = {
   id: string;
   personId: PersonId;
-  emails: EmailDomainProperties[];
+  photoUrl: string | null;
   name: string;
+  emails: EmailDomainProperties[];
   birthdate: Date | null;
   personType: PersonTypeEnum;
 };
 
 type NaturalPersonDomainCreateArg = {
   id?: string;
-  name: string;
   photoUrl?: string | null;
+  name: string;
   email: EmailDomainCreateArg | EmailDomainCreateArg[];
   birthdate?: Date | null;
 };
 
 type NaturalPersonDomainConstructor = {
   id: PersonId;
-  personType: PersonTypeEnum;
-  emails: EmailDomain[];
+  photoUrl: ImageURL | null;
   name: Name;
+  emails: EmailDomain[];
   birthdate: Birthdate | null;
+  personType: PersonTypeEnum;
 };
 
 class NaturalPersonDomain extends PersonDomain {
   private _name: Name;
+  private _photoUrl: ImageURL | null;
   private _birthday: Birthdate | null;
   private constructor(properties: NaturalPersonDomainConstructor) {
     super({
@@ -47,6 +51,7 @@ class NaturalPersonDomain extends PersonDomain {
     });
     this._name = properties.name;
     this._birthday = properties.birthdate;
+    this._photoUrl = properties.photoUrl;
   }
 
   public static create(
@@ -88,16 +93,47 @@ class NaturalPersonDomain extends PersonDomain {
     }
     const birthdate = birthDateResult.value;
 
+    const photoUrlResult = ImageURL.create(args.photoUrl);
+
+    if (photoUrlResult.isErr()) {
+      return err(photoUrlResult.error);
+    }
+    const photoUrl = photoUrlResult.value;
+
     const naturalPerson = new NaturalPersonDomain({
       id,
       personType: PersonTypeEnum.NATURAL,
       emails: emailDomains,
       name,
       birthdate,
+      photoUrl,
     });
     return ok(naturalPerson);
   }
+  public verifyEmail = (email: string): Result<void, ErrorResult> => {
+    const emailToVerify = this._emails.find(
+      (x) =>
+        x.properties.email_address?.trim().toLowerCase() ===
+        email?.trim().toLowerCase()
+    );
+    if (!emailToVerify) {
+      return err(PersonErrors.EMAIL_NOT_FOUND(this._name.value, email));
+    }
+    emailToVerify.verify();
+    return ok(undefined);
+  };
+  public updatePhotho = (
+    photoUrlToUpdate?: string | null
+  ): Result<void, ErrorResult> => {
+    const photoUrlResult = ImageURL.create(photoUrlToUpdate);
 
+    if (photoUrlResult.isErr()) {
+      return err(photoUrlResult.error);
+    }
+    const photoUrl = photoUrlResult.value;
+    this._photoUrl = photoUrl;
+    return ok(undefined);
+  };
   get properties(): NaturalPersonDomainProperties {
     return {
       id: this._id.value,
@@ -106,6 +142,7 @@ class NaturalPersonDomain extends PersonDomain {
       name: this._name.value,
       birthdate: this._birthday?.value || null,
       personType: this._personType,
+      photoUrl: this._photoUrl?.value || null,
     };
   }
 }

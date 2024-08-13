@@ -78,11 +78,11 @@ class UserDomain extends BaseDomain<UserId> {
       (args.providers === null ||
         args.providers === undefined ||
         args.providers.length === 0) &&
-      (args.passwordHash != null || args.passwordHash != undefined)
+      (args.passwordHash === null || args.passwordHash === undefined)
     ) {
       return err(UserErrors.USER_NOT_PASSWORD_PROVIDE());
     }
-    if (args.passwordHash != null || args.passwordHash != undefined) {
+    if (args.passwordHash !== null && args.passwordHash !== undefined) {
       const resultPasswordHash = PasswordHash.create(args.passwordHash);
       if (resultPasswordHash.isErr()) {
         return err(resultPasswordHash.error);
@@ -108,7 +108,9 @@ class UserDomain extends BaseDomain<UserId> {
 
     return ok(user);
   }
-
+  public addSocialMediaProvider(providerDomain: AuthProviderDomain) {
+    this._providers.push(providerDomain);
+  }
   public addRol(role: RoleDomain) {
     const roleAlreadyExistInList = this._roles.some(
       (x) => x.properties.id === role.properties.id

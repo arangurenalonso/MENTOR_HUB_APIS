@@ -1,5 +1,5 @@
 import { injectable, inject } from 'inversify';
-import { requestHandler, IRequestHandler } from 'mediatr-ts';
+import { requestHandler, IRequestHandler, Mediator } from 'mediatr-ts';
 import RegisterCommand from './register.command';
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
@@ -14,6 +14,7 @@ import ITokenService from '@application/contracts/IToken.service';
 import RoleDomain from '@domain/user-aggregate/role/role.domain';
 import { RoleEnum } from '@domain/user-aggregate/role/enum/role.enum';
 import NaturalPersonDomain from '@domain/persona-aggregate/natural-person/natural-person.domain';
+import AuthenticationResultQuery from '../../query/authentication-result/authentication-result.query';
 
 @injectable()
 @requestHandler(RegisterCommand)
@@ -22,9 +23,9 @@ class RegisterCommandHandler
     IRequestHandler<RegisterCommand, Result<AuthenticationResult, ErrorResult>>
 {
   constructor(
+    @inject(TYPES.Mediator) private _mediator: Mediator,
     @inject(TYPES.IUserRepository) private _userRepository: IUserRepository,
     @inject(TYPES.IUnitOfWork) private readonly _unitOfWork: IUnitOfWork,
-    @inject(TYPES.ITokenService) private _tokenService: ITokenService,
     @inject(TYPES.IPasswordService) private _passwordService: IPasswordService
   ) {}
   async handle(
@@ -93,29 +94,10 @@ class RegisterCommandHandler
 
       return err(UserApplicationErrors.USER_CREATE_ERROR(`${error}`));
     }
-    const tokenResult = await this._tokenService.generateToken({
-      id: user.properties.id!,
-      email: user.properties.email,
-      name: person.properties.name,
-      timeZone: {
-        id: user.properties.timeZone.id,
-        description: user.properties.timeZone.description,
-        offsetMinutes: user.properties.timeZone.offsetMinutes,
-        offsetHours: user.properties.timeZone.offsetHours,
-        timeZoneStringId: user.properties.timeZone.timeZoneStringId,
-      },
-      roles: user.properties.roles.map((x) => {
-        return {
-          id: x.id,
-          description: x.description,
-        };
-      }),
-    });
 
-    if (tokenResult.isErr()) {
-      return err(tokenResult.error);
-    }
-    return ok(new AuthenticationResult(tokenResult.value, true, ''));
+    return await this._mediator.send(
+      new AuthenticationResultQuery(user.properties.id)
+    );
   }
   private async validate(email: string): Promise<Result<boolean, ErrorResult>> {
     const userEmail = await this._userRepository.getUserByEmail(email);

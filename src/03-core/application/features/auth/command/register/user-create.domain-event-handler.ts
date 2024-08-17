@@ -12,6 +12,7 @@ import NaturalPersonEntity from '@persistence/entities/person-aggreagte/natural_
 import { id, inject, injectable } from 'inversify';
 import { notificationHandler, INotificationHandler } from 'mediatr-ts';
 import { err } from 'neverthrow';
+import EmailTokenPayload from '../../../../models/EmailTokenPayload';
 
 @notificationHandler(UserCreatedDomainEvent)
 @injectable()
@@ -27,8 +28,8 @@ class UserCreatedDomainEventHandler
     @inject(TYPES.IEmailService) private _emailService: IEmailService
   ) {}
   async handle(notification: UserCreatedDomainEvent): Promise<void> {
-    const user = await this.getUser(notification.value);
-    const person = await this.getPerson(user.properties.id);
+    const user = await this.getUser(notification.idUser);
+    const person = await this.getPerson(notification.idUser);
     await this.sendEmailValidationLink(user, person);
   }
   private async getUser(id?: string): Promise<UserDomain> {
@@ -60,27 +61,25 @@ class UserCreatedDomainEventHandler
     userDomain: UserDomain,
     person: NaturalPersonDomain
   ) => {
-    const tokenResult = await this._tokenService.generateToken({
-      id: userDomain.properties.id!,
-      email: userDomain.properties.email,
-      name: person.properties.name,
-      timeZone: {
-        id: userDomain.properties.timeZone.id,
-        description: userDomain.properties.timeZone.description,
-        offsetMinutes: userDomain.properties.timeZone.offsetMinutes,
-        offsetHours: userDomain.properties.timeZone.offsetHours,
-        timeZoneStringId: userDomain.properties.timeZone.timeZoneStringId,
-      },
-      roles: userDomain.properties.roles.map((x) => {
-        return {
-          id: x.id,
-          description: x.description,
-        };
-      }),
-    });
+    const email = userDomain.properties.email;
+    const emailFinded = person.properties.emails.find(
+      (x) => x.email_address.trim().toLowerCase() == email.trim().toLowerCase()
+    );
+    if (!emailFinded) {
+      throw new Error(
+        PersonApplicationErrors.EMAIL_NOT_FOUND(
+          email,
+          person.properties.id
+        ).toString()
+      );
+    }
 
+    const tokenResult = await this._tokenService.generateToken({
+      idUser: userDomain.properties.id!,
+      email: userDomain.properties.email,
+    });
     if (tokenResult.isErr()) {
-      return err(tokenResult.error);
+      throw new Error(tokenResult.error.toString());
     }
     const token = tokenResult.value;
     const link = `${this._envs.webserviceUrl}/auth/validate-email/${token}`;

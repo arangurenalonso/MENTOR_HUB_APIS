@@ -50,7 +50,6 @@ class PersonDTO {
             email_address: x.emailAddress,
             is_primary: x.isPrimary,
             is_verified: x.isVerified,
-            verification_token: x.verificationToken,
           };
         }),
       });
@@ -78,7 +77,6 @@ class PersonDTO {
       emailEntity.emailAddress = emailDomain.email_address;
       emailEntity.isPrimary = emailDomain.is_primary;
       emailEntity.isVerified = emailDomain.is_verified;
-      emailEntity.verificationToken = emailDomain.verification_token;
       emailEntity.idPerson = domain.properties.id;
       return emailEntity;
     });

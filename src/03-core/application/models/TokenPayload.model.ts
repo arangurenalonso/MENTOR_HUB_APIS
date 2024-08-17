@@ -12,7 +12,7 @@ export type timeZoneType = {
 
 type TokenPayload = {
   name: string;
-  id: string;
+  idUser: string;
   email: string;
   roles: rolesType[];
   timeZone: timeZoneType;

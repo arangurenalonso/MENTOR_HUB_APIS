@@ -18,14 +18,6 @@ class EmailEntity extends BaseEntity {
   @Column({ type: 'boolean', name: 'is_verified', default: false })
   isVerified: boolean = false;
 
-  @Column({
-    type: 'varchar',
-    length: 255,
-    name: 'verification_token',
-    nullable: true,
-  })
-  verificationToken!: string;
-
   @Column({ type: 'uuid', name: 'id_person', nullable: true })
   idPerson!: string;
 

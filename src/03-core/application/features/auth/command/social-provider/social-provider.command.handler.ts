@@ -34,8 +34,6 @@ class SocialProviderCommandHandler
     @inject(TYPES.Mediator) private _mediator: Mediator,
     @inject(TYPES.IUserRepository) private _userRepository: IUserRepository,
     @inject(TYPES.IUnitOfWork) private readonly _unitOfWork: IUnitOfWork,
-    @inject(TYPES.ITokenService) private _tokenService: ITokenService,
-    @inject(TYPES.IPasswordService) private _passwordService: IPasswordService,
     @inject(TYPES.IPersonRepository)
     private _personRepository: IPersonRepository
   ) {}

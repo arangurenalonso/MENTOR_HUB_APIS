@@ -18,6 +18,7 @@ class Environment {
   public readonly dbHost: string;
   public readonly saltRounds: number = 10;
   public readonly jwtSecret: string;
+  public readonly jwtExpireRefreshToken: string = '7d';
   public readonly jwtExpireAccessToken: string = '1h';
   public readonly mailerEmail: string;
   public readonly mailerSecretKey: string;
@@ -44,6 +45,12 @@ class Environment {
       .get('JWT_EXPIRE_ACCESS_TOKEN')
       .required()
       .asString();
+
+    this.jwtExpireRefreshToken = env
+      .get('JWT_EXPIRE_REFRESH_TOKEN')
+      .required()
+      .asString();
+
     this.mailerEmail = env.get('MAILER_EMAIL').required().asEmailString();
     this.mailerSecretKey = env.get('MAILER_SECRET_KEY').required().asString();
     this.mailerService = env.get('MAILER_SERVICE').required().asString();

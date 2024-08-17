@@ -1,7 +1,9 @@
 import ITokenService from '@application/contracts/IToken.service';
+import TokenPayload from '@application/models/TokenPayload.model';
 import TYPES from '@config/inversify/identifiers';
 import { Request, Response, NextFunction } from 'express';
 import { inject, injectable } from 'inversify';
+import { resolve } from 'path';
 
 @injectable()
 class AuthenticationMiddleware {
@@ -35,7 +37,8 @@ class AuthenticationMiddleware {
       }
       const token = tokensParts.at(1) || '';
 
-      const tokenValidationResult = await this._tokenService.verifyToken(token);
+      const tokenValidationResult =
+        await this._tokenService.verifyToken<TokenPayload>(token);
 
       if (tokenValidationResult.isErr()) {
         res.status(401).json({

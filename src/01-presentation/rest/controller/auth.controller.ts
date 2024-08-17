@@ -9,6 +9,7 @@ import { inject, injectable } from 'inversify';
 import { Mediator } from 'mediatr-ts';
 import { ProviderEnum } from '@domain/user-aggregate/provider/enum/provider.enum';
 import SocialProviderCommand from '@application/features/auth/command/social-provider/social-provider.command';
+import ConfirmEmailVerificationCommand from '@application/features/auth/command/confirmEmailVerification/confirmEmailVerification.command';
 
 @injectable()
 class AuthController {
@@ -16,6 +17,8 @@ class AuthController {
     this.login = this.login.bind(this);
     this.register = this.register.bind(this);
     this.socialProvider = this.socialProvider.bind(this);
+    this.confirmEmailVerification = this.confirmEmailVerification.bind(this);
+    this.validateToken = this.validateToken.bind(this);
   }
 
   public async login(req: Request, res: Response) {
@@ -63,6 +66,22 @@ class AuthController {
     );
     const tokenResult = await this._mediator.send(command);
     return tokenResult;
+  }
+  public async confirmEmailVerification(req: Request, res: Response) {
+    const { verificationEmailToken } = req.params as {
+      verificationEmailToken: string;
+    };
+
+    const command = new ConfirmEmailVerificationCommand(verificationEmailToken);
+    const tokenResult = await this._mediator.send(command);
+    return tokenResult;
+  }
+  public async validateToken(req: Request, res: Response) {
+    // const user = res.locals.user;
+    return {
+      message: 'Token is valid',
+      isAuthenticated: true,
+    };
   }
 }
 

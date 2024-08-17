@@ -2,7 +2,7 @@ import TYPES from '@config/inversify/identifiers';
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import { injectable, inject } from 'inversify';
-import { requestHandler, IRequestHandler } from 'mediatr-ts';
+import { requestHandler, IRequestHandler, Mediator } from 'mediatr-ts';
 import CreateInstructorProfileCommand from './create-profile.command';
 import IInstructorRepository from '@domain/intructor-aggregate/root/repository/instructor.repository';
 import InstructorApplicationErrors from '@application/errors/instructor-application.error';
@@ -12,11 +12,9 @@ import IUserRepository from '@domain/user-aggregate/root/repositories/IUser.repo
 import UserApplicationErrors from '@application/errors/user-application.error';
 import { RoleEnum } from '@domain/user-aggregate/role/enum/role.enum';
 import RoleDomain from '@domain/user-aggregate/role/role.domain';
-import PersonApplicationErrors from '@application/errors/person-application.error';
-import IPersonRepository from '@domain/persona-aggregate/root/repository/person.repository';
-import ITokenService from '@application/contracts/IToken.service';
 import AuthenticationResult from '@application/models/AuthenticationResult';
 import UserDomain from '@domain/user-aggregate/root/user.domain';
+import AuthenticationResultQuery from '@application/features/auth/query/authentication-result/authentication-result.query';
 @injectable()
 @requestHandler(CreateInstructorProfileCommand)
 class CreateInstructorProfileCommandHandler
@@ -27,20 +25,18 @@ class CreateInstructorProfileCommandHandler
     >
 {
   constructor(
+    @inject(TYPES.Mediator) private _mediator: Mediator,
     @inject(TYPES.InstructorRepository)
     private _InstructorRepository: IInstructorRepository,
-    @inject(TYPES.IPersonRepository)
-    private _personRepository: IPersonRepository,
     @inject(TYPES.IUserRepository) private _userRepository: IUserRepository,
-    @inject(TYPES.ITokenService) private _tokenService: ITokenService,
     @inject(TYPES.IUnitOfWork) private readonly _unitOfWork: IUnitOfWork
   ) {}
   async handle(
     command: CreateInstructorProfileCommand
   ): Promise<Result<AuthenticationResult, ErrorResult>> {
     const [instructorDomainResult, userDomainResult] = await Promise.all([
-      this._getInstructorById(command.userConnected.id),
-      this._getUserById(command.userConnected.id),
+      this._getInstructorById(command.userConnected.idUser),
+      this._getUserById(command.userConnected.idUser),
     ]);
 
     if (instructorDomainResult.isErr()) {
@@ -49,7 +45,7 @@ class CreateInstructorProfileCommandHandler
 
     if (instructorDomainResult.value) {
       return err(
-        InstructorApplicationErrors.ALREADY_EXISTS(command.userConnected.id)
+        InstructorApplicationErrors.ALREADY_EXISTS(command.userConnected.idUser)
       );
     }
 
@@ -60,22 +56,15 @@ class CreateInstructorProfileCommandHandler
     const userDomain = userDomainResult.value;
     const instructorResult = await this._createInstructorProfile(
       userDomain,
-      command.userConnected.id
+      command.userConnected.idUser
     );
 
     if (instructorResult.isErr()) {
       return err(instructorResult.error);
     }
-    const tokenResult = await this._generateToken(
-      userDomainResult.value,
-      command.userConnected.id
+    return await this._mediator.send(
+      new AuthenticationResultQuery(command.userConnected.idUser)
     );
-
-    if (tokenResult.isErr()) {
-      return err(tokenResult.error);
-    }
-
-    return ok(new AuthenticationResult(tokenResult.value, true, ''));
   }
   private async _getInstructorById(
     id: string
@@ -151,47 +140,6 @@ class CreateInstructorProfileCommandHandler
     }
 
     return ok(true);
-  }
-  private async _generateToken(
-    userDomain: UserDomain,
-    userId: string
-  ): Promise<Result<string, ErrorResult>> {
-    const personResult = await this._personRepository.getPersonById(userId);
-
-    if (personResult.isErr()) {
-      return err(personResult.error);
-    }
-
-    const person = personResult.value;
-
-    if (person === null) {
-      return err(PersonApplicationErrors.PERSON_NOT_FOUND(userId));
-    }
-
-    const tokenResult = await this._tokenService.generateToken({
-      id: userDomain.properties.id!,
-      email: userDomain.properties.email,
-      name: person.properties.name,
-      timeZone: {
-        id: userDomain.properties.timeZone.id,
-        description: userDomain.properties.timeZone.description,
-        offsetMinutes: userDomain.properties.timeZone.offsetMinutes,
-        offsetHours: userDomain.properties.timeZone.offsetHours,
-        timeZoneStringId: userDomain.properties.timeZone.timeZoneStringId,
-      },
-      roles: userDomain.properties.roles.map((x) => {
-        return {
-          id: x.id,
-          description: x.description,
-        };
-      }),
-    });
-
-    if (tokenResult.isErr()) {
-      return err(tokenResult.error);
-    }
-
-    return ok(tokenResult.value);
   }
 }
 export default CreateInstructorProfileCommandHandler;

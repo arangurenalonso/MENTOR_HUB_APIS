@@ -57,6 +57,8 @@ import SocialProviderCommand from '@application/features/auth/command/social-pro
 import SocialProviderCommandHandler from '@application/features/auth/command/social-provider/social-provider.command.handler';
 import AuthenticationResultQuery from '@application/features/auth/query/authentication-result/authentication-result.query';
 import AuthenticationResultQueryHandler from '@application/features/auth/query/authentication-result/authentication-result.query.handler';
+import ConfirmEmailVerificationCommandHandler from '@application/features/auth/command/confirmEmailVerification/confirmEmailVerification.command.handler';
+import ConfirmEmailVerificationCommand from '@application/features/auth/command/confirmEmailVerification/confirmEmailVerification.command';
 class DependencyContainer {
   private readonly _container: Container;
 
@@ -183,6 +185,15 @@ class DependencyContainer {
         IRequestHandler<LoginCommand, Result<AuthenticationResult, ErrorResult>>
       >('LoginCommand')
       .to(LoginCommandHandler);
+
+    this._container
+      .bind<
+        IRequestHandler<
+          ConfirmEmailVerificationCommand,
+          Result<AuthenticationResult, ErrorResult>
+        >
+      >('ConfirmEmailVerificationCommand')
+      .to(ConfirmEmailVerificationCommandHandler);
 
     this._container
       .bind<

@@ -1,4 +1,6 @@
 import ITokenService from '@application/contracts/IToken.service';
+import EmailTokenPayload from '@application/models/EmailTokenPayload';
+import RefreshTokenPayload from '@application/models/RefreshTokenPayload';
 import TokenPayload from '@application/models/TokenPayload.model';
 import Environment from '@config/enviroment';
 import TYPES from '@config/inversify/identifiers';
@@ -6,13 +8,12 @@ import { ErrorResult } from '@domain/abstract/result-abstract';
 import { injectable, inject } from 'inversify';
 import * as jwt from 'jsonwebtoken';
 import { Result, err, ok } from 'neverthrow';
-import { promisify } from 'util';
 @injectable()
 class TokenService implements ITokenService {
   constructor(@inject(TYPES.Environment) private readonly _env: Environment) {}
 
   public async generateToken(
-    payload: TokenPayload
+    payload: TokenPayload | EmailTokenPayload
   ): Promise<Result<string, ErrorResult>> {
     try {
       const token = jwt.sign(payload, this._env.jwtSecret, {
@@ -44,16 +45,31 @@ class TokenService implements ITokenService {
       return err(new ErrorResult('Token.Generation', errorMessage, 500));
     }
   }
-  public async verifyToken(
-    token: string
-  ): Promise<Result<TokenPayload, ErrorResult>> {
+  public async generateRefreshToken(
+    payload: RefreshTokenPayload
+  ): Promise<Result<string, ErrorResult>> {
     try {
-      const decoded = await new Promise<TokenPayload>((resolve, reject) => {
+      const token = jwt.sign(payload, this._env.jwtSecret, {
+        expiresIn: this._env.jwtExpireRefreshToken,
+      });
+      return ok(token);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'An error occurred during token generation';
+
+      return err(new ErrorResult('Token.Generation', errorMessage, 500));
+    }
+  }
+  public async verifyToken<T>(token: string): Promise<Result<T, ErrorResult>> {
+    try {
+      const decoded = await new Promise<T>((resolve, reject) => {
         jwt.verify(token, this._env.jwtSecret, (err, decoded) => {
           if (err || !decoded) {
             reject(err || new Error('Token verification failed'));
           } else {
-            resolve(decoded as TokenPayload);
+            resolve(decoded as T);
           }
         });
       });

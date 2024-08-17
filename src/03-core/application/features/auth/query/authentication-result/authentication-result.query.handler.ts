@@ -52,7 +52,7 @@ class AuthenticationResultQueryHandler
     }
 
     const tokenResult = await this._tokenService.generateToken({
-      id: userDomain.properties.id!,
+      idUser: userDomain.properties.id!,
       email: userDomain.properties.email,
       name: person.properties.name,
       timeZone: {
@@ -69,15 +69,24 @@ class AuthenticationResultQueryHandler
         };
       }),
     });
-
+    const refreshTokenResult = await this._tokenService.generateRefreshToken({
+      idUser: userDomain.properties.id!,
+      email: userDomain.properties.email,
+    });
+    if (refreshTokenResult.isErr()) {
+      return err(refreshTokenResult.error);
+    }
     if (tokenResult.isErr()) {
       return err(tokenResult.error);
     }
-
-    if (tokenResult.isErr()) {
-      return err(tokenResult.error);
-    }
-    return ok(new AuthenticationResult(tokenResult.value, true, ''));
+    return ok(
+      new AuthenticationResult(
+        tokenResult.value,
+        refreshTokenResult.value,
+        true,
+        ''
+      )
+    );
   }
 }
 export default AuthenticationResultQueryHandler;

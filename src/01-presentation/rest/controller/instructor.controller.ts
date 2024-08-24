@@ -1,8 +1,6 @@
-import LoginCommand from '@application/features/auth/command/login/login.command';
-import RegisterCommand from '@application/features/auth/command/register/register.command';
 import AuthenticationResult from '@application/models/AuthenticationResult';
 import TYPES from '@config/inversify/identifiers';
-import { err, ok, Result } from 'neverthrow';
+import { Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import { Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
@@ -11,12 +9,25 @@ import TokenPayload from '@application/models/TokenPayload.model';
 import CreateInstructorProfileCommand from '@application/features/instructor/command/createProfile/create-profile.command';
 import UpdateInstructorAvailabilityCommand from '@application/features/instructor/command/updateAvailability/updateAvailability.command';
 import AvailabilityRequestDTO from '@application/features/instructor/command/updateAvailability/availability.request.dto';
+import UpdateAboutCommand from '@application/features/instructor/command/updateAbout/updateAbout.command';
+import GetInstructorByIdQuery from '@application/features/instructor/query/getInstructorById/getInstructorById.query';
+import { InstructorDomainProperties } from '@domain/intructor-aggregate/root/instructor.domain';
 
 @injectable()
 class InstructorController {
   constructor(@inject(TYPES.Mediator) private _mediator: Mediator) {
     this.createProfile = this.createProfile.bind(this);
     this.updateAvailability = this.updateAvailability.bind(this);
+    this.updateAbout = this.updateAbout.bind(this);
+    this.getConnectedInstructor = this.getConnectedInstructor.bind(this);
+  }
+
+  public async getConnectedInstructor(req: Request, res: Response) {
+    const connectedUser = res.locals.user as TokenPayload;
+    const command = new GetInstructorByIdQuery(connectedUser.idUser);
+    const result: Result<InstructorDomainProperties, ErrorResult> =
+      await this._mediator.send(command);
+    return result;
   }
 
   public async createProfile(req: Request, res: Response) {
@@ -31,7 +42,6 @@ class InstructorController {
   public async updateAvailability(req: Request, res: Response) {
     const idInstructor = req.params.idInstructor;
     const connectedUser = res.locals.user as TokenPayload;
-
     const availability = req.body.availability.map(
       (item: any) =>
         new AvailabilityRequestDTO(
@@ -50,6 +60,32 @@ class InstructorController {
     const result: Result<void, ErrorResult> = await this._mediator.send(
       command
     );
+    return result;
+  }
+
+  public async updateAbout(req: Request, res: Response) {
+    const connectedUser = res.locals.user as TokenPayload;
+
+    const { introductionText, teachingExperienceText, motivationText } =
+      req.body as {
+        introductionText: string;
+        teachingExperienceText: string;
+        motivationText: string;
+      };
+
+    const idInstructor = req.params.idInstructor;
+
+    const command = new UpdateAboutCommand(
+      idInstructor,
+      introductionText,
+      teachingExperienceText,
+      motivationText
+    );
+
+    const result: Result<void, ErrorResult> = await this._mediator.send(
+      command
+    );
+
     return result;
   }
 }

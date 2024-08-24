@@ -12,14 +12,14 @@ class InstructorEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 60, nullable: true })
   headline?: string;
 
-  @Column({ type: 'varchar', length: 600, nullable: true })
-  introduction?: string;
+  @Column({ type: 'jsonb', nullable: true })
+  introduction?: Record<string, any>;
 
-  @Column({ type: 'varchar', length: 600, nullable: true })
-  teachingExperience?: string;
+  @Column({ type: 'jsonb', nullable: true })
+  teachingExperience?: Record<string, any>;
 
-  @Column({ type: 'varchar', length: 600, nullable: true })
-  motivation?: string;
+  @Column({ type: 'jsonb', nullable: true })
+  motivation?: Record<string, any>;
 
   @OneToOne(() => NaturalPersonEntity)
   @JoinColumn({ name: 'id' })

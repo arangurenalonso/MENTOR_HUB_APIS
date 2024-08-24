@@ -3,12 +3,13 @@ import asyncHandlerMiddleware from '@rest/middlewares/asyncHandler.middleware';
 import ValidatorMiddleware from '@rest/middlewares/validator.middleware';
 import { Router } from 'express';
 import { injectable, inject } from 'inversify';
-import LoginValidation from '../auth/validator/login.validator';
 import InstructorController from '@rest/controller/instructor.controller';
-import AuthenticationMiddleware from '@rest/middlewares/authentication.middleware';
-import AuthorizationMiddleware from '@rest/middlewares/authorization.middleware';
 import { RoleEnum } from '@domain/user-aggregate/role/enum/role.enum';
 import AvailabilityValidation from './validator/availability.validator';
+import UpdateAboutValidation from './validator/updateAboutValidation';
+import AuthenticationMiddleware from '@rest/middlewares/authentication.middleware';
+import AuthorizationMiddleware from '@rest/middlewares/authorization.middleware';
+import AuthorizeModificationMiddleware from '@rest/middlewares/authorizeModification.middleware';
 
 @injectable()
 export class InstructorRoutes {
@@ -16,6 +17,8 @@ export class InstructorRoutes {
     @inject(TYPES.Router) private readonly _router: Router,
     @inject(TYPES.InstructorController)
     private readonly _instructorController: InstructorController,
+    @inject(TYPES.AuthorizeModificationMiddleware)
+    private readonly _authorizeModificationMiddleware: AuthorizeModificationMiddleware,
     @inject(TYPES.AuthorizationMiddleware)
     private readonly _authorizationMiddleware: AuthorizationMiddleware,
     @inject(TYPES.AuthenticationMiddleware)
@@ -26,6 +29,13 @@ export class InstructorRoutes {
   }
 
   private initRoutes(): void {
+    this._router.get(
+      '/profile',
+      this._authenticationMiddleware.use,
+      this._authorizationMiddleware.build([RoleEnum.INSTRUCTOR.description]),
+      asyncHandlerMiddleware(this._instructorController.getConnectedInstructor)
+    );
+
     this._router.post(
       '/profile',
       this._authenticationMiddleware.use,
@@ -39,6 +49,21 @@ export class InstructorRoutes {
       this._authenticationMiddleware.use,
       this._authorizationMiddleware.build([RoleEnum.INSTRUCTOR.description]),
       asyncHandlerMiddleware(this._instructorController.updateAvailability)
+    );
+    this._router.put(
+      '/about/:idInstructor',
+      UpdateAboutValidation,
+      ValidatorMiddleware.validate,
+      this._authenticationMiddleware.use,
+      this._authorizationMiddleware.build([
+        RoleEnum.INSTRUCTOR.description,
+        RoleEnum.ADMIN.description,
+      ]),
+      this._authorizeModificationMiddleware.build(
+        [RoleEnum.ADMIN.description],
+        'idInstructor'
+      ),
+      asyncHandlerMiddleware(this._instructorController.updateAbout)
     );
   }
 

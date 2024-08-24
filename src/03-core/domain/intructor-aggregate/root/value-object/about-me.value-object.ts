@@ -1,18 +1,18 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
-import Description from './description.value-object';
 import messagesValidator from '@domain/helpers/messages-validator';
 import domainRules from '@domain/helpers/regular-exp';
+import RichTextJsonContent from '@domain/common/RichTextJsonContent';
 
 class AboutMe {
-  private readonly _introduction: Description;
-  private readonly _teachingExperience: Description;
-  private readonly _motivation: Description;
+  private readonly _introduction: RichTextJsonContent;
+  private readonly _teachingExperience: RichTextJsonContent;
+  private readonly _motivation: RichTextJsonContent;
 
   private constructor(
-    introduction: Description,
-    teachingExperience: Description,
-    motivation: Description
+    introduction: RichTextJsonContent,
+    teachingExperience: RichTextJsonContent,
+    motivation: RichTextJsonContent
   ) {
     this._introduction = introduction;
     this._teachingExperience = teachingExperience;
@@ -24,20 +24,23 @@ class AboutMe {
     teachingExperienceText?: string | null,
     motivationText?: string | null
   ): Result<AboutMe | null, ErrorResult> {
-    const introductionResult = Description.create(
+    const introductionResult = RichTextJsonContent.create(
       'Introduction',
       introductionText
     );
     if (introductionResult.isErr()) return err(introductionResult.error);
 
-    const teachingExperienceResult = Description.create(
+    const teachingExperienceResult = RichTextJsonContent.create(
       'Teaching Experience',
       teachingExperienceText
     );
     if (teachingExperienceResult.isErr())
       return err(teachingExperienceResult.error);
 
-    const motivationResult = Description.create('Motivation', motivationText);
+    const motivationResult = RichTextJsonContent.create(
+      'Motivation',
+      motivationText
+    );
     if (motivationResult.isErr()) return err(motivationResult.error);
 
     const intruduction = introductionResult.value;
@@ -66,9 +69,9 @@ class AboutMe {
     }
 
     const totalWords =
-      intruduction.value.length +
-      teachingExperience.value.length +
-      motivation.value.length;
+      intruduction.totalWords +
+      teachingExperience.totalWords +
+      motivation.totalWords;
 
     if (totalWords > domainRules.aboutMeMaxLength) {
       return err(
@@ -83,15 +86,15 @@ class AboutMe {
     return ok(new AboutMe(intruduction, teachingExperience, motivation));
   }
 
-  get introduction(): Description {
+  get introduction(): RichTextJsonContent {
     return this._introduction;
   }
 
-  get teachingExperience(): Description {
+  get teachingExperience(): RichTextJsonContent {
     return this._teachingExperience;
   }
 
-  get motivation(): Description {
+  get motivation(): RichTextJsonContent {
     return this._motivation;
   }
 

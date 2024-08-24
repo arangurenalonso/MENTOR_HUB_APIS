@@ -12,7 +12,7 @@ import Birthdate from './value-object/birthdate.value-object';
 import PersonErrors from '../root/error/person.error';
 import ImageURL from '@domain/intructor-aggregate/social-media/value-object/image-url.value-object';
 
-type NaturalPersonDomainProperties = {
+export type NaturalPersonDomainProperties = {
   id: string;
   personId: PersonId;
   photoUrl: string | null;
@@ -22,7 +22,7 @@ type NaturalPersonDomainProperties = {
   personType: PersonTypeEnum;
 };
 
-type NaturalPersonDomainCreateArg = {
+export type NaturalPersonDomainCreateArg = {
   id?: string;
   photoUrl?: string | null;
   name: string;
@@ -30,7 +30,7 @@ type NaturalPersonDomainCreateArg = {
   birthdate?: Date | null;
 };
 
-type NaturalPersonDomainConstructor = {
+export type NaturalPersonDomainConstructor = {
   id: PersonId;
   photoUrl: ImageURL | null;
   name: Name;

@@ -44,11 +44,6 @@ export class AuthRoutes {
       ValidatorMiddleware.validate,
       asyncHandlerMiddleware(this._authController.socialProvider)
     );
-    // this._router.post(
-    //   '/verify',
-    //   this._authenticationMiddleware.use,
-    //   asyncHandlerMiddleware(this._authController.socialProvider)
-    // );
     this._router.get(
       '/validate-email/:verificationEmailToken',
       asyncHandlerMiddleware(this._authController.confirmEmailVerification)

@@ -72,6 +72,7 @@ const messagesValidator = {
   ...headingMessage,
   required: (field: string) => `The field '${field}' is required.`,
   guidFile: (field: string) => `The field '${field}' must be a GUID.`,
+  string: (field: string) => `The field '${field}' must be a string.`,
   minLength: (field: string, min: number) =>
     `${field} must be at least ${min} characters long.`,
   maxLength: (field: string, max: number) =>
@@ -87,6 +88,7 @@ const messagesValidator = {
   range: (field: string, min: number, max: number) =>
     `${field} must be between ${min} and ${max}.`,
   array: (field: string) => `El campo '${field}' debe ser un array`,
+  object: (field: string) => `${field} is not a valid object.`,
   notEmptyArray: (field: string) =>
     `El campo '${field}' no puede estar vacío y debe contener al menos un elemento`,
   invalidURL: (field: string) => `${field} must be a valid URL.`,

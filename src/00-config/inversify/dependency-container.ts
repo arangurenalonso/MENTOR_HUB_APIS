@@ -59,6 +59,13 @@ import AuthenticationResultQuery from '@application/features/auth/query/authenti
 import AuthenticationResultQueryHandler from '@application/features/auth/query/authentication-result/authentication-result.query.handler';
 import ConfirmEmailVerificationCommandHandler from '@application/features/auth/command/confirmEmailVerification/confirmEmailVerification.command.handler';
 import ConfirmEmailVerificationCommand from '@application/features/auth/command/confirmEmailVerification/confirmEmailVerification.command';
+import UpdateAboutCommand from '@application/features/instructor/command/updateAbout/updateAbout.command';
+import UpdateAboutCommandhandler from '@application/features/instructor/command/updateAbout/updateAbout.command.handler';
+import GetInstructorByIdQuery from '@application/features/instructor/query/getInstructorById/getInstructorById.query';
+import GetInstructorByIdQueryHandler from '@application/features/instructor/query/getInstructorById/getInstructorById.query.handler';
+import { InstructorDomainProperties } from '@domain/intructor-aggregate/root/instructor.domain';
+import AuthorizeModificationMiddleware from '@rest/middlewares/authorizeModification.middleware';
+
 class DependencyContainer {
   private readonly _container: Container;
 
@@ -111,6 +118,12 @@ class DependencyContainer {
     this._container
       .bind<AuthorizationMiddleware>(TYPES.AuthorizationMiddleware)
       .to(AuthorizationMiddleware);
+
+    this._container
+      .bind<AuthorizeModificationMiddleware>(
+        TYPES.AuthorizeModificationMiddleware
+      )
+      .to(AuthorizeModificationMiddleware);
   }
   private bindCore(): void {
     this._container
@@ -189,6 +202,15 @@ class DependencyContainer {
     this._container
       .bind<
         IRequestHandler<
+          GetInstructorByIdQuery,
+          Result<InstructorDomainProperties, ErrorResult>
+        >
+      >('GetInstructorByIdQuery')
+      .to(GetInstructorByIdQueryHandler);
+
+    this._container
+      .bind<
+        IRequestHandler<
           ConfirmEmailVerificationCommand,
           Result<AuthenticationResult, ErrorResult>
         >
@@ -204,6 +226,11 @@ class DependencyContainer {
       >('UpdateInstructorAvailabilityCommand')
       .to(UpdateInstructorAvailabilityCommandhandler);
 
+    this._container
+      .bind<IRequestHandler<UpdateAboutCommand, Result<void, ErrorResult>>>(
+        'UpdateAboutCommand'
+      )
+      .to(UpdateAboutCommandhandler);
     this._container
       .bind<
         IRequestHandler<

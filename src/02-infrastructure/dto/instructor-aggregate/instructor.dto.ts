@@ -27,10 +27,16 @@ class InstructorDTO {
       websideURL: entity.websideURL,
       headline: entity.headline,
       socialMedia: socialMedia,
-      naturalPerson: null,
-      introductionText: entity.introduction,
-      teachingExperienceText: entity.teachingExperience,
-      motivationText: entity.motivation,
+      // naturalPerson: null,
+      introductionText: entity.introduction
+        ? JSON.stringify(entity.introduction)
+        : null,
+      teachingExperienceText: entity.teachingExperience
+        ? JSON.stringify(entity.teachingExperience)
+        : null,
+      motivationText: entity.motivation
+        ? JSON.stringify(entity.motivation)
+        : null,
       availability: instructorAvailabilityResult.value,
     });
     if (domainResult.isErr()) {
@@ -44,10 +50,15 @@ class InstructorDTO {
     entity.id = domain.properties.id;
     entity.websideURL = domain.properties.websideURL || undefined;
     entity.headline = domain.properties.headline || undefined;
-    entity.introduction = domain.properties.introductionText || undefined;
-    entity.teachingExperience =
-      domain.properties.teachingExperienceText || undefined;
-    entity.motivation = domain.properties.motivationText || undefined;
+    entity.introduction = domain.properties.introductionText
+      ? JSON.parse(domain.properties.introductionText)
+      : undefined;
+    entity.teachingExperience = domain.properties.teachingExperienceText
+      ? JSON.parse(domain.properties.teachingExperienceText)
+      : undefined;
+    entity.motivation = domain.properties.motivationText
+      ? JSON.parse(domain.properties.motivationText)
+      : undefined;
 
     const instructorSocialMediaEntity = InstructorSocialMediaDTO.toEntityArray(
       domain.properties.id,

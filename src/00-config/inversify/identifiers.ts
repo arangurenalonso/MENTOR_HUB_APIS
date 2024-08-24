@@ -15,6 +15,9 @@ const TYPES = {
   // Middlewares
   AuthenticationMiddleware: Symbol.for('AuthenticationMiddleware'),
   AuthorizationMiddleware: Symbol.for('AuthorizationMiddleware'),
+  AuthorizeModificationMiddleware: Symbol.for(
+    'AuthorizeModificationMiddleware'
+  ),
   // Routers
   ApiRouter: Symbol.for('ApiRouter'),
   AuthRoutes: Symbol.for('AuthRoutes'),

@@ -6,7 +6,7 @@ class AuthorizationMiddleware {
   constructor() {
     this.build = this.build.bind(this);
   }
-  //Funcion que devuelve una funcion middleware
+
   public build(
     rolesAllowed: string[]
   ): (req: Request, res: Response, next: NextFunction) => Promise<void> {
@@ -22,8 +22,13 @@ class AuthorizationMiddleware {
           x.description.trim().toUpperCase()
         );
 
+        // console.log('roleAllowed', rolesAllowed);
+        // console.log('rolesString', rolesString);
+
         for (const roleAllowed of rolesAllowed) {
           if (rolesString.includes(roleAllowed.trim().toUpperCase())) {
+            console.log('Paso');
+
             return next();
           }
         }

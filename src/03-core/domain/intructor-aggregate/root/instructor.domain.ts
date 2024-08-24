@@ -2,7 +2,9 @@ import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import BaseDomain from '@domain/abstract/BaseDomain';
 import InstructorId from './value-object/instructor-id.value-object';
-import NaturalPersonDomain from '@domain/persona-aggregate/natural-person/natural-person.domain';
+import NaturalPersonDomain, {
+  NaturalPersonDomainProperties,
+} from '@domain/persona-aggregate/natural-person/natural-person.domain';
 import SocialMediaDomain, {
   SocialMediaDomainProperties,
 } from '../social-media/social-media.domain';
@@ -14,12 +16,12 @@ import InstructorAvailabilityDomain, {
 } from '../availability/instructor-availability.domain';
 import InstructorAvailabilityDomainErrors from '../availability/error/instructor.domain.error';
 
-type InstructorDomainProperties = {
+export type InstructorDomainProperties = {
   id: string;
   websideURL: string | null;
   headline: string | null;
   socialMedia: SocialMediaDomainProperties[];
-  naturalPerson: NaturalPersonDomain | null;
+  // naturalPerson: NaturalPersonDomainProperties | null;
   introductionText: string | null;
   teachingExperienceText: string | null;
   motivationText: string | null;
@@ -31,7 +33,7 @@ type InstructorDomainCreateArg = {
   websideURL?: string;
   headline?: string | null;
   socialMedia?: SocialMediaDomain | null | SocialMediaDomain[];
-  naturalPerson?: NaturalPersonDomain | null;
+  // naturalPerson?: NaturalPersonDomain | null;
   introductionText?: string | null;
   teachingExperienceText?: string | null;
   motivationText?: string | null;
@@ -43,14 +45,14 @@ type InstructorDomainConstructor = {
   websideURL: WebsiteURL | null;
   headline: Heading | null;
   socialMedia: SocialMediaDomain[];
-  naturalPerson?: NaturalPersonDomain | null;
+  // naturalPerson?: NaturalPersonDomain | null;
   aboutMe: AboutMe | null;
   availability: InstructorAvailabilityDomain[];
 };
 
 class InstructorDomain extends BaseDomain<InstructorId> {
   private _websideURL: WebsiteURL | null;
-  private _naturalPerson: NaturalPersonDomain | null;
+  // private _naturalPerson: NaturalPersonDomain | null;
   private _socialMedia: SocialMediaDomain[] = [];
   private _headline: Heading | null;
   private _aboutMe: AboutMe | null;
@@ -59,7 +61,7 @@ class InstructorDomain extends BaseDomain<InstructorId> {
   private constructor(properties: InstructorDomainConstructor) {
     super(properties.id);
     this._websideURL = properties.websideURL || null;
-    this._naturalPerson = properties.naturalPerson || null;
+    // this._naturalPerson = properties.naturalPerson || null;
     this._socialMedia = properties.socialMedia || [];
     this._headline = properties.headline;
     this._aboutMe = properties.aboutMe;
@@ -93,7 +95,7 @@ class InstructorDomain extends BaseDomain<InstructorId> {
     const aboutMe = resultAboutMe.value;
     const id = resultId.value;
     const websideURL = resultWebSiteURL.value;
-    const naturalPerson = args.naturalPerson;
+    // const naturalPerson = args.naturalPerson;
     let socialMedia: SocialMediaDomain[] = [];
     if (args.socialMedia) {
       if (Array.isArray(args.socialMedia)) {
@@ -114,13 +116,32 @@ class InstructorDomain extends BaseDomain<InstructorId> {
     const instructorDomain = new InstructorDomain({
       id,
       websideURL,
-      naturalPerson,
+      // naturalPerson,
       socialMedia,
       headline,
       aboutMe,
       availability,
     });
     return ok(instructorDomain);
+  }
+
+  updateAbout(
+    introductionText?: string,
+    teachingExperienceText?: string,
+    motivationText?: string
+  ): Result<void, ErrorResult> {
+    const resultAboutMe = AboutMe.create(
+      introductionText,
+      teachingExperienceText,
+      motivationText
+    );
+
+    if (resultAboutMe.isErr()) {
+      return err(resultAboutMe.error);
+    }
+    const aboutMe = resultAboutMe.value;
+    this._aboutMe = aboutMe;
+    return ok(undefined);
   }
   updateAvailability(
     availability: InstructorAvailabilityDomain[]
@@ -189,10 +210,12 @@ class InstructorDomain extends BaseDomain<InstructorId> {
       socialMedia: this._socialMedia.map(
         (socialMedia) => socialMedia.properties
       ),
-      naturalPerson: this._naturalPerson,
-      introductionText: this._aboutMe?.introduction.value || null,
-      teachingExperienceText: this._aboutMe?.teachingExperience.value || null,
-      motivationText: this._aboutMe?.motivation.value || null,
+      // naturalPerson: this._naturalPerson?.properties || null,
+      introductionText:
+        JSON.stringify(this._aboutMe?.introduction.value) || null,
+      teachingExperienceText:
+        JSON.stringify(this._aboutMe?.teachingExperience.value) || null,
+      motivationText: JSON.stringify(this._aboutMe?.motivation.value) || null,
       availability: this._availability.map(
         (availability) => availability.properties
       ),

@@ -42,7 +42,7 @@ const headingRule = {
   headingMaxLength: 60,
 };
 const aboutMeRule = {
-  aboutMeMaxLength: 600,
+  aboutMeMaxLength: 1500,
 };
 const textRule = {
   textValid: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\.,:;?!¡¿(){}\[\]\-_"&$%@#\/\\]+$/, // Permite letras, números, espacios y puntuaciones comunes

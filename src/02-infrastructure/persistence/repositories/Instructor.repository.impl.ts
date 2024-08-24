@@ -168,7 +168,7 @@ class InstructorRepository
       instructorEntity.availability,
       this._instructorAvailabilityRepository
     );
-    // await this.updateAvailability(instructorEntity.availability);
+    await this.update(instructorEntity);
   }
   // async updateAvailability(
   //   availability: InstructorAvailabilityEntity[]

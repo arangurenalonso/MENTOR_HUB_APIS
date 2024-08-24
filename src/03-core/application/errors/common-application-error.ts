@@ -5,9 +5,13 @@ class CommonApplicationError {
     entity: string,
     searchCriteria: { property: string; value: string | number }[]
   ): ErrorResult {
-    const criteriaDescription = searchCriteria
-      .map((criteria) => `${criteria.property}: '${criteria.value}'`)
-      .join(', ');
+    let criteriaDescription = 'no specific criteria';
+    if (searchCriteria.length > 0) {
+      criteriaDescription = searchCriteria
+        .map((criteria) => `${criteria.property}: '${criteria.value}'`)
+        .join(', ');
+    }
+
     return new ErrorResult(
       `${entity}NotFound`,
       `No records were found for the entity '${entity}' with the following criteria: ${criteriaDescription}.`,

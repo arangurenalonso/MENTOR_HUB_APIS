@@ -27,16 +27,10 @@ class GetInstructorByIdQueryHandler
   async handle(
     query: GetInstructorByIdQuery
   ): Promise<Result<InstructorDomainProperties, ErrorResult>> {
-    console.log('GetInstructorByIdQueryHandler -> handle -> query', query);
-
     const fetchEntitiesResult = await this.fetchEntities(query.idInstructor);
     if (fetchEntitiesResult.isErr()) {
       return err(fetchEntitiesResult.error);
     }
-    console.log(
-      'GetInstructorByIdQueryHandler -> handle -> fetchEntitiesResult',
-      fetchEntitiesResult
-    );
 
     const { instructorDomain } = fetchEntitiesResult.value;
     instructorDomain.properties;

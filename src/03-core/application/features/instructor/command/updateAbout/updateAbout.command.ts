@@ -5,9 +5,10 @@ import { Result } from 'neverthrow';
 class UpdateAboutCommand implements IRequest<Result<void, ErrorResult>> {
   constructor(
     public readonly idInstructor: string,
-    public readonly introductionText: string,
-    public readonly teachingExperienceText: string,
-    public readonly motivationText: string
+    public readonly headline: string,
+    public readonly introduction: string,
+    public readonly teachingExperience: string,
+    public readonly motivation: string
   ) {}
 }
 

@@ -1,3 +1,4 @@
+import { levelData } from '../../../00-config/seed/data/level.data';
 const userValidation = {
   email: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/,
   username: /^(?![_\.])(?!.*[_\.]{2})[a-zA-Z0-9_.]{5,30}(?<![_\.])$/,
@@ -5,7 +6,6 @@ const userValidation = {
 const passwordRules = {
   passwordRegex:
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
-  passwordLength: /^.{6,}$/, // Al menos 6 caracteres
   passwordLowercase: /(?=.*[a-z])/, // Al menos una letra minúscula
   passwordUppercase: /(?=.*[A-Z])/, // Al menos una letra mayúscula
   passwordNumber: /(?=.*\d)/, // Al menos un número
@@ -23,26 +23,16 @@ const imageRule = {
 };
 const roleRule = {
   roleDescription: /^ROLE_[A-Z0-9_]+$/, // Empieza con ROLE_ y luego letras en mayúsculas, números y guiones bajos
-  roleDescriptionMinLength: 8, // ROLE_ + al menos 3 caracteres más
-  roleDescriptionMaxLength: 255,
 };
+
 const socialMediaRole = {
   socialMediaDescription: /^[a-zA-Z0-9\s,.!?-]+$/,
-  socialMediaDescriptionMinLength: 1,
-  socialMediaDescriptionMaxLength: 100,
 };
 const personRule = {
   personNameValid: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, // Solo permite letras mayúsculas, minúsculas y letras con tildes
-  personNameMinLength: 2,
-  personNameMaxLength: 255,
 };
 const headingRule = {
   headingValid: /^[a-zA-Z0-9\s,.'-]{1,60}$/, // Ajusta esto según tus necesidades
-  headingMinLength: 1,
-  headingMaxLength: 60,
-};
-const aboutMeRule = {
-  aboutMeMaxLength: 1500,
 };
 const textRule = {
   textValid: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\.,:;?!¡¿(){}\[\]\-_"&$%@#\/\\]+$/, // Permite letras, números, espacios y puntuaciones comunes
@@ -76,8 +66,22 @@ const dateRules = {
     'Saturday',
   ],
 };
-
+const lengthRule = {
+  levelDescriptionMinLength: 1,
+  levelDescriptionMaxLength: 100,
+  roleDescriptionMinLength: 8,
+  roleDescriptionMaxLength: 255,
+  socialMediaDescriptionMinLength: 1,
+  socialMediaDescriptionMaxLength: 100,
+  personNameMinLength: 2,
+  personNameMaxLength: 255,
+  headingMinLength: 1,
+  headingMaxLength: 60,
+  aboutMeMaxLength: 1500,
+  passwordLength: /^.{6,}$/, // Al menos 6 caracteres
+};
 const domainRules = {
+  ...lengthRule,
   ...timeOptionRule,
   ...dateRules,
   ...dateIndexRule,
@@ -92,7 +96,6 @@ const domainRules = {
   ...httpURLRule,
   ...imageRule,
   ...textRule,
-  ...aboutMeRule,
   blankSpace: /\s/,
 };
 export default domainRules;

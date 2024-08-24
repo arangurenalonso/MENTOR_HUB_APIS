@@ -65,6 +65,15 @@ import GetInstructorByIdQuery from '@application/features/instructor/query/getIn
 import GetInstructorByIdQueryHandler from '@application/features/instructor/query/getInstructorById/getInstructorById.query.handler';
 import { InstructorDomainProperties } from '@domain/intructor-aggregate/root/instructor.domain';
 import AuthorizeModificationMiddleware from '@rest/middlewares/authorizeModification.middleware';
+import CategorySeeder from '@config/seed/category.seed';
+import LevelSeeder from '@config/seed/level.seed';
+import ICourseRepository from '@domain/courses-aggregate/root/repositories/ICourse.repository';
+import CourseRepository from '@persistence/repositories/course.repository.impl';
+import MasterRoutes from '@rest/routers/master/masters.route';
+import MasterController from '@rest/controller/master.controller';
+import GetAllLevelQuery from '@application/features/master/query/getAllLevel/getAllLevel.query';
+import GetAllLevelQueryHandler from '@application/features/master/query/getAllLevel/getAllLevel.query.handler';
+import { LevelDomainProperties } from '@domain/courses-aggregate/level/level.domain';
 
 class DependencyContainer {
   private readonly _container: Container;
@@ -104,6 +113,12 @@ class DependencyContainer {
     this._container
       .bind<DayOfWeekSeeder>(TYPES.DayOfWeekSeeder)
       .to(DayOfWeekSeeder);
+
+    this._container
+      .bind<CategorySeeder>(TYPES.CategorySeeder)
+      .to(CategorySeeder);
+
+    this._container.bind<LevelSeeder>(TYPES.LevelSeeder).to(LevelSeeder);
   }
 
   private bindJobs(): void {
@@ -176,6 +191,10 @@ class DependencyContainer {
     this._container
       .bind<IInstructorRepository>(TYPES.InstructorRepository)
       .to(InstructorRepository);
+
+    this._container
+      .bind<ICourseRepository>(TYPES.ICourseRepository)
+      .to(CourseRepository);
   }
   private bindControllers(): void {
     this._container
@@ -184,6 +203,10 @@ class DependencyContainer {
     this._container
       .bind<InstructorController>(TYPES.InstructorController)
       .to(InstructorController);
+
+    this._container
+      .bind<MasterController>(TYPES.MasterController)
+      .to(MasterController);
   }
   private bindRouters(): void {
     this._container.bind<AuthRoutes>(TYPES.AuthRoutes).to(AuthRoutes);
@@ -191,6 +214,8 @@ class DependencyContainer {
       .bind<InstructorRoutes>(TYPES.InstructorRoutes)
       .to(InstructorRoutes);
     this._container.bind<ApiRouter>(TYPES.ApiRouter).to(ApiRouter);
+
+    this._container.bind<MasterRoutes>(TYPES.MasterRoutes).to(MasterRoutes);
   }
   private bindUseCase(): void {
     this._container
@@ -271,6 +296,15 @@ class DependencyContainer {
         'ExecOutboxMessagesCommand'
       )
       .to(ExecOutboxMessagesCommandHandler);
+
+    this._container
+      .bind<
+        IRequestHandler<
+          GetAllLevelQuery,
+          Result<LevelDomainProperties[], ErrorResult>
+        >
+      >('GetAllLevelQuery')
+      .to(GetAllLevelQueryHandler);
   }
   private bindDatabase(): void {
     this._container

@@ -13,6 +13,8 @@ import SocialMediaSeeder from '@config/seed/social-media.seed';
 import TimeZoneSeeder from '@config/seed/time-zone.seed';
 import DayOfWeekSeeder from '@config/seed/dayOfWeek.seed';
 import TimeOptionSeeder from '@config/seed/time-option.seed';
+import CategorySeeder from '@config/seed/category.seed';
+import LevelSeeder from '@config/seed/level.seed';
 
 async function executeSeed(container: Container) {
   const roleSeeder = container.get<RoleSeeder>(TYPES.RoleSeeder);
@@ -25,14 +27,18 @@ async function executeSeed(container: Container) {
   const timeOptionSeeder = container.get<TimeOptionSeeder>(
     TYPES.TimeOptionSeeder
   );
+  const categorySeeder = container.get<CategorySeeder>(TYPES.CategorySeeder);
+  const LevelSeeder = container.get<LevelSeeder>(TYPES.LevelSeeder);
 
   await Promise.all([
     roleSeeder.seedData(),
-    userSeeder.seedAdminUser(),
     timeZoneSeeder.seedData(),
     socialMediaSeeder.seedData(),
     dayOfWeekSeeder.seedData(),
     timeOptionSeeder.seedData(),
+    categorySeeder.seedData(),
+    userSeeder.seedAdminUser(),
+    LevelSeeder.seedData(),
   ]);
 }
 
@@ -68,8 +74,12 @@ async function main() {
 // delete from users;
 
 // delete from time_zone;
-// delete from time_option
-// delete from day_of_week
+// delete from time_option;
+// delete from day_of_week;
+// delete from social_media;
+// delete from sub_category;
+// delete from category;
+// delete from level;
 
 // Generalización y Especialización de BD
 /**

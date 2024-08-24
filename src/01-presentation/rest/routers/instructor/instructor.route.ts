@@ -6,7 +6,7 @@ import { injectable, inject } from 'inversify';
 import InstructorController from '@rest/controller/instructor.controller';
 import { RoleEnum } from '@domain/user-aggregate/role/enum/role.enum';
 import AvailabilityValidation from './validator/availability.validator';
-import UpdateAboutValidation from './validator/updateAboutValidation';
+import UpdateProfileValidation from './validator/updateAboutValidation';
 import AuthenticationMiddleware from '@rest/middlewares/authentication.middleware';
 import AuthorizationMiddleware from '@rest/middlewares/authorization.middleware';
 import AuthorizeModificationMiddleware from '@rest/middlewares/authorizeModification.middleware';
@@ -51,8 +51,8 @@ export class InstructorRoutes {
       asyncHandlerMiddleware(this._instructorController.updateAvailability)
     );
     this._router.put(
-      '/about/:idInstructor',
-      UpdateAboutValidation,
+      '/profile/:idInstructor',
+      UpdateProfileValidation,
       ValidatorMiddleware.validate,
       this._authenticationMiddleware.use,
       this._authorizationMiddleware.build([
@@ -63,7 +63,7 @@ export class InstructorRoutes {
         [RoleEnum.ADMIN.description],
         'idInstructor'
       ),
-      asyncHandlerMiddleware(this._instructorController.updateAbout)
+      asyncHandlerMiddleware(this._instructorController.updateProfile)
     );
   }
 

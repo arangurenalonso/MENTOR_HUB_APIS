@@ -30,10 +30,11 @@ class UpdateAboutCommandhandler
 
     const { instructorDomain } = fetchEntitiesResult.value;
 
-    const resultUpdateAvailability = instructorDomain.updateAbout(
-      command.introductionText,
-      command.teachingExperienceText,
-      command.motivationText
+    const resultUpdateAvailability = instructorDomain.profile(
+      command.headline,
+      command.introduction,
+      command.teachingExperience,
+      command.motivation
     );
     if (resultUpdateAvailability.isErr()) {
       return err(resultUpdateAvailability.error);

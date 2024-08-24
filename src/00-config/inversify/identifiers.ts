@@ -21,10 +21,12 @@ const TYPES = {
   // Routers
   ApiRouter: Symbol.for('ApiRouter'),
   AuthRoutes: Symbol.for('AuthRoutes'),
+  MasterRoutes: Symbol.for('MasterRoutes'),
   InstructorRoutes: Symbol.for('InstructorRoutes'),
   // Controllers
   AuthController: Symbol.for('AuthController'),
   InstructorController: Symbol.for('InstructorController'),
+  MasterController: Symbol.for('MasterController'),
   // UseCases
   //Services
   IPasswordService: Symbol.for('IPasswordService'),
@@ -38,6 +40,7 @@ const TYPES = {
   RoleRepository: Symbol.for('RoleRepository'),
   InstructorRepository: Symbol.for('InstructorRepository'),
   IOutboxMessageRepository: Symbol.for('IOutboxMessageRepository'),
+  ICourseRepository: Symbol.for('ICourseRepository'),
   //SEED
   UserSeeder: Symbol.for('UserSeeder'),
   RoleSeeder: Symbol.for('RoleSeeder'),
@@ -45,5 +48,7 @@ const TYPES = {
   TimeZoneSeeder: Symbol.for('TimeZoneSeeder'),
   TimeOptionSeeder: Symbol.for('TimeOptionSeeder'),
   DayOfWeekSeeder: Symbol.for('DayOfWeekSeeder'),
+  CategorySeeder: Symbol.for('CategorySeeder'),
+  LevelSeeder: Symbol.for('LevelSeeder'),
 };
 export default TYPES;

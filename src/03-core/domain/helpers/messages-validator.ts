@@ -31,6 +31,7 @@ const providerMessage = {
     return `Invalid provider: ${providedValue}. Valid providers are: ${validProviders}.`;
   },
 };
+
 const urlMessage = {
   invalidProtocol: (field: string, value: string) =>
     `The field '${field}' with the value '${value}' Invalid protocol.`,

@@ -3,12 +3,15 @@ import AuthRoutes from './auth/auth.router';
 import { inject, injectable } from 'inversify';
 import TYPES from '@config/inversify/identifiers';
 import InstructorRoutes from './instructor/instructor.route';
+import MasterRoutes from './master/masters.route';
 
 @injectable()
 class ApiRouter {
   constructor(
     @inject(TYPES.Router) private readonly _router: Router,
     @inject(TYPES.AuthRoutes) private readonly _authRoutes: AuthRoutes,
+
+    @inject(TYPES.MasterRoutes) private readonly _masterRoutes: MasterRoutes,
     @inject(TYPES.InstructorRoutes)
     private readonly _instructorRoutes: InstructorRoutes
   ) {
@@ -19,6 +22,7 @@ class ApiRouter {
   private init(): void {
     this._router.use('/auth', this._authRoutes.router);
     this._router.use('/instructor', this._instructorRoutes.router);
+    this._router.use('/master', this._masterRoutes.router);
   }
   get router(): Router {
     return this._router;

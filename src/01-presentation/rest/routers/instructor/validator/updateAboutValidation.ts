@@ -9,29 +9,37 @@ const UpdateAboutValidation = [
     .isUUID()
     .withMessage(messagesValidator.guidFile('idInstructor')),
 
-  body('introductionText')
+  body('headline')
     .exists()
-    .withMessage(messagesValidator.required('introductionText'))
+    .withMessage(messagesValidator.required('headline'))
     .notEmpty()
-    .withMessage(messagesValidator.required('introductionText'))
+    .withMessage(messagesValidator.required('headline'))
     .isString()
-    .withMessage(messagesValidator.string('introductionText')),
+    .withMessage(messagesValidator.string('headline')),
 
-  body('teachingExperienceText')
+  body('introduction')
     .exists()
-    .withMessage(messagesValidator.required('teachingExperienceText'))
+    .withMessage(messagesValidator.required('introduction'))
     .notEmpty()
-    .withMessage(messagesValidator.required('teachingExperienceText'))
+    .withMessage(messagesValidator.required('introduction'))
     .isString()
-    .withMessage(messagesValidator.string('teachingExperienceText')),
+    .withMessage(messagesValidator.string('introduction')),
 
-  body('motivationText')
+  body('teachingExperience')
     .exists()
-    .withMessage(messagesValidator.required('motivationText'))
+    .withMessage(messagesValidator.required('teachingExperience'))
     .notEmpty()
-    .withMessage(messagesValidator.required('motivationText'))
+    .withMessage(messagesValidator.required('teachingExperience'))
     .isString()
-    .withMessage(messagesValidator.string('motivationText')),
+    .withMessage(messagesValidator.string('teachingExperience')),
+
+  body('motivation')
+    .exists()
+    .withMessage(messagesValidator.required('motivation'))
+    .notEmpty()
+    .withMessage(messagesValidator.required('motivation'))
+    .isString()
+    .withMessage(messagesValidator.string('motivation')),
 ];
 
 export default UpdateAboutValidation;

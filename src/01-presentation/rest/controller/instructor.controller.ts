@@ -18,7 +18,7 @@ class InstructorController {
   constructor(@inject(TYPES.Mediator) private _mediator: Mediator) {
     this.createProfile = this.createProfile.bind(this);
     this.updateAvailability = this.updateAvailability.bind(this);
-    this.updateAbout = this.updateAbout.bind(this);
+    this.updateProfile = this.updateProfile.bind(this);
     this.getConnectedInstructor = this.getConnectedInstructor.bind(this);
   }
 
@@ -63,23 +63,25 @@ class InstructorController {
     return result;
   }
 
-  public async updateAbout(req: Request, res: Response) {
+  public async updateProfile(req: Request, res: Response) {
     const connectedUser = res.locals.user as TokenPayload;
 
-    const { introductionText, teachingExperienceText, motivationText } =
+    const { headline, introduction, teachingExperience, motivation } =
       req.body as {
-        introductionText: string;
-        teachingExperienceText: string;
-        motivationText: string;
+        headline: string;
+        introduction: string;
+        teachingExperience: string;
+        motivation: string;
       };
 
     const idInstructor = req.params.idInstructor;
 
     const command = new UpdateAboutCommand(
       idInstructor,
-      introductionText,
-      teachingExperienceText,
-      motivationText
+      headline,
+      introduction,
+      teachingExperience,
+      motivation
     );
 
     const result: Result<void, ErrorResult> = await this._mediator.send(

@@ -15,6 +15,12 @@ class TimeOptionSeeder {
   async seedData(): Promise<void> {
     const timeOptionRepository =
       this.dataSource.getRepository(TimeOptionEntity);
+    const count = await timeOptionRepository.count();
+
+    if (count > 0) {
+      console.log('Data already exists in timeOption table. Skipping seed.');
+      return;
+    }
 
     const timeOptionDataToInsert = timeOptionData.map((x) => {
       const timeOptionEntity = new TimeOptionEntity();

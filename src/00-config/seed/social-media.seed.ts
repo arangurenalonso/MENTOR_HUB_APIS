@@ -2,7 +2,7 @@ import { injectable, inject } from 'inversify';
 import { DataSource } from 'typeorm';
 import TYPES from '@config/inversify/identifiers';
 import SocialMediaEntity from '@persistence/entities/instructor-aggregate/social-media.entity';
-import SocialMediaEnum from '@domain/intructor-aggregate/social-media/enum/social-media.enum';
+import { socialMediaData } from './data/social-media.data';
 
 @injectable()
 class SocialMediaSeeder {
@@ -16,23 +16,27 @@ class SocialMediaSeeder {
     const socialMediaRepository =
       this.dataSource.getRepository(SocialMediaEntity);
 
-    for (const key of Object.keys(
-      SocialMediaEnum
-    ) as (keyof typeof SocialMediaEnum)[]) {
-      const socialMedia = SocialMediaEnum[key];
-      const socialMediaExists = await socialMediaRepository.findOneBy({
-        description: socialMedia.description,
-      });
-      if (!socialMediaExists) {
-        const newSocialMedia = socialMediaRepository.create(socialMedia);
-        await socialMediaRepository.save(newSocialMedia);
-        console.log(
-          `Social Media ${socialMedia.description} seeded successfully.`
-        );
-      } else {
-        console.log(`Social Media ${socialMedia.description} already exists.`);
-      }
+    const count = await socialMediaRepository.count();
+
+    if (count > 0) {
+      console.log('Data already exists in Social Media table. Skipping seed.');
+      return;
     }
+
+    const socialMediaDataToInsert = socialMediaData.map((x) => {
+      const socialMediaEntity = new SocialMediaEntity();
+
+      socialMediaEntity.id = x.id;
+      socialMediaEntity.description = x.description;
+      socialMediaEntity.baseURL = x.baseURL;
+      socialMediaEntity.urlmage = x.urlmage;
+
+      return socialMediaEntity;
+    });
+    await socialMediaRepository.save(socialMediaDataToInsert);
+    console.log(
+      `Seeded ${socialMediaDataToInsert.length} Social Media successfully.`
+    );
   }
 }
 

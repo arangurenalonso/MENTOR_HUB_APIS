@@ -2,9 +2,6 @@ import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import BaseDomain from '@domain/abstract/BaseDomain';
 import InstructorId from './value-object/instructor-id.value-object';
-import NaturalPersonDomain, {
-  NaturalPersonDomainProperties,
-} from '@domain/persona-aggregate/natural-person/natural-person.domain';
 import SocialMediaDomain, {
   SocialMediaDomainProperties,
 } from '../social-media/social-media.domain';
@@ -125,22 +122,28 @@ class InstructorDomain extends BaseDomain<InstructorId> {
     return ok(instructorDomain);
   }
 
-  updateAbout(
-    introductionText?: string,
-    teachingExperienceText?: string,
-    motivationText?: string
+  profile(
+    heading: string,
+    introduction?: string,
+    teachingExperience?: string,
+    motivation?: string
   ): Result<void, ErrorResult> {
     const resultAboutMe = AboutMe.create(
-      introductionText,
-      teachingExperienceText,
-      motivationText
+      introduction,
+      teachingExperience,
+      motivation
     );
 
     if (resultAboutMe.isErr()) {
       return err(resultAboutMe.error);
     }
-    const aboutMe = resultAboutMe.value;
-    this._aboutMe = aboutMe;
+    const headingResult = Heading.create(heading);
+    if (headingResult.isErr()) {
+      return err(headingResult.error);
+    }
+    this._aboutMe = resultAboutMe.value;
+    this._headline = headingResult.value;
+
     return ok(undefined);
   }
   updateAvailability(

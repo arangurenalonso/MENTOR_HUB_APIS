@@ -14,6 +14,12 @@ class TimeZoneSeeder {
 
   async seedData(): Promise<void> {
     const timeZoneRepository = this.dataSource.getRepository(TimeZoneEntity);
+    const count = await timeZoneRepository.count();
+
+    if (count > 0) {
+      console.log('Data already exists in timezones table. Skipping seed.');
+      return;
+    }
 
     const dataTimeZoneDataToInsert = dataTimeZoneData.map((x) => {
       const timeZoneEntity = new TimeZoneEntity();

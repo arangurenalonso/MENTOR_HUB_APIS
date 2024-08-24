@@ -14,6 +14,12 @@ class DayOfWeekSeeder {
 
   async seedData(): Promise<void> {
     const dayOfWeekRepository = this.dataSource.getRepository(DayOfWeekEntity);
+    const count = await dayOfWeekRepository.count();
+
+    if (count > 0) {
+      console.log('Data already exists in DayOfWeek table. Skipping seed.');
+      return;
+    }
 
     const dateOfWeekDataToInsert = dayOfWeekData.map((x) => {
       const dayOfWeekEntity = new DayOfWeekEntity();
@@ -24,7 +30,6 @@ class DayOfWeekSeeder {
 
       return dayOfWeekEntity;
     });
-    // Inserción masiva
     await dayOfWeekRepository.save(dateOfWeekDataToInsert);
     console.log(`Seeded ${dayOfWeekData.length} dayOfWeek successfully.`);
   }

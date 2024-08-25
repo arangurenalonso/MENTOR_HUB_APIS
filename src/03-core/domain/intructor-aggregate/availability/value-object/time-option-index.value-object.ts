@@ -1,10 +1,14 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
-import InstructorAvailabilityDomainErrors from '../error/instructor.domain.error';
 import domainRules from '@domain/helpers/regular-exp';
+import ErrorValueObject from '@domain/common/errorValueObject';
 
 class TimeIndex {
+  private static _error: ErrorValueObject = new ErrorValueObject(
+    'TIME_OPTION',
+    'INDEX'
+  );
   private readonly _value: number;
 
   private constructor(value: number) {
@@ -14,11 +18,7 @@ class TimeIndex {
   public static create(value?: number | null): Result<TimeIndex, ErrorResult> {
     const validationResult = this.validate(value);
     if (!validationResult.isValid) {
-      return err(
-        InstructorAvailabilityDomainErrors.INVALID_DATE_INDEX(
-          validationResult.reasons
-        )
-      );
+      return err(this._error.buildError(validationResult.reasons));
     }
 
     return ok(new TimeIndex(value!));
@@ -44,7 +44,6 @@ class TimeIndex {
     ) {
       reasons.push(
         messagesValidator.range(
-          'Time Option index',
           domainRules.minTimeOptionValid,
           domainRules.maxTimeOptionValid
         )

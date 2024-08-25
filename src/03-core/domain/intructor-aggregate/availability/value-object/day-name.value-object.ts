@@ -1,10 +1,14 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
-import InstructorAvailabilityDomainErrors from '../error/instructor.domain.error';
 import domainRules from '@domain/helpers/regular-exp';
+import ErrorValueObject from '@domain/common/errorValueObject';
 
 class DayName {
+  private static _error: ErrorValueObject = new ErrorValueObject(
+    'DAY_OF_WEEK',
+    'DAY_NAME'
+  );
   private readonly _value: string;
 
   private constructor(value: string) {
@@ -14,11 +18,7 @@ class DayName {
   public static create(value?: string | null): Result<DayName, ErrorResult> {
     const validationResult = this.validate(value);
     if (!validationResult.isValid) {
-      return err(
-        InstructorAvailabilityDomainErrors.INVALID_DATE_NAME(
-          validationResult.reasons
-        )
-      );
+      return err(this._error.buildError(validationResult.reasons));
     }
 
     return ok(new DayName(value!));

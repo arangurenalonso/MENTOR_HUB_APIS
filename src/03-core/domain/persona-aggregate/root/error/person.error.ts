@@ -9,13 +9,6 @@ class PersonErrors {
       400
     );
   };
-  static readonly PERSON_INVALID_NAME = (reasons: string[]): ErrorResult => {
-    return new ErrorResult(
-      'PERSON.NAME',
-      `Person Name is invalid: ${reasons.join(', ')}`,
-      400
-    );
-  };
   static readonly EMAIL_NOT_FOUND = (
     personName: string,
     email: string

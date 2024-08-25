@@ -3,23 +3,27 @@ import { ErrorResult } from '@domain/abstract/result-abstract';
 import { validate as uuidValidate, v4 as uuidv4 } from 'uuid';
 import ErrorValueObject from '@domain/common/errorValueObject';
 import messagesValidator from '@domain/helpers/messages-validator';
-class LevelId {
+
+class CategoryId {
   private readonly _value: string;
 
-  private static _error: ErrorValueObject = new ErrorValueObject('LEVEL', 'ID');
+  private static _error: ErrorValueObject = new ErrorValueObject(
+    'SUB_CATEGORY',
+    'ID'
+  );
 
   private constructor(value: string) {
     this._value = value;
   }
 
-  public static create(value?: string): Result<LevelId, ErrorResult> {
+  public static create(value?: string): Result<CategoryId, ErrorResult> {
     if (value === null || value === undefined) {
       value = uuidv4();
     }
     if (!this.validate(value)) {
       return err(this._error.buildError(messagesValidator.guid()));
     }
-    return ok(new LevelId(value));
+    return ok(new CategoryId(value));
   }
 
   private static validate(value: string): boolean {
@@ -36,7 +40,7 @@ class LevelId {
     return this._value;
   }
 
-  public equals(other: LevelId): boolean {
+  public equals(other: CategoryId): boolean {
     return other._value === this._value;
   }
 
@@ -44,4 +48,4 @@ class LevelId {
     return this._value;
   }
 }
-export default LevelId;
+export default CategoryId;

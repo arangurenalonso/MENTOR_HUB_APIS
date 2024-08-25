@@ -1,9 +1,13 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
-import ProvidersErrors from '../error/provider.error';
+import ErrorValueObject from '@domain/common/errorValueObject';
 
 class ProviderUid {
+  private static _error: ErrorValueObject = new ErrorValueObject(
+    'AUTH_PROVIDER',
+    'PROVIDER_ID'
+  );
   private readonly _value: string;
 
   private constructor(value: string) {
@@ -15,9 +19,7 @@ class ProviderUid {
   ): Result<ProviderUid, ErrorResult> {
     const validationResult = this.validate(value);
     if (!validationResult.isValid) {
-      return err(
-        ProvidersErrors.INVALID_PROVIDER_UID(validationResult.reasons)
-      );
+      return err(this._error.buildError(validationResult.reasons));
     }
 
     return ok(new ProviderUid(value!));

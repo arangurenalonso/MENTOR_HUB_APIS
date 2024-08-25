@@ -71,31 +71,67 @@ const messagesValidator = {
   ...urlMessage,
   ...imageValidation,
   ...headingMessage,
-  required: (field: string) => `The field '${field}' is required.`,
-  guidFile: (field: string) => `The field '${field}' must be a GUID.`,
-  string: (field: string) => `The field '${field}' must be a string.`,
-  minLength: (field: string, min: number) =>
-    `${field} must be at least ${min} characters long.`,
-  maxLength: (field: string, max: number) =>
-    `${field} must not exceed ${max} characters.`,
-  empty: (field: string) => `${field} cannot be null or empty.`,
-  blankSpace: (field: string) => `${field} cannot contain blank spaces.`,
-  invalidDateFormat: (field: string) =>
-    `The field '${field}' must be a valid date.`,
-  dateInFuture: (field: string) =>
-    `The field '${field}' cannot be a future date.`,
-  invalidFormat: (field: string) => `${field} contains invalid characters.`,
-  mustBeInteger: (field: string) => `${field} must be an integer.`,
-  range: (field: string, min: number, max: number) =>
-    `${field} must be between ${min} and ${max}.`,
-  array: (field: string) => `El campo '${field}' debe ser un array`,
-  object: (field: string) => `${field} is not a valid object.`,
-  notEmptyArray: (field: string) =>
-    `El campo '${field}' no puede estar vacío y debe contener al menos un elemento`,
-  invalidURL: (field: string) => `${field} must be a valid URL.`,
-  invalidEnum: (field: string, enumObj: object) => {
+  required: (field?: string) =>
+    field ? `The field '${field}' is required.` : `This field is required.`,
+  guid: (field?: string) =>
+    field
+      ? `The field '${field}' must be a GUID.`
+      : `This field must be a GUID.`,
+  string: (field?: string) =>
+    field
+      ? `The field '${field}' must be a string.`
+      : `This field must be a string.`,
+  minLength: (min: number, field?: string) =>
+    field
+      ? `${field} must be at least ${min} characters long.`
+      : `This field must be at least ${min} characters long.`,
+  maxLength: (max: number, field?: string) =>
+    field
+      ? `${field} must not exceed ${max} characters.`
+      : `This field must not exceed ${max} characters.`,
+  empty: (field?: string) =>
+    field
+      ? `${field} cannot be null or empty.`
+      : `This field cannot be null or empty.`,
+  blankSpace: (field?: string) =>
+    field
+      ? `${field} cannot contain blank spaces.`
+      : `This field cannot contain blank spaces.`,
+  invalidDateFormat: (field?: string) =>
+    field
+      ? `The field '${field}' must be a valid date.`
+      : `This field must be a valid date.`,
+  dateInFuture: (field?: string) =>
+    field
+      ? `The field '${field}' cannot be a future date.`
+      : `This field cannot be a future date.`,
+  invalidFormat: (field?: string) =>
+    field
+      ? `${field} contains invalid characters.`
+      : `This field contains invalid characters.`,
+  mustBeInteger: (field?: string) =>
+    field ? `${field} must be an integer.` : `This field must be an integer.`,
+  range: (min: number, max: number, field?: string) =>
+    field
+      ? `${field} must be between ${min} and ${max}.`
+      : `This field must be between ${min} and ${max}.`,
+  array: (field?: string) =>
+    field
+      ? `The field '${field}' must be an array.`
+      : `This field must be an array.`,
+  object: (field?: string) =>
+    field ? `${field} is not a valid object.` : `This is not a valid object.`,
+  notEmptyArray: (field?: string) =>
+    field
+      ? `The field '${field}' cannot be empty and must contain at least one element.`
+      : `This field cannot be empty and must contain at least one element.`,
+  invalidURL: (field?: string) =>
+    field ? `${field} must be a valid URL.` : `This field must be a valid URL.`,
+  invalidEnum: (enumObj: object, field?: string) => {
     const validValues = Object.values(enumObj).join(', ');
-    return `${field} contains an invalid value. Valid values are: ${validValues}.`;
+    return field
+      ? `${field} contains an invalid value. Valid values are: ${validValues}.`
+      : `This field contains an invalid value. Valid values are: ${validValues}.`;
   },
 };
 export default messagesValidator;

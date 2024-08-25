@@ -2,9 +2,13 @@ import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
 import domainRules from '@domain/helpers/regular-exp';
 import { err, ok, Result } from 'neverthrow';
-import InstructorAvailabilityDomainErrors from '../error/instructor.domain.error';
+import ErrorValueObject from '@domain/common/errorValueObject';
 
 class Time {
+  private static _error: ErrorValueObject = new ErrorValueObject(
+    'TIME_OPTION',
+    'TIME'
+  );
   private readonly _value: string;
 
   private constructor(value: string) {
@@ -16,11 +20,7 @@ class Time {
 
     const validationResult = this.validate(value);
     if (!validationResult.isValid) {
-      return err(
-        InstructorAvailabilityDomainErrors.INVALID_TIME_VALUE(
-          validationResult.reasons
-        )
-      );
+      return err(this._error.buildError(validationResult.reasons));
     }
 
     return ok(new Time(value));

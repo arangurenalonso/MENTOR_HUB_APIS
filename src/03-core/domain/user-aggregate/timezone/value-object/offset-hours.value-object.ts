@@ -1,10 +1,14 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
-import TimeZoneErrors from '../error/time-zone.error';
 import domainRules from '@domain/helpers/regular-exp';
+import ErrorValueObject from '@domain/common/errorValueObject';
 
 class OffsetHours {
+  private static _error: ErrorValueObject = new ErrorValueObject(
+    'TIME_ZONE',
+    'OFFSET_HOURS'
+  );
   private readonly _value: number;
 
   private constructor(value: number) {
@@ -15,7 +19,7 @@ class OffsetHours {
     // Validate the value
     const validationResult = this.validate(value);
     if (!validationResult.isValid) {
-      return err(TimeZoneErrors.INVALID_OFFSET_HOURS(validationResult.reasons));
+      return err(this._error.buildError(validationResult.reasons));
     }
 
     return ok(new OffsetHours(value));
@@ -36,7 +40,6 @@ class OffsetHours {
     ) {
       reasons.push(
         messagesValidator.range(
-          'Offset Hours',
           domainRules.minHoursOffSetValid,
           domainRules.maxHoursOffSetValid
         )

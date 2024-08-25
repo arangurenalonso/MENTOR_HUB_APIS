@@ -20,6 +20,10 @@ export class MasterRoutes {
       '/level',
       asyncHandlerMiddleware(this._masterController.getLevel)
     );
+    this._router.get(
+      '/category',
+      asyncHandlerMiddleware(this._masterController.getCategory)
+    );
   }
 
   get router(): Router {

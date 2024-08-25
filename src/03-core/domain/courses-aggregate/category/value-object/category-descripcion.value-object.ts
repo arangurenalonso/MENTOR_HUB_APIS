@@ -4,29 +4,27 @@ import messagesValidator from '@domain/helpers/messages-validator';
 import domainRules from '@domain/helpers/regular-exp';
 import TextValidationBuilder from '@domain/helpers/TextValidationBuilder';
 import LengthValidationBuilder from '@domain/helpers/LengthValidationBuilder';
-import { get } from 'http';
 import ErrorValueObject from '@domain/common/errorValueObject';
 
-class LevelDescription {
+class CategoryDescription {
+  private readonly _value: string;
   private static _error: ErrorValueObject = new ErrorValueObject(
-    'LEVEL',
+    'CATEGORY',
     'DESCRIPTION'
   );
-  private readonly _value: string;
-
   private constructor(value: string) {
     this._value = value.toUpperCase(); // Ensure the value is stored in uppercase
   }
-  public static create(value: string): Result<LevelDescription, ErrorResult> {
-    // Transform to uppercase and ensure it starts with "ROLE_"
+  public static create(
+    value: string
+  ): Result<CategoryDescription, ErrorResult> {
     value = value?.trim().toUpperCase();
 
-    // Validate the description
     const validationResult = this.validate(value);
     if (!validationResult.isValid) {
       return err(this._error.buildError(validationResult.reasons));
     }
-    return ok(new LevelDescription(value));
+    return ok(new CategoryDescription(value));
   }
 
   private static validate(value: string = ''): {
@@ -36,12 +34,14 @@ class LevelDescription {
     const reasons: string[] = [];
 
     if (value === null || value === undefined || value === '') {
-      reasons.push(messagesValidator.empty('Level Description'));
+      reasons.push(messagesValidator.empty('Category Description'));
       return { isValid: false, reasons };
     }
     const textValidationResult = TextValidationBuilder.addLowercaseLetters()
       .addUppercaseLetters()
       .addNumbers()
+      .addWhitespace()
+      .addSpecialChars()
       .build()
       .validate(value);
 
@@ -66,7 +66,7 @@ class LevelDescription {
     return this._value;
   }
 
-  public equals(other: LevelDescription): boolean {
+  public equals(other: CategoryDescription): boolean {
     return other._value === this._value;
   }
 
@@ -75,4 +75,4 @@ class LevelDescription {
   }
 }
 
-export default LevelDescription;
+export default CategoryDescription;

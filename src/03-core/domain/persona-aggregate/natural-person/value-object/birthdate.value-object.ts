@@ -1,9 +1,13 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
-import NaturalPersonErrors from '../error/natural-person.error';
+import ErrorValueObject from '@domain/common/errorValueObject';
 
 class Birthdate {
+  private static _error: ErrorValueObject = new ErrorValueObject(
+    'NATURAL_PERSON',
+    'BIRTHDATE'
+  );
   private readonly _value: Date;
 
   private constructor(value: Date) {
@@ -37,7 +41,7 @@ class Birthdate {
       parsedDate = value;
     } else {
       reasons.push(messagesValidator.invalidDateFormat('birthdate'));
-      return err(NaturalPersonErrors.PERSON_INVALID_BIRTHDAY(reasons));
+      return err(this._error.buildError(reasons));
     }
 
     if (isNaN(parsedDate.getTime())) {
@@ -50,7 +54,7 @@ class Birthdate {
     }
 
     if (reasons?.length > 0) {
-      return err(NaturalPersonErrors.PERSON_INVALID_BIRTHDAY(reasons));
+      return err(this._error.buildError(reasons));
     }
 
     return ok(parsedDate);

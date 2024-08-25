@@ -2,9 +2,12 @@ import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
 import domainRules from '@domain/helpers/regular-exp';
-import InstructorDomainErrors from '@domain/intructor-aggregate/root/error/instructor.domain.error';
-
-class ImageURL {
+import ErrorValueObject from '@domain/common/errorValueObject';
+class URLImage {
+  private static _error: ErrorValueObject = new ErrorValueObject(
+    'SOCIAL_MEDIA',
+    'URL_PROFILE_PICTURE'
+  );
   private readonly _value: string;
 
   private constructor(value: string) {
@@ -13,7 +16,7 @@ class ImageURL {
 
   public static create(
     value?: string | null
-  ): Result<ImageURL | null, ErrorResult> {
+  ): Result<URLImage | null, ErrorResult> {
     if (value === null || value === undefined) {
       return ok(null);
     }
@@ -22,10 +25,10 @@ class ImageURL {
 
     const validationResult = this.validate(value);
     if (!validationResult.isValid) {
-      return err(InstructorDomainErrors.INVALID_URL(validationResult.reasons));
+      return err(this._error.buildError(validationResult.reasons));
     }
 
-    return ok(new ImageURL(value));
+    return ok(new URLImage(value));
   }
 
   private static validate(value: string): {
@@ -57,7 +60,7 @@ class ImageURL {
     return this._value;
   }
 
-  public equals(other: ImageURL): boolean {
+  public equals(other: URLImage): boolean {
     return other._value === this._value;
   }
 
@@ -66,4 +69,4 @@ class ImageURL {
   }
 }
 
-export default ImageURL;
+export default URLImage;

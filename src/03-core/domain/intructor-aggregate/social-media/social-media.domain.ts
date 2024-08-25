@@ -5,7 +5,7 @@ import SocialMediaId from './value-object/social-media-id.value-object';
 import SocialMediaDescription from './value-object/social-media-description.value-object';
 import SocialMediaURLProfile from './value-object/social-media-url.value-object';
 import BaseURL from './value-object/base-url.value-object';
-import ImageURL from './value-object/image-url.value-object';
+import URLImage from './value-object/urlImage.value-object';
 
 export type SocialMediaDomainArgs = {
   id?: string;
@@ -29,7 +29,7 @@ type SocialMediaDomainConstructor = {
   id: SocialMediaId;
   description: SocialMediaDescription;
   baseURL: BaseURL;
-  urlmage: ImageURL | null;
+  urlmage: URLImage | null;
   urlProfile: SocialMediaURLProfile;
   idRelation: string | null;
 };
@@ -37,7 +37,7 @@ type SocialMediaDomainConstructor = {
 class SocialMediaDomain extends BaseDomain<SocialMediaId> {
   private _description: SocialMediaDescription;
   private _baseURL: BaseURL;
-  private _urlmage: ImageURL | null;
+  private _urlmage: URLImage | null;
   private _urlProfile: SocialMediaURLProfile;
   private _idRelation: string | null;
 
@@ -73,7 +73,7 @@ class SocialMediaDomain extends BaseDomain<SocialMediaId> {
     if (resultUrlProfile.isErr()) {
       return err(resultUrlProfile.error);
     }
-    const resultUrlmage = ImageURL.create(args.urlmage);
+    const resultUrlmage = URLImage.create(args.urlmage);
     if (resultUrlmage.isErr()) {
       return err(resultUrlmage.error);
     }

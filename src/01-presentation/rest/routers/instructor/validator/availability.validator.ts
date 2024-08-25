@@ -18,31 +18,31 @@ const AvailabilityValidation = [
   body('availability.*.id')
     .optional({ nullable: true })
     .isUUID()
-    .withMessage(messagesValidator.guidFile('id')),
+    .withMessage(messagesValidator.guid('id')),
 
   body('availability.*.idDayOfWeek')
     .notEmpty()
     .withMessage(messagesValidator.required('idDayOfWeek'))
     .isUUID()
-    .withMessage(messagesValidator.guidFile('idDayOfWeek')),
+    .withMessage(messagesValidator.guid('idDayOfWeek')),
 
   body('availability.*.idStartTime')
     .notEmpty()
     .withMessage(messagesValidator.required('idStartTime'))
     .isUUID()
-    .withMessage(messagesValidator.guidFile('idStartTime')),
+    .withMessage(messagesValidator.guid('idStartTime')),
 
   body('availability.*.idFinalTime')
     .notEmpty()
     .withMessage(messagesValidator.required('idFinalTime'))
     .isUUID()
-    .withMessage(messagesValidator.guidFile('idFinalTime')),
+    .withMessage(messagesValidator.guid('idFinalTime')),
 
   param('idInstructor')
     .notEmpty()
     .withMessage(messagesValidator.required('idInstructor'))
     .isUUID()
-    .withMessage(messagesValidator.guidFile('idInstructor')),
+    .withMessage(messagesValidator.guid('idInstructor')),
 ];
 
 export default AvailabilityValidation;

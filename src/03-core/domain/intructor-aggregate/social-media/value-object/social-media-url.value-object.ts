@@ -1,8 +1,14 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import SocialMediaErrors from '../error/social-media.error';
+import ErrorValueObject from '@domain/common/errorValueObject';
+import messagesValidator from '@domain/helpers/messages-validator';
 
 class SocialMediaURLProfile {
+  private static _error: ErrorValueObject = new ErrorValueObject(
+    'SOCIAL_MEDIA',
+    'URL_PROFILE'
+  );
   private readonly _value: string;
 
   private constructor(value: string) {
@@ -14,7 +20,7 @@ class SocialMediaURLProfile {
     baseURL: string
   ): Result<SocialMediaURLProfile, ErrorResult> {
     if (value === null || value === undefined) {
-      return err(SocialMediaErrors.URL_PROFILE_REQUIRED);
+      return err(this._error.buildError(messagesValidator.required()));
     }
 
     value = value.trim();

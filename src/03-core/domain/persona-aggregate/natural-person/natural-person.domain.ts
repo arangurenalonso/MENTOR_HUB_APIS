@@ -10,7 +10,7 @@ import PersonId from '../root/value-object/person-id.value-object';
 import Name from './value-object/name.value-object';
 import Birthdate from './value-object/birthdate.value-object';
 import PersonErrors from '../root/error/person.error';
-import ImageURL from '@domain/intructor-aggregate/social-media/value-object/image-url.value-object';
+import URLImage from '@domain/intructor-aggregate/social-media/value-object/urlImage.value-object';
 
 export type NaturalPersonDomainProperties = {
   id: string;
@@ -32,7 +32,7 @@ export type NaturalPersonDomainCreateArg = {
 
 export type NaturalPersonDomainConstructor = {
   id: PersonId;
-  photoUrl: ImageURL | null;
+  photoUrl: URLImage | null;
   name: Name;
   emails: EmailDomain[];
   birthdate: Birthdate | null;
@@ -41,7 +41,7 @@ export type NaturalPersonDomainConstructor = {
 
 class NaturalPersonDomain extends PersonDomain {
   private _name: Name;
-  private _photoUrl: ImageURL | null;
+  private _photoUrl: URLImage | null;
   private _birthday: Birthdate | null;
   private constructor(properties: NaturalPersonDomainConstructor) {
     super({
@@ -93,7 +93,7 @@ class NaturalPersonDomain extends PersonDomain {
     }
     const birthdate = birthDateResult.value;
 
-    const photoUrlResult = ImageURL.create(args.photoUrl);
+    const photoUrlResult = URLImage.create(args.photoUrl);
 
     if (photoUrlResult.isErr()) {
       return err(photoUrlResult.error);
@@ -125,7 +125,7 @@ class NaturalPersonDomain extends PersonDomain {
   public updatePhotho = (
     photoUrlToUpdate?: string | null
   ): Result<void, ErrorResult> => {
-    const photoUrlResult = ImageURL.create(photoUrlToUpdate);
+    const photoUrlResult = URLImage.create(photoUrlToUpdate);
 
     if (photoUrlResult.isErr()) {
       return err(photoUrlResult.error);

@@ -1,9 +1,14 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import { validate as uuidValidate, v4 as uuidv4 } from 'uuid';
-import SocialMediaErrors from '../error/social-media.error';
+import ErrorValueObject from '@domain/common/errorValueObject';
+import messagesValidator from '@domain/helpers/messages-validator';
 
 class SocialMediaId {
+  private static _error: ErrorValueObject = new ErrorValueObject(
+    'SOCIAL_MEDIA',
+    'ID'
+  );
   private readonly _value: string;
 
   private constructor(value: string) {
@@ -15,7 +20,7 @@ class SocialMediaId {
       value = uuidv4();
     }
     if (!this.validate(value)) {
-      return err(SocialMediaErrors.INVALID_ID(value));
+      return err(this._error.buildError(messagesValidator.guid()));
     }
     return ok(new SocialMediaId(value));
   }

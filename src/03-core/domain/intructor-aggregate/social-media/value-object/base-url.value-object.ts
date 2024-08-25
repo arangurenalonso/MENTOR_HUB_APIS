@@ -2,9 +2,13 @@ import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
 import domainRules from '@domain/helpers/regular-exp';
-import SocialMediaErrors from '../error/social-media.error';
+import ErrorValueObject from '@domain/common/errorValueObject';
 
 class BaseURL {
+  private static _error: ErrorValueObject = new ErrorValueObject(
+    'SOCIAL_MEDIA',
+    'BASE_URL'
+  );
   private readonly _value: string;
 
   private constructor(value: string) {
@@ -16,7 +20,7 @@ class BaseURL {
 
     const validationResult = this.validate(value);
     if (!validationResult.isValid) {
-      return err(SocialMediaErrors.INVALID_BASE_URL(validationResult.reasons));
+      return err(this._error.buildError(validationResult.reasons));
     }
     const url = new URL(value);
     const baseURL = `${url.protocol}//${url.hostname}${

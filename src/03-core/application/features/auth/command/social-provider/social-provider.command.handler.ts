@@ -8,8 +8,6 @@ import IUserRepository from '@domain/user-aggregate/root/repositories/IUser.repo
 import UserDomain from '@domain/user-aggregate/root/user.domain';
 import UserApplicationErrors from '@application/errors/user-application.error';
 import TYPES from '@config/inversify/identifiers';
-import IPasswordService from '@application/contracts/Ipassword.service';
-import ITokenService from '@application/contracts/IToken.service';
 import RoleDomain from '@domain/user-aggregate/role/role.domain';
 import { RoleEnum } from '@domain/user-aggregate/role/enum/role.enum';
 import NaturalPersonDomain from '@domain/persona-aggregate/natural-person/natural-person.domain';
@@ -19,7 +17,6 @@ import IPersonRepository from '@domain/persona-aggregate/root/repository/person.
 import AuthenticationResultQuery from '../../query/authentication-result/authentication-result.query';
 import { ProviderEnum } from '@domain/user-aggregate/provider/enum/provider.enum';
 import AuthProviderDomain from '@domain/user-aggregate/provider/auth-provider.domain';
-import userDomain from '@domain/user-aggregate/root/user.domain';
 
 @injectable()
 @requestHandler(SocialProviderCommand)

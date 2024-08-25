@@ -1,9 +1,14 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import { validate as uuidValidate, v4 as uuidv4 } from 'uuid';
-import InstructorDomainErrors from '../error/instructor.domain.error';
+import ErrorValueObject from '@domain/common/errorValueObject';
+import messagesValidator from '@domain/helpers/messages-validator';
 
 class InstructorAvailabilityId {
+  private static _error: ErrorValueObject = new ErrorValueObject(
+    'INSTRUCTOR_AVAILABILITY',
+    'ID'
+  );
   private readonly _value: string;
 
   private constructor(value: string) {
@@ -17,7 +22,7 @@ class InstructorAvailabilityId {
       value = uuidv4();
     }
     if (!this.validate(value)) {
-      return err(InstructorDomainErrors.INVALID_ID(value));
+      return err(this._error.buildError(messagesValidator.guid()));
     }
     return ok(new InstructorAvailabilityId(value));
   }

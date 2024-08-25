@@ -7,7 +7,7 @@ const GoogleSignUpValidation = [
     .exists()
     .withMessage(messagesValidator.required('provider'))
     .isIn(Object.values(ProviderEnum))
-    .withMessage(messagesValidator.invalidEnum('provider', ProviderEnum)),
+    .withMessage(messagesValidator.invalidEnum(ProviderEnum, 'provider')),
   body('name').exists().withMessage(messagesValidator.required('name')),
   body('email')
     .exists()

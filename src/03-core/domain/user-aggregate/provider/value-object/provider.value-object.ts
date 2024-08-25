@@ -2,9 +2,13 @@ import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
 import { ProviderEnum } from '../enum/provider.enum';
-import ProvidersErrors from '../error/provider.error';
+import ErrorValueObject from '@domain/common/errorValueObject';
 
 class Provider {
+  private static _error: ErrorValueObject = new ErrorValueObject(
+    'AUTH_PROVIDER',
+    'PROVIDER_NAME'
+  );
   private readonly _value: string;
 
   private constructor(value: string) {
@@ -14,9 +18,7 @@ class Provider {
   public static create(value?: string | null): Result<Provider, ErrorResult> {
     const validationResult = this.validate(value);
     if (!validationResult.isValid) {
-      return err(
-        ProvidersErrors.INVALID_PROVIDER_NAME(validationResult.reasons)
-      );
+      return err(this._error.buildError(validationResult.reasons));
     }
 
     return ok(new Provider(value!));

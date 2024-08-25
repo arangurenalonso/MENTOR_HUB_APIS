@@ -74,6 +74,9 @@ import MasterController from '@rest/controller/master.controller';
 import GetAllLevelQuery from '@application/features/master/query/getAllLevel/getAllLevel.query';
 import GetAllLevelQueryHandler from '@application/features/master/query/getAllLevel/getAllLevel.query.handler';
 import { LevelDomainProperties } from '@domain/courses-aggregate/level/level.domain';
+import GetAllCategoriesQueryHandler from '@application/features/master/query/getAllCategories/getAllCategories.query.handler';
+import GetAllCategoriesQuery from '@application/features/master/query/getAllCategories/getAllCategoriesquery';
+import { CategoryDomainProperties } from '@domain/courses-aggregate/category/category.domain';
 
 class DependencyContainer {
   private readonly _container: Container;
@@ -305,6 +308,15 @@ class DependencyContainer {
         >
       >('GetAllLevelQuery')
       .to(GetAllLevelQueryHandler);
+
+    this._container
+      .bind<
+        IRequestHandler<
+          GetAllCategoriesQuery,
+          Result<CategoryDomainProperties[], ErrorResult>
+        >
+      >('GetAllCategoriesQuery')
+      .to(GetAllCategoriesQueryHandler);
   }
   private bindDatabase(): void {
     this._container

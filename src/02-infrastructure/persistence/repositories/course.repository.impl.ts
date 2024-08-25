@@ -8,6 +8,9 @@ import LevelDomain from '@domain/courses-aggregate/level/level.domain';
 import ICourseRepository from '@domain/courses-aggregate/root/repositories/ICourse.repository';
 import LevelEntity from '@persistence/entities/courses-aggregate/level.entity';
 import LevelDTO from '@infrastructure/dto/course-aggregate/level.dto';
+import CategoryEntity from '@persistence/entities/courses-aggregate/category.entity';
+import CategoryDomain from '@domain/courses-aggregate/category/category.domain';
+import CategoryDTO from '@infrastructure/dto/course-aggregate/category.dto';
 
 @injectable()
 class CourseRepository
@@ -16,6 +19,7 @@ class CourseRepository
 {
   private _repository: Repository<LevelEntity>;
   private _levelRepository: Repository<LevelEntity>;
+  private _categoryRepository: Repository<CategoryEntity>;
   constructor(
     @inject(TYPES.DataSource)
     private readonly _dataSourceOrEntityManager: DataSource | EntityManager
@@ -32,12 +36,14 @@ class CourseRepository
       this._dataSourceOrEntityManager.getRepository(LevelEntity);
     this._levelRepository =
       this._dataSourceOrEntityManager.getRepository(LevelEntity);
+    this._categoryRepository =
+      this._dataSourceOrEntityManager.getRepository(CategoryEntity);
   }
   async getAllLevelOfCourse(): Promise<
     Result<LevelDomain[] | null, ErrorResult>
   > {
     const levelEntities = await this._levelRepository.find({
-      // where: { active: true },
+      where: { active: true },
     });
 
     if (!levelEntities || levelEntities.length === 0) {
@@ -51,7 +57,24 @@ class CourseRepository
 
     return ok(levelDomains.value);
   }
+  async getAllCategoryOfCourse(): Promise<
+    Result<CategoryDomain[] | null, ErrorResult>
+  > {
+    const categoriesEntities = await this._categoryRepository.find({
+      where: { active: true },
+    });
 
+    if (!categoriesEntities || categoriesEntities.length === 0) {
+      return ok(null);
+    }
+
+    const categoriesDomain = CategoryDTO.toDomainList(categoriesEntities);
+    if (categoriesDomain.isErr()) {
+      return err(categoriesDomain.error);
+    }
+
+    return ok(categoriesDomain.value);
+  }
   protected get repository(): Repository<LevelEntity> {
     return this._repository;
   }

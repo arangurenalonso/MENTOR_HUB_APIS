@@ -1,9 +1,11 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import { validate as uuidValidate, v4 as uuidv4 } from 'uuid';
-import RoleErrors from '../error/role.error';
+import ErrorValueObject from '@domain/common/errorValueObject';
+import messagesValidator from '@domain/helpers/messages-validator';
 
 class RoleId {
+  private static _error: ErrorValueObject = new ErrorValueObject('ROLE', 'ID');
   private readonly _value: string;
 
   private constructor(value: string) {
@@ -15,7 +17,7 @@ class RoleId {
       value = uuidv4();
     }
     if (!this.validate(value)) {
-      return err(RoleErrors.ROLE_INVALID_ID(value));
+      return err(this._error.buildError(messagesValidator.guid()));
     }
     return ok(new RoleId(value));
   }

@@ -3,8 +3,13 @@ import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
 import domainRules from '@domain/helpers/regular-exp';
 import RichTextJsonContent from '@domain/common/RichTextJsonContent';
+import ErrorValueObject from '@domain/common/errorValueObject';
 
 class AboutMe {
+  private static _error: ErrorValueObject = new ErrorValueObject(
+    'INSTRUCTOR',
+    'ABOUT_ME'
+  );
   private readonly _introduction: RichTextJsonContent;
   private readonly _teachingExperience: RichTextJsonContent;
   private readonly _motivation: RichTextJsonContent;
@@ -59,11 +64,11 @@ class AboutMe {
       teachingExperience == null ||
       motivation == null
     ) {
+      const missingFields = [];
+      if (intruduction == null) missingFields.push('Introduction');
       return err(
-        new ErrorResult(
-          'ABOUT_ME_INVALID',
-          messagesValidator.invalidFormat('About Me'),
-          400
+        this._error.buildError(
+          missingFields.map((x) => messagesValidator.required(x))
         )
       );
     }
@@ -75,10 +80,8 @@ class AboutMe {
 
     if (totalWords > domainRules.aboutMeMaxLength) {
       return err(
-        new ErrorResult(
-          'ABOUT_ME_TOO_LONG',
-          messagesValidator.maxLength('About Me', domainRules.aboutMeMaxLength),
-          400
+        this._error.buildError(
+          messagesValidator.maxLength(domainRules.aboutMeMaxLength)
         )
       );
     }

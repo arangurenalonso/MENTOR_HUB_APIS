@@ -1,10 +1,14 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
-import SocialMediaErrors from '../error/social-media.error';
 import domainRules from '@domain/helpers/regular-exp';
+import ErrorValueObject from '@domain/common/errorValueObject';
 
 class SocialMediaDescription {
+  private static _error: ErrorValueObject = new ErrorValueObject(
+    'SOCIAL_MEDIA',
+    'DESCRIPTION'
+  );
   private readonly _value: string;
 
   private constructor(value: string) {
@@ -18,9 +22,7 @@ class SocialMediaDescription {
 
     const validationResult = this.validate(value);
     if (!validationResult.isValid) {
-      return err(
-        SocialMediaErrors.INVALID_DESCRIPTION(validationResult.reasons)
-      );
+      return err(this._error.buildError(validationResult.reasons));
     }
 
     return ok(new SocialMediaDescription(value));
@@ -41,17 +43,11 @@ class SocialMediaDescription {
     }
     if (value?.length < domainRules.socialMediaDescriptionMinLength) {
       reasons.push(
-        messagesValidator.minLength(
-          'Social Media Description',
-          domainRules.socialMediaDescriptionMinLength
-        )
+        messagesValidator.minLength(domainRules.socialMediaDescriptionMinLength)
       );
     }
     if (value?.length > domainRules.socialMediaDescriptionMaxLength) {
-      messagesValidator.maxLength(
-        'Social Media Description',
-        domainRules.socialMediaDescriptionMaxLength
-      );
+      messagesValidator.maxLength(domainRules.socialMediaDescriptionMaxLength);
     }
 
     return { isValid: reasons.length === 0, reasons };

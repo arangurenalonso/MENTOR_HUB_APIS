@@ -1,10 +1,14 @@
-import RoleErrors from '../error/role.error';
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
 import domainRules from '@domain/helpers/regular-exp';
+import ErrorValueObject from '@domain/common/errorValueObject';
 
 class RoleDescription {
+  private static _error: ErrorValueObject = new ErrorValueObject(
+    'ROLE',
+    'DESCRIPTION'
+  );
   private readonly _value: string;
 
   private constructor(value: string) {
@@ -17,7 +21,7 @@ class RoleDescription {
     // Validate the description
     const validationResult = this.validate(value);
     if (!validationResult.isValid) {
-      return err(RoleErrors.ROLE_INVALID_DESCRIPTION(validationResult.reasons));
+      return err(this._error.buildError(validationResult.reasons));
     }
     return ok(new RoleDescription(value));
   }
@@ -37,17 +41,11 @@ class RoleDescription {
     }
     if (value?.length < domainRules.roleDescriptionMinLength) {
       reasons.push(
-        messagesValidator.minLength(
-          'Role Description',
-          domainRules.roleDescriptionMinLength
-        )
+        messagesValidator.minLength(domainRules.roleDescriptionMinLength)
       );
     }
     if (value?.length > domainRules.roleDescriptionMaxLength) {
-      messagesValidator.maxLength(
-        'Role Description',
-        domainRules.roleDescriptionMaxLength
-      );
+      messagesValidator.maxLength(domainRules.roleDescriptionMaxLength);
     }
     if (domainRules.blankSpace.test(value)) {
       // No permite espacios

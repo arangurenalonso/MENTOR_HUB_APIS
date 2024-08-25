@@ -1,10 +1,14 @@
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
-import TimeZoneErrors from '@domain/user-aggregate/timezone/error/time-zone.error';
 import domainRules from '@domain/helpers/regular-exp';
+import ErrorValueObject from '@domain/common/errorValueObject';
 
 class TimeZoneStringId {
+  private static _error: ErrorValueObject = new ErrorValueObject(
+    'TIME_ZONE',
+    'TIME_ZONE_STRING_ID'
+  );
   private readonly _value: string;
 
   private constructor(value: string) {
@@ -15,9 +19,7 @@ class TimeZoneStringId {
     // Validate the value
     const validationResult = this.validate(value);
     if (!validationResult.isValid) {
-      return err(
-        TimeZoneErrors.INVALID_TIMEZONE_STRING_ID(validationResult.reasons)
-      );
+      return err(this._error.buildError(validationResult.reasons));
     }
 
     return ok(new TimeZoneStringId(value));

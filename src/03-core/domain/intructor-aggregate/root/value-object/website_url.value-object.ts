@@ -2,9 +2,13 @@ import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
 import messagesValidator from '@domain/helpers/messages-validator';
 import domainRules from '@domain/helpers/regular-exp';
-import InstructorDomainErrors from '../error/instructor.domain.error';
+import ErrorValueObject from '@domain/common/errorValueObject';
 
 class WebsiteURL {
+  private static _error: ErrorValueObject = new ErrorValueObject(
+    'INSTRUCTOR',
+    'WEBSITE_URL'
+  );
   private readonly _value: string;
 
   private constructor(value: string) {
@@ -22,7 +26,7 @@ class WebsiteURL {
 
     const validationResult = this.validate(value);
     if (!validationResult.isValid) {
-      return err(InstructorDomainErrors.INVALID_URL(validationResult.reasons));
+      return err(this._error.buildError(validationResult.reasons));
     }
 
     return ok(new WebsiteURL(value));

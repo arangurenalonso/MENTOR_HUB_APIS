@@ -7,7 +7,7 @@ const UpdateAboutValidation = [
     .notEmpty()
     .withMessage(messagesValidator.required('idInstructor'))
     .isUUID()
-    .withMessage(messagesValidator.guidFile('idInstructor')),
+    .withMessage(messagesValidator.guid('idInstructor')),
 
   body('headline')
     .exists()

@@ -77,6 +77,9 @@ import { LevelDomainProperties } from '@domain/courses-aggregate/level/level.dom
 import GetAllCategoriesQueryHandler from '@application/features/master/query/getAllCategories/getAllCategories.query.handler';
 import GetAllCategoriesQuery from '@application/features/master/query/getAllCategories/getAllCategoriesquery';
 import { CategoryDomainProperties } from '@domain/courses-aggregate/category/category.domain';
+import GetSubCategoriesByIdCategoryQuery from '@application/features/master/query/getSubCategoriesByIdCategory/getSubCategoriesByIdCategory';
+import GetSubCategoriesByIdCategoryQueryHandler from '@application/features/master/query/getSubCategoriesByIdCategory/getSubCategoriesByIdCategory.query.handler';
+import { SubCategoryDomainProperties } from '@domain/courses-aggregate/sub-category/sub-category.domain';
 
 class DependencyContainer {
   private readonly _container: Container;
@@ -221,78 +224,44 @@ class DependencyContainer {
     this._container.bind<MasterRoutes>(TYPES.MasterRoutes).to(MasterRoutes);
   }
   private bindUseCase(): void {
-    this._container
-      .bind<
-        IRequestHandler<LoginCommand, Result<AuthenticationResult, ErrorResult>>
-      >('LoginCommand')
-      .to(LoginCommandHandler);
+    const handlers = [
+      { command: LoginCommand, handler: LoginCommandHandler },
+      { command: RegisterCommand, handler: RegisterCommandHandler },
+      { command: SocialProviderCommand, handler: SocialProviderCommandHandler },
+      {
+        command: AuthenticationResultQuery,
+        handler: AuthenticationResultQueryHandler,
+      },
+      {
+        command: ConfirmEmailVerificationCommand,
+        handler: ConfirmEmailVerificationCommandHandler,
+      },
+      {
+        command: CreateInstructorProfileCommand,
+        handler: CreateInstructorProfileCommandHandler,
+      },
+      {
+        command: UpdateInstructorAvailabilityCommand,
+        handler: UpdateInstructorAvailabilityCommandhandler,
+      },
+      { command: UpdateAboutCommand, handler: UpdateAboutCommandhandler },
+      {
+        command: GetInstructorByIdQuery,
+        handler: GetInstructorByIdQueryHandler,
+      },
+      { command: GetAllLevelQuery, handler: GetAllLevelQueryHandler },
+      { command: GetAllCategoriesQuery, handler: GetAllCategoriesQueryHandler },
+      {
+        command: GetSubCategoriesByIdCategoryQuery,
+        handler: GetSubCategoriesByIdCategoryQueryHandler,
+      },
+    ];
 
-    this._container
-      .bind<
-        IRequestHandler<
-          GetInstructorByIdQuery,
-          Result<InstructorDomainProperties, ErrorResult>
-        >
-      >('GetInstructorByIdQuery')
-      .to(GetInstructorByIdQueryHandler);
-
-    this._container
-      .bind<
-        IRequestHandler<
-          ConfirmEmailVerificationCommand,
-          Result<AuthenticationResult, ErrorResult>
-        >
-      >('ConfirmEmailVerificationCommand')
-      .to(ConfirmEmailVerificationCommandHandler);
-
-    this._container
-      .bind<
-        IRequestHandler<
-          UpdateInstructorAvailabilityCommand,
-          Result<void, ErrorResult>
-        >
-      >('UpdateInstructorAvailabilityCommand')
-      .to(UpdateInstructorAvailabilityCommandhandler);
-
-    this._container
-      .bind<IRequestHandler<UpdateAboutCommand, Result<void, ErrorResult>>>(
-        'UpdateAboutCommand'
-      )
-      .to(UpdateAboutCommandhandler);
-    this._container
-      .bind<
-        IRequestHandler<
-          RegisterCommand,
-          Result<AuthenticationResult, ErrorResult>
-        >
-      >('RegisterCommand')
-      .to(RegisterCommandHandler);
-
-    this._container
-      .bind<
-        IRequestHandler<
-          SocialProviderCommand,
-          Result<AuthenticationResult, ErrorResult>
-        >
-      >('SocialProviderCommand')
-      .to(SocialProviderCommandHandler);
-
-    this._container
-      .bind<
-        IRequestHandler<
-          AuthenticationResultQuery,
-          Result<AuthenticationResult, ErrorResult>
-        >
-      >('AuthenticationResultQuery')
-      .to(AuthenticationResultQueryHandler);
-    this._container
-      .bind<
-        IRequestHandler<
-          CreateInstructorProfileCommand,
-          Result<AuthenticationResult, ErrorResult>
-        >
-      >('CreateInstructorProfileCommand')
-      .to(CreateInstructorProfileCommandHandler);
+    handlers.forEach(({ command, handler }) => {
+      this._container
+        .bind<IRequestHandler<any, Result<any, ErrorResult>>>(command.name)
+        .to(handler);
+    });
 
     this._container
       .bind<IRequestHandler<ExecOutboxMessagesCommand, void>>(
@@ -300,23 +269,11 @@ class DependencyContainer {
       )
       .to(ExecOutboxMessagesCommandHandler);
 
-    this._container
-      .bind<
-        IRequestHandler<
-          GetAllLevelQuery,
-          Result<LevelDomainProperties[], ErrorResult>
-        >
-      >('GetAllLevelQuery')
-      .to(GetAllLevelQueryHandler);
-
-    this._container
-      .bind<
-        IRequestHandler<
-          GetAllCategoriesQuery,
-          Result<CategoryDomainProperties[], ErrorResult>
-        >
-      >('GetAllCategoriesQuery')
-      .to(GetAllCategoriesQueryHandler);
+    // this._container
+    //   .bind<
+    //     IRequestHandler<LoginCommand, Result<AuthenticationResult, ErrorResult>>
+    //   >('LoginCommand')
+    //   .to(LoginCommandHandler);
   }
   private bindDatabase(): void {
     this._container

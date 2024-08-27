@@ -42,6 +42,7 @@ class SubCategoryDescription {
       .addNumbers()
       .addWhitespace()
       .addSpecialChars()
+      .addPunctuation()
       .build()
       .validate(value);
 

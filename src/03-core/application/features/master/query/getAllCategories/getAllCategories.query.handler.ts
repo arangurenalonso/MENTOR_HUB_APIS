@@ -54,7 +54,7 @@ class GetAllCategoriesQueryHandler
 
     const categoriesDomains = categoriesDomainResult.value;
     if (!categoriesDomains || categoriesDomains.length == 0) {
-      return err(CommonApplicationError.notFound('Level', []));
+      return err(CommonApplicationError.notFound('Category', []));
     }
 
     return ok({

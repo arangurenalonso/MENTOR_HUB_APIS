@@ -24,6 +24,10 @@ export class MasterRoutes {
       '/category',
       asyncHandlerMiddleware(this._masterController.getCategory)
     );
+    this._router.get(
+      '/category/:idCategory/sub-categories',
+      asyncHandlerMiddleware(this._masterController.getSubCategoryByIdCategory)
+    );
   }
 
   get router(): Router {

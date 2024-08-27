@@ -11,6 +11,9 @@ import LevelDTO from '@infrastructure/dto/course-aggregate/level.dto';
 import CategoryEntity from '@persistence/entities/courses-aggregate/category.entity';
 import CategoryDomain from '@domain/courses-aggregate/category/category.domain';
 import CategoryDTO from '@infrastructure/dto/course-aggregate/category.dto';
+import SubCategoryEntity from '@persistence/entities/courses-aggregate/sub-category.entity';
+import SubCategoryDomain from '@domain/courses-aggregate/sub-category/sub-category.domain';
+import SubCategoryDTO from '@infrastructure/dto/course-aggregate/sub-category.dto';
 
 @injectable()
 class CourseRepository
@@ -20,6 +23,7 @@ class CourseRepository
   private _repository: Repository<LevelEntity>;
   private _levelRepository: Repository<LevelEntity>;
   private _categoryRepository: Repository<CategoryEntity>;
+  private _subCategoryRepository: Repository<SubCategoryEntity>;
   constructor(
     @inject(TYPES.DataSource)
     private readonly _dataSourceOrEntityManager: DataSource | EntityManager
@@ -38,6 +42,8 @@ class CourseRepository
       this._dataSourceOrEntityManager.getRepository(LevelEntity);
     this._categoryRepository =
       this._dataSourceOrEntityManager.getRepository(CategoryEntity);
+    this._subCategoryRepository =
+      this._dataSourceOrEntityManager.getRepository(SubCategoryEntity);
   }
   async getAllLevelOfCourse(): Promise<
     Result<LevelDomain[] | null, ErrorResult>
@@ -69,6 +75,33 @@ class CourseRepository
     }
 
     const categoriesDomain = CategoryDTO.toDomainList(categoriesEntities);
+    if (categoriesDomain.isErr()) {
+      return err(categoriesDomain.error);
+    }
+
+    return ok(categoriesDomain.value);
+  }
+
+  async getSubCategoryByIdCategory(
+    idCategory: string
+  ): Promise<Result<SubCategoryDomain[] | null, ErrorResult>> {
+    // const subCategoriesEntities = await this._subCategoryRepository.find({
+    //   where: { active: true, idCategory: idCategory },
+    // });
+    const subCategoriesEntities = await this._subCategoryRepository
+      .createQueryBuilder('subCategory')
+      .leftJoinAndSelect('subCategory.category', 'category')
+      .where('subCategory.active = :subCategoryActive', {
+        subCategoryActive: true,
+      })
+      .andWhere('subCategory.idCategory = :idCategory', { idCategory })
+      .getMany();
+
+    if (!subCategoriesEntities || subCategoriesEntities.length === 0) {
+      return ok(null);
+    }
+
+    const categoriesDomain = SubCategoryDTO.toDomainList(subCategoriesEntities);
     if (categoriesDomain.isErr()) {
       return err(categoriesDomain.error);
     }

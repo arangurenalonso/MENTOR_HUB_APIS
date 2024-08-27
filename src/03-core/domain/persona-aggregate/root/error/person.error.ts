@@ -1,14 +1,6 @@
 import { ErrorResult } from '@domain/abstract/result-abstract';
 
 class PersonErrors {
-  static readonly PERSON_INVALID_ID = (id?: string): ErrorResult => {
-    const idMessage = id ? ` "${id}"` : '';
-    return new ErrorResult(
-      'PERSON.ID',
-      `Person ID${idMessage} is not a valid ID`,
-      400
-    );
-  };
   static readonly EMAIL_NOT_FOUND = (
     personName: string,
     email: string

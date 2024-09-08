@@ -3,6 +3,7 @@ import { ErrorResult } from '@domain/abstract/result-abstract';
 import InstructorDomain from '../instructor.domain';
 import DayOfWeekDomain from '@domain/intructor-aggregate/availability/day-of-week.domain';
 import TimeOptionDomain from '@domain/intructor-aggregate/availability/time-option.domain';
+import CourseDomain from '@domain/courses-aggregate/root/course.domain';
 
 interface IInstructorRepository {
   getInstructorById(

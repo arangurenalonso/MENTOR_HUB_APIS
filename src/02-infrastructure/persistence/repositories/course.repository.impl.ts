@@ -1,5 +1,12 @@
 import { inject, injectable } from 'inversify';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import {
+  Brackets,
+  DataSource,
+  EntityManager,
+  ObjectLiteral,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 import TYPES from '@config/inversify/identifiers';
 import { err, ok, Result } from 'neverthrow';
 import { ErrorResult } from '@domain/abstract/result-abstract';
@@ -14,16 +21,28 @@ import CategoryDTO from '@infrastructure/dto/course-aggregate/category.dto';
 import SubCategoryEntity from '@persistence/entities/courses-aggregate/sub-category.entity';
 import SubCategoryDomain from '@domain/courses-aggregate/sub-category/sub-category.domain';
 import SubCategoryDTO from '@infrastructure/dto/course-aggregate/sub-category.dto';
+import CourseDomain from '@domain/courses-aggregate/root/course.domain';
+import CourseEntity from '@persistence/entities/courses-aggregate/course.entity';
+import CourseDTO from '@infrastructure/dto/course-aggregate/course.dto';
+import LearningObjectiveEntity from '@persistence/entities/courses-aggregate/learning-objective.entity';
+import RequirementEntity from '@persistence/entities/courses-aggregate/requirement.entity';
+import IntendedLearnerEntity from '@persistence/entities/courses-aggregate/intended-learners.entity';
+import LearningObjectiveDTO from '@infrastructure/dto/course-aggregate/learning-objective.dto';
+import IntendedLearnerDTO from '@infrastructure/dto/course-aggregate/intended-learner.dto';
+import RequirementDTO from '@infrastructure/dto/course-aggregate/requirement.dto';
 
 @injectable()
 class CourseRepository
-  extends BaseRepository<LevelEntity>
+  extends BaseRepository<CourseEntity>
   implements ICourseRepository
 {
-  private _repository: Repository<LevelEntity>;
+  private _repository: Repository<CourseEntity>;
   private _levelRepository: Repository<LevelEntity>;
   private _categoryRepository: Repository<CategoryEntity>;
   private _subCategoryRepository: Repository<SubCategoryEntity>;
+  private _learningObjectivRepository: Repository<LearningObjectiveEntity>;
+  private _requirementRepository: Repository<RequirementEntity>;
+  private _intendedLearnerRepository: Repository<IntendedLearnerEntity>;
   constructor(
     @inject(TYPES.DataSource)
     private readonly _dataSourceOrEntityManager: DataSource | EntityManager
@@ -37,13 +56,118 @@ class CourseRepository
       throw new Error('Invalid constructor argument');
     }
     this._repository =
-      this._dataSourceOrEntityManager.getRepository(LevelEntity);
+      this._dataSourceOrEntityManager.getRepository(CourseEntity);
     this._levelRepository =
       this._dataSourceOrEntityManager.getRepository(LevelEntity);
     this._categoryRepository =
       this._dataSourceOrEntityManager.getRepository(CategoryEntity);
     this._subCategoryRepository =
       this._dataSourceOrEntityManager.getRepository(SubCategoryEntity);
+    this._learningObjectivRepository =
+      this._dataSourceOrEntityManager.getRepository(LearningObjectiveEntity);
+    this._requirementRepository =
+      this._dataSourceOrEntityManager.getRepository(RequirementEntity);
+    this._intendedLearnerRepository =
+      this._dataSourceOrEntityManager.getRepository(IntendedLearnerEntity);
+  }
+
+  courseQueryBuilderWithRelations = (
+    where:
+      | Brackets
+      | string
+      | ((qb: this) => string)
+      | ObjectLiteral
+      | ObjectLiteral[],
+    parameters?: ObjectLiteral
+  ): SelectQueryBuilder<CourseEntity> => {
+    const userEntity = this._repository
+      .createQueryBuilder('course')
+      .leftJoinAndSelect('course.requirements', 'requirements')
+      .leftJoinAndSelect('course.intendedLearners', 'intendedLearners')
+      .leftJoinAndSelect('course.learningObjectives', 'learningObjectives')
+      .leftJoinAndSelect('course.level', 'level')
+      .leftJoinAndSelect('course.subCategory', 'subCategory')
+      .leftJoinAndSelect('subCategory.category', 'category')
+      .where(where, parameters)
+      .andWhere('course.active = :isActive', { isActive: true })
+      .andWhere(
+        'requirements.active = :isActive OR requirements.active IS NULL',
+        {
+          isActive: true,
+        }
+      )
+      .andWhere(
+        'intendedLearners.active = :isActive  OR intendedLearners.active IS NULL',
+        { isActive: true }
+      )
+      .andWhere(
+        'learningObjectives.active = :isActive  OR learningObjectives.active IS NULL',
+        { isActive: true }
+      );
+
+    return userEntity;
+  };
+
+  async getCourseById(
+    idCourse: string
+  ): Promise<Result<CourseDomain | null, ErrorResult>> {
+    const courseEntity = await this.courseQueryBuilderWithRelations(
+      'course.id = :courseId',
+      {
+        courseId: idCourse,
+      }
+    ).getOne();
+
+    if (!courseEntity) {
+      return ok(null);
+    }
+
+    const courseDomain = CourseDTO.toDomain(courseEntity);
+    if (courseDomain.isErr()) {
+      return err(courseDomain.error);
+    }
+
+    return ok(courseDomain.value);
+  }
+  async getCoursesByIdInstructor(
+    idInstructor: string
+  ): Promise<Result<CourseDomain[], ErrorResult>> {
+    const coursesEntity = await this.courseQueryBuilderWithRelations(
+      'course.idInstructor = :idInstructor',
+      {
+        idInstructor: idInstructor,
+      }
+    ).getMany();
+
+    const coursesDomain = CourseDTO.toDomainList(coursesEntity);
+    if (coursesDomain.isErr()) {
+      return err(coursesDomain.error);
+    }
+
+    return ok(coursesDomain.value);
+  }
+
+  async getLevelById(
+    idLevel: string
+  ): Promise<Result<LevelDomain | null, ErrorResult>> {
+    const levelEntity = await this._levelRepository
+      .createQueryBuilder('level')
+      .where('level.id = :idLevel', { idLevel })
+      .andWhere('level.active = :active', {
+        active: true,
+      })
+      .getOne();
+
+    if (!levelEntity) {
+      return ok(null);
+    }
+
+    const levelDomains = LevelDTO.toDomain(levelEntity);
+    if (levelDomains.isErr()) {
+      return err(levelDomains.error);
+    }
+
+    return ok(levelDomains.value);
   }
   async getAllLevelOfCourse(): Promise<
     Result<LevelDomain[] | null, ErrorResult>
@@ -82,6 +206,38 @@ class CourseRepository
     return ok(categoriesDomain.value);
   }
 
+  async getSubCategoryById(
+    id: string
+  ): Promise<Result<SubCategoryDomain | null, ErrorResult>> {
+    const subCategoryEntity = await this._subCategoryRepository
+      .createQueryBuilder('subCategory')
+      .leftJoinAndSelect('subCategory.category', 'category')
+      .where('subCategory.id = :id', { id })
+      .andWhere('subCategory.active = :active', {
+        active: true,
+      })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('category.active is null').orWhere(
+            'category.active = :categoryActive',
+            {
+              categoryActive: true,
+            }
+          );
+        })
+      )
+      .getOne();
+    if (!subCategoryEntity) {
+      return ok(null);
+    }
+    const subCategoryDomainResult = SubCategoryDTO.toDomain(subCategoryEntity);
+    if (subCategoryDomainResult.isErr()) {
+      return err(subCategoryDomainResult.error);
+    }
+    const subCategory = subCategoryDomainResult.value;
+    return ok(subCategory);
+  }
+
   async getSubCategoryByIdCategory(
     idCategory: string
   ): Promise<Result<SubCategoryDomain[] | null, ErrorResult>> {
@@ -108,7 +264,50 @@ class CourseRepository
 
     return ok(categoriesDomain.value);
   }
-  protected get repository(): Repository<LevelEntity> {
+
+  async register(courseDomain: CourseDomain): Promise<string> {
+    const courseEntity = CourseDTO.toEntity(courseDomain);
+    this.create(courseEntity);
+    await Promise.all([
+      this._learningObjectivRepository.save(courseEntity.learningObjectives),
+      this._intendedLearnerRepository.save(courseEntity.intendedLearners),
+      this._requirementRepository.save(courseEntity.requirements),
+    ]);
+    return courseEntity.id!;
+  }
+
+  async modify(courseDomain: CourseDomain): Promise<void> {
+    const courseEntity = CourseDTO.toEntity(courseDomain);
+
+    const learningObjectives = LearningObjectiveDTO.toEntityArray(
+      courseDomain.properties.id,
+      courseDomain.properties.learningObjectives
+    );
+    const intendedLearners = IntendedLearnerDTO.toEntityArray(
+      courseDomain.properties.id,
+      courseDomain.properties.intendedLearners
+    );
+    const requirements = RequirementDTO.toEntityArray(
+      courseDomain.properties.id,
+      courseDomain.properties.requirements
+    );
+    await Promise.all([
+      this.repository.save(courseEntity),
+      this.updateEntities<LearningObjectiveEntity>(
+        learningObjectives,
+        this._learningObjectivRepository
+      ),
+      this.updateEntities<IntendedLearnerEntity>(
+        intendedLearners,
+        this._intendedLearnerRepository
+      ),
+      this.updateEntities<RequirementEntity>(
+        requirements,
+        this._requirementRepository
+      ),
+    ]);
+  }
+  protected get repository(): Repository<CourseEntity> {
     return this._repository;
   }
 }

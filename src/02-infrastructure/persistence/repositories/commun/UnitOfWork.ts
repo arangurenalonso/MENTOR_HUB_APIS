@@ -12,6 +12,8 @@ import IPersonRepository from '@domain/persona-aggregate/root/repository/person.
 import PersonRepository from '../person.repository.impl';
 import IInstructorRepository from '@domain/intructor-aggregate/root/repository/instructor.repository';
 import InstructorRepository from '../Instructor.repository.impl';
+import ICourseRepository from '@domain/courses-aggregate/root/repositories/ICourse.repository';
+import CourseRepository from '../course.repository.impl';
 
 @injectable()
 class UnitOfWork implements IUnitOfWork {
@@ -20,6 +22,7 @@ class UnitOfWork implements IUnitOfWork {
   private _userRepository: IUserRepository | null = null;
   private _personRepository: IPersonRepository | null = null;
   private _instructorRepository: IInstructorRepository | null = null;
+  private _courseRepository: ICourseRepository | null = null;
 
   private _domainEvents: IDomainEvent[] = [];
 
@@ -40,6 +43,15 @@ class UnitOfWork implements IUnitOfWork {
       throw new Error('Transaction has not been started');
     }
     return (this._personRepository ||= new PersonRepository(
+      this._entityManager
+    ));
+  }
+
+  get courseRepository(): ICourseRepository {
+    if (!this._entityManager) {
+      throw new Error('Transaction has not been started');
+    }
+    return (this._courseRepository ||= new CourseRepository(
       this._entityManager
     ));
   }

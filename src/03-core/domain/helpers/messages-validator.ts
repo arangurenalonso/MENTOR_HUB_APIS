@@ -77,6 +77,10 @@ const messagesValidator = {
     field
       ? `The field '${field}' must be a GUID.`
       : `This field must be a GUID.`,
+  json: (field?: string) =>
+    field
+      ? `The field '${field}' must be a JSON.`
+      : `This field must be a JSON.`,
   string: (field?: string) =>
     field
       ? `The field '${field}' must be a string.`

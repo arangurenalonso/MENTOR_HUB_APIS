@@ -204,7 +204,9 @@ class InstructorDomain extends BaseDomain<InstructorId> {
 
     return ok(undefined);
   }
-
+  get id(): InstructorId {
+    return this._id;
+  }
   get properties(): InstructorDomainProperties {
     return {
       id: this._id.value,

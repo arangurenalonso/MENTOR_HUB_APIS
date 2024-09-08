@@ -4,6 +4,8 @@ import { inject, injectable } from 'inversify';
 import TYPES from '@config/inversify/identifiers';
 import InstructorRoutes from './instructor/instructor.route';
 import MasterRoutes from './master/masters.route';
+import CourseRoutes from './course/course.route';
+import { Multer } from 'multer';
 
 @injectable()
 class ApiRouter {
@@ -13,7 +15,8 @@ class ApiRouter {
 
     @inject(TYPES.MasterRoutes) private readonly _masterRoutes: MasterRoutes,
     @inject(TYPES.InstructorRoutes)
-    private readonly _instructorRoutes: InstructorRoutes
+    private readonly _instructorRoutes: InstructorRoutes,
+    @inject(TYPES.CourseRoutes) private readonly _courseRoutes: CourseRoutes
   ) {
     this.init();
     this._router = this._router.bind(this);
@@ -23,6 +26,7 @@ class ApiRouter {
     this._router.use('/auth', this._authRoutes.router);
     this._router.use('/instructor', this._instructorRoutes.router);
     this._router.use('/master', this._masterRoutes.router);
+    this._router.use('/course', this._courseRoutes.router);
   }
   get router(): Router {
     return this._router;

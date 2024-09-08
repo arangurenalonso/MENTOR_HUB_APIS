@@ -67,8 +67,20 @@ const dateRules = {
   ],
 };
 const lengthRule = {
+  courseTitleMinLength: 1,
+  courseTitleMaxLength: 100,
+  learningObjectiveMinLength: 1,
+  learningObjectiveMaxLength: 100,
+  requirementseMinLength: 1,
+  requirementseMaxLength: 100,
+  intendedLearnersseMinLength: 1,
+  intendedLearnersseMaxLength: 100,
   levelDescriptionMinLength: 1,
   levelDescriptionMaxLength: 100,
+  categoryMinLength: 1,
+  categoryMaxLength: 100,
+  subCategoryMinLength: 1,
+  subCategoryMaxLength: 100,
   roleDescriptionMinLength: 8,
   roleDescriptionMaxLength: 255,
   socialMediaDescriptionMinLength: 1,
@@ -77,6 +89,7 @@ const lengthRule = {
   personNameMaxLength: 255,
   headingMinLength: 1,
   headingMaxLength: 60,
+  courseDescriptionMaxLength: 250,
   aboutMeMaxLength: 1500,
   passwordLength: /^.{6,}$/, // Al menos 6 caracteres
 };

@@ -7,7 +7,6 @@ import ApiRouter from '@rest/routers/api.router';
 import AuthRoutes from '@rest/routers/auth/auth.router';
 import Environment from '@config/enviroment';
 import { INotificationHandler, IRequestHandler, Mediator } from 'mediatr-ts';
-import AuthenticationResult from '@application/models/AuthenticationResult';
 import RegisterCommand from '@application/features/auth/command/register/register.command';
 import { DataSource } from 'typeorm';
 import TypeORMInitializer from '@persistence/config/typeorm.config';
@@ -63,7 +62,6 @@ import UpdateAboutCommand from '@application/features/instructor/command/updateA
 import UpdateAboutCommandhandler from '@application/features/instructor/command/updateAbout/updateAbout.command.handler';
 import GetInstructorByIdQuery from '@application/features/instructor/query/getInstructorById/getInstructorById.query';
 import GetInstructorByIdQueryHandler from '@application/features/instructor/query/getInstructorById/getInstructorById.query.handler';
-import { InstructorDomainProperties } from '@domain/intructor-aggregate/root/instructor.domain';
 import AuthorizeModificationMiddleware from '@rest/middlewares/authorizeModification.middleware';
 import CategorySeeder from '@config/seed/category.seed';
 import LevelSeeder from '@config/seed/level.seed';
@@ -73,13 +71,25 @@ import MasterRoutes from '@rest/routers/master/masters.route';
 import MasterController from '@rest/controller/master.controller';
 import GetAllLevelQuery from '@application/features/master/query/getAllLevel/getAllLevel.query';
 import GetAllLevelQueryHandler from '@application/features/master/query/getAllLevel/getAllLevel.query.handler';
-import { LevelDomainProperties } from '@domain/courses-aggregate/level/level.domain';
 import GetAllCategoriesQueryHandler from '@application/features/master/query/getAllCategories/getAllCategories.query.handler';
 import GetAllCategoriesQuery from '@application/features/master/query/getAllCategories/getAllCategoriesquery';
-import { CategoryDomainProperties } from '@domain/courses-aggregate/category/category.domain';
 import GetSubCategoriesByIdCategoryQuery from '@application/features/master/query/getSubCategoriesByIdCategory/getSubCategoriesByIdCategory';
 import GetSubCategoriesByIdCategoryQueryHandler from '@application/features/master/query/getSubCategoriesByIdCategory/getSubCategoriesByIdCategory.query.handler';
-import { SubCategoryDomainProperties } from '@domain/courses-aggregate/sub-category/sub-category.domain';
+import CourseController from '@rest/controller/course.controller';
+import CourseRoutes from '@rest/routers/course/course.route';
+import CreateCourseCommandHandler from '@application/features/course/command/createCourse/createCourse.command.handler';
+import CreateCourseCommand from '@application/features/course/command/createCourse/createCourse.command';
+import IS3Service from '@application/contracts/IS3.service';
+import S3Service from '@service/s3.service';
+import multer, { Multer } from 'multer';
+import UpdatePhotoCourseCommand from '@application/features/course/command/updatePhotoCourse/updatePhotoCourse.command';
+import UpdatePhotoCourseCommandHandler from '@application/features/course/command/updatePhotoCourse/updatePhotoCourse.command.handler';
+import ImageUploadValidation from '@rest/middlewares/image-upload.middleware';
+import VideoUploadValidation from '@rest/middlewares/video-upload.middleware';
+import UpdatePromotionalVideoCourseCommand from '@application/features/course/command/updatePromotionalVideoCourse/updatePromotionalVideoCourse.command';
+import UpdatePromotionalVideoCourseCommandHandler from '@application/features/course/command/updatePromotionalVideoCourse/updatePromotionalVideoCourse.command.handler';
+import GetCoursesByIdInstructorQuery from '@application/features/course/query/getCoursesByIdInstructor/getCoursesByIdInstructor.query';
+import GetCoursesByIdInstructorQueryHandler from '@application/features/course/query/getCoursesByIdInstructor/getCoursesByIdInstructor.query.handler';
 
 class DependencyContainer {
   private readonly _container: Container;
@@ -141,12 +151,21 @@ class DependencyContainer {
       .to(AuthorizationMiddleware);
 
     this._container
+      .bind<ImageUploadValidation>(TYPES.ImageUploadValidation)
+      .to(ImageUploadValidation);
+
+    this._container
+      .bind<VideoUploadValidation>(TYPES.VideoUploadValidation)
+      .to(VideoUploadValidation);
+
+    this._container
       .bind<AuthorizeModificationMiddleware>(
         TYPES.AuthorizeModificationMiddleware
       )
       .to(AuthorizeModificationMiddleware);
   }
   private bindCore(): void {
+    this._container.bind<Multer>(TYPES.Multer).toDynamicValue(() => multer());
     this._container
       .bind<Application>(TYPES.Application)
       .toConstantValue(express());
@@ -179,6 +198,7 @@ class DependencyContainer {
 
     this._container.bind<ITokenService>(TYPES.ITokenService).to(TokenService);
     this._container.bind<IEmailService>(TYPES.IEmailService).to(EmailService);
+    this._container.bind<IS3Service>(TYPES.IS3Service).to(S3Service);
   }
   private bindRepositories(): void {
     this._container.bind<IUnitOfWork>(TYPES.IUnitOfWork).to(UnitOfWork);
@@ -213,6 +233,9 @@ class DependencyContainer {
     this._container
       .bind<MasterController>(TYPES.MasterController)
       .to(MasterController);
+    this._container
+      .bind<CourseController>(TYPES.CourseController)
+      .to(CourseController);
   }
   private bindRouters(): void {
     this._container.bind<AuthRoutes>(TYPES.AuthRoutes).to(AuthRoutes);
@@ -222,6 +245,7 @@ class DependencyContainer {
     this._container.bind<ApiRouter>(TYPES.ApiRouter).to(ApiRouter);
 
     this._container.bind<MasterRoutes>(TYPES.MasterRoutes).to(MasterRoutes);
+    this._container.bind<CourseRoutes>(TYPES.CourseRoutes).to(CourseRoutes);
   }
   private bindUseCase(): void {
     const handlers = [
@@ -254,6 +278,22 @@ class DependencyContainer {
       {
         command: GetSubCategoriesByIdCategoryQuery,
         handler: GetSubCategoriesByIdCategoryQueryHandler,
+      },
+      {
+        command: CreateCourseCommand,
+        handler: CreateCourseCommandHandler,
+      },
+      {
+        command: UpdatePhotoCourseCommand,
+        handler: UpdatePhotoCourseCommandHandler,
+      },
+      {
+        command: UpdatePromotionalVideoCourseCommand,
+        handler: UpdatePromotionalVideoCourseCommandHandler,
+      },
+      {
+        command: GetCoursesByIdInstructorQuery,
+        handler: GetCoursesByIdInstructorQueryHandler,
       },
     ];
 

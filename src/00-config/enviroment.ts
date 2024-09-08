@@ -24,6 +24,13 @@ class Environment {
   public readonly mailerSecretKey: string;
   public readonly mailerService: string;
   public readonly webserviceUrl: string;
+
+  // Nuevas variables de entorno para AWS S3
+  public readonly awsAccessKeyId: string;
+  public readonly awsSecretAccessKey: string;
+  public readonly awsRegion: string;
+  public readonly awsS3BucketName: string;
+
   constructor() {
     const nodeEnv = process.env.NODE_ENV || 'development';
     const envPath = path.resolve(process.cwd(), `.env.${nodeEnv}`);
@@ -55,6 +62,15 @@ class Environment {
     this.mailerSecretKey = env.get('MAILER_SECRET_KEY').required().asString();
     this.mailerService = env.get('MAILER_SERVICE').required().asString();
     this.webserviceUrl = env.get('WEBSERVICE_URL').required().asString();
+
+    // Inicialización de las variables de entorno para AWS S3
+    this.awsAccessKeyId = env.get('AWS_ACCESS_KEY_ID').required().asString();
+    this.awsSecretAccessKey = env
+      .get('AWS_SECRET_ACCESS_KEY')
+      .required()
+      .asString();
+    this.awsRegion = env.get('AWS_REGION').required().asString();
+    this.awsS3BucketName = env.get('AWS_S3_BUCKET_NAME').required().asString();
   }
 }
 export default Environment;

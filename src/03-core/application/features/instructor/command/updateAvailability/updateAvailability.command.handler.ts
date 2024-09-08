@@ -42,8 +42,6 @@ class UpdateInstructorAvailabilityCommandhandler
     const { dayOfWeekDomains, timeOptionDomains, instructorDomain } =
       fetchEntitiesResult.value;
 
-    console.log('instructorDomain', instructorDomain);
-
     const instructorAvailabilityDomainArrayResult =
       this.convertInstructorAvailabilityArray(
         command.availability,

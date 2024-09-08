@@ -3,6 +3,7 @@ import TokenPayload, {
 } from '@application/models/TokenPayload.model';
 import { NextFunction, Request, Response } from 'express';
 import { injectable } from 'inversify';
+import sharp from 'sharp';
 
 @injectable()
 class AuthorizeModificationMiddleware {
@@ -44,8 +45,6 @@ class AuthorizeModificationMiddleware {
           res.status(400).json({ message: 'Invalid request, missing ID' });
           return;
         }
-        console.log('connectedUser.idUser', connectedUser.idUser);
-        console.log('paramId', paramId);
 
         // Verificar si el ID del usuario conectado coincide con el ID del parámetro
         if (connectedUser.idUser !== paramId) {

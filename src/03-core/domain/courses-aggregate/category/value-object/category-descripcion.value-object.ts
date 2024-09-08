@@ -49,9 +49,9 @@ class CategoryDescription {
       reasons.push(textValidationResult.error);
     }
     const lenghtValidationResult = LengthValidationBuilder.setMinLength(
-      domainRules.levelDescriptionMinLength
+      domainRules.categoryMinLength
     )
-      .setMaxLength(domainRules.levelDescriptionMaxLength)
+      .setMaxLength(domainRules.categoryMaxLength)
       .build()
       .validate(value);
 

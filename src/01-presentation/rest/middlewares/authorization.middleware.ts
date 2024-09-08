@@ -22,9 +22,6 @@ class AuthorizationMiddleware {
           x.description.trim().toUpperCase()
         );
 
-        // console.log('roleAllowed', rolesAllowed);
-        // console.log('rolesString', rolesString);
-
         for (const roleAllowed of rolesAllowed) {
           if (rolesString.includes(roleAllowed.trim().toUpperCase())) {
             console.log('Paso');

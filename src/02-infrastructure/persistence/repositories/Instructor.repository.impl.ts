@@ -75,7 +75,6 @@ class InstructorRepository
       active: true,
     });
     const foundIds = dayOfWeekEntities.map((entity) => entity.id);
-    console.log('dayOfWeekEntities', dayOfWeekEntities);
 
     const missingIds = ids.filter((id) => !foundIds.includes(id));
 

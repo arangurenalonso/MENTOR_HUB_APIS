@@ -8,6 +8,7 @@ const TYPES = {
   Environment: Symbol.for('EnvironmentConfig'),
   DataSource: Symbol.for('DataSource'),
   EntityManager: Symbol.for('EntityManager'),
+  Multer: Symbol.for('Multer'),
 
   CronService: Symbol.for('CronService'),
   //Jobs
@@ -15,6 +16,8 @@ const TYPES = {
   // Middlewares
   AuthenticationMiddleware: Symbol.for('AuthenticationMiddleware'),
   AuthorizationMiddleware: Symbol.for('AuthorizationMiddleware'),
+  ImageUploadValidation: Symbol.for('ImageUploadValidation'),
+  VideoUploadValidation: Symbol.for('VideoUploadValidation'),
   AuthorizeModificationMiddleware: Symbol.for(
     'AuthorizeModificationMiddleware'
   ),
@@ -23,15 +26,18 @@ const TYPES = {
   AuthRoutes: Symbol.for('AuthRoutes'),
   MasterRoutes: Symbol.for('MasterRoutes'),
   InstructorRoutes: Symbol.for('InstructorRoutes'),
+  CourseRoutes: Symbol.for('CourseRoutes'),
   // Controllers
   AuthController: Symbol.for('AuthController'),
   InstructorController: Symbol.for('InstructorController'),
   MasterController: Symbol.for('MasterController'),
+  CourseController: Symbol.for('CourseController'),
   // UseCases
   //Services
   IPasswordService: Symbol.for('IPasswordService'),
   ITokenService: Symbol.for('ITokenService'),
   IEmailService: Symbol.for('IEmailService'),
+  IS3Service: Symbol.for('IS3Service'),
   // Repositories
   IUnitOfWork: Symbol.for('IUnitOfWork'),
   IBaseRepository: Symbol.for('IBaseRepository'),

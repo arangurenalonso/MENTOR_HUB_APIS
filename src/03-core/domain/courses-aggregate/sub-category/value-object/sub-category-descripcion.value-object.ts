@@ -50,9 +50,9 @@ class SubCategoryDescription {
       reasons.push(textValidationResult.error);
     }
     const lenghtValidationResult = LengthValidationBuilder.setMinLength(
-      domainRules.levelDescriptionMinLength
+      domainRules.subCategoryMinLength
     )
-      .setMaxLength(domainRules.levelDescriptionMaxLength)
+      .setMaxLength(domainRules.subCategoryMaxLength)
       .build()
       .validate(value);
 

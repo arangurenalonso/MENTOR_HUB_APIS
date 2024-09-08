@@ -3,6 +3,7 @@ import NaturalPersonEntity from '../person-aggreagte/natural_person.entity';
 import BaseEntity from '../abstrations/base.entity';
 import InstructorSocialMediaEntity from './instructor-social-media.entity';
 import InstructorAvailabilityEntity from './intructor-availability.entity';
+import CourseEntity from '../courses-aggregate/course.entity';
 
 @Entity({ name: 'instructor' })
 class InstructorEntity extends BaseEntity {
@@ -36,6 +37,9 @@ class InstructorEntity extends BaseEntity {
     (availability) => availability.instructor
   )
   availability!: InstructorAvailabilityEntity[];
+
+  @OneToMany(() => CourseEntity, (course) => course.subCategory)
+  courses!: CourseEntity[];
 }
 
 export default InstructorEntity;

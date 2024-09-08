@@ -191,8 +191,8 @@ class UserRepository
       user.properties.id,
       user.properties.providers
     );
+    this.create(userEntity);
     await Promise.all([
-      this.create(userEntity),
       this._userRoleRepository.save(userRoleEntity),
       this._authProviderRepository.save(authProviderEntity),
     ]);

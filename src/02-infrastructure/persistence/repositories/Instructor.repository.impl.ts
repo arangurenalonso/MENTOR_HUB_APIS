@@ -165,7 +165,8 @@ class InstructorRepository
     const instructorEntity = InstructorDTO.toEntity(instructor);
     await this.updateEntities<InstructorAvailabilityEntity>(
       instructorEntity.availability,
-      this._instructorAvailabilityRepository
+      this._instructorAvailabilityRepository,
+      { idInstructor: instructor.properties.id }
     );
     await this.update(instructorEntity);
   }

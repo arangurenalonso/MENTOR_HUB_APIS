@@ -43,7 +43,7 @@ class UpdatePhotoCourseCommandHandler
       command.idInstructor,
       S3FileType.IMAGE,
       command.idCourse,
-      command.file.originalname
+      'image' + courseDomain.properties.title
     );
 
     const resultSetImgS3Key = courseDomain.imgS3KeySet(s3Key);

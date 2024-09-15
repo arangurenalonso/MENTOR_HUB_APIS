@@ -16,7 +16,9 @@ class IntendedLearnerId {
     this._value = value;
   }
 
-  public static create(value?: string): Result<IntendedLearnerId, ErrorResult> {
+  public static create(
+    value?: string | null
+  ): Result<IntendedLearnerId, ErrorResult> {
     if (value === null || value === undefined) {
       value = uuidv4();
     }

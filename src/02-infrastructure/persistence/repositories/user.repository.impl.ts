@@ -211,11 +211,13 @@ class UserRepository
     await Promise.all([
       this.updateEntities<UserRoleEntity>(
         userRoleEntity,
-        this._userRoleRepository
+        this._userRoleRepository,
+        { idUser: user.properties.id }
       ),
       this.updateEntities<AuthProviderEntity>(
         authProviderEntity,
-        this._authProviderRepository
+        this._authProviderRepository,
+        { idUser: user.properties.id }
       ),
       this.repository.save(userEntity),
     ]);

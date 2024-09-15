@@ -88,7 +88,8 @@ class PersonRepository
       this._repository.save(personEntity),
       this.updateEntities<EmailEntity>(
         personEntity.emails,
-        this._emailRepository
+        this._emailRepository,
+        { idPerson: personEntity.id }
       ),
       this._naturalPersonRepository.save(personEntity.naturalPerson!),
     ]);

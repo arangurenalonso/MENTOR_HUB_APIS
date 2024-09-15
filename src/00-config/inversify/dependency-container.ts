@@ -90,6 +90,12 @@ import UpdatePromotionalVideoCourseCommand from '@application/features/course/co
 import UpdatePromotionalVideoCourseCommandHandler from '@application/features/course/command/updatePromotionalVideoCourse/updatePromotionalVideoCourse.command.handler';
 import GetCoursesByIdInstructorQuery from '@application/features/course/query/getCoursesByIdInstructor/getCoursesByIdInstructor.query';
 import GetCoursesByIdInstructorQueryHandler from '@application/features/course/query/getCoursesByIdInstructor/getCoursesByIdInstructor.query.handler';
+import UpdateCourseInformationCommand from '@application/features/course/command/updateCourseInformation/updateCourseInformation.command';
+import UpdateCourseInformationCommandHandler from '@application/features/course/command/updateCourseInformation/updateCourseInformation.command.handler';
+import UpdateCourseEntrollmentCriteriaCommand from '@application/features/course/command/updateCourseEntrollmentCriteria/updateCourseEntrollmentCriteria.command';
+import UpdateCourseEntrollmentCriteriaCommandHandler from '@application/features/course/command/updateCourseEntrollmentCriteria/updateCourseEntrollmentCriteria.command.handler';
+import UpdatePublishCourseCommand from '@application/features/course/command/updatePublishCourse/updatePublishCourse.command';
+import UpdatePublishCourseCommandHandler from '@application/features/course/command/updatePublishCourse/updatePublishCourse.command.handler';
 
 class DependencyContainer {
   private readonly _container: Container;
@@ -294,6 +300,18 @@ class DependencyContainer {
       {
         command: GetCoursesByIdInstructorQuery,
         handler: GetCoursesByIdInstructorQueryHandler,
+      },
+      {
+        command: UpdateCourseInformationCommand,
+        handler: UpdateCourseInformationCommandHandler,
+      },
+      {
+        command: UpdateCourseEntrollmentCriteriaCommand,
+        handler: UpdateCourseEntrollmentCriteriaCommandHandler,
+      },
+      {
+        command: UpdatePublishCourseCommand,
+        handler: UpdatePublishCourseCommandHandler,
       },
     ];
 

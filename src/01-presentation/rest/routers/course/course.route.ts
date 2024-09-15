@@ -11,8 +11,8 @@ import CourseController from '../../controller/course.controller';
 import CourseInformationValidation from './validator/course-information.validator';
 import ImageUploadValidation from '@rest/middlewares/image-upload.middleware';
 import VideoUploadValidation from '@rest/middlewares/video-upload.middleware';
-import CourseImageValidator from './validator/course-img.validator';
-import CourseVideoValidator from './validator/course-video.validator';
+import IdCoursePathParamValidator from './validator/id-course-path.validator';
+import EnrollmentCriteriaValidation from './validator/enrollment-criteria.validator';
 
 @injectable()
 export class CourseRoutes {
@@ -53,18 +53,46 @@ export class CourseRoutes {
       asyncHandlerMiddleware(this._courseController.create)
     );
     this._router.put(
+      '/:idCourse/publish',
+      IdCoursePathParamValidator,
+      ValidatorMiddleware.validate,
+      this._authenticationMiddleware.use,
+      this._authorizationMiddleware.build([RoleEnum.INSTRUCTOR.description]),
+      asyncHandlerMiddleware(this._courseController.publishCourse)
+    );
+    this._router.put(
+      '/:idCourse/course-information',
+      CourseInformationValidation,
+      IdCoursePathParamValidator,
+      ValidatorMiddleware.validate,
+      this._authenticationMiddleware.use,
+      this._authorizationMiddleware.build([RoleEnum.INSTRUCTOR.description]),
+      asyncHandlerMiddleware(this._courseController.updateCourseInformation)
+    );
+    this._router.put(
+      '/:idCourse/enrollment-criteria',
+      EnrollmentCriteriaValidation,
+      IdCoursePathParamValidator,
+      ValidatorMiddleware.validate,
+      this._authenticationMiddleware.use,
+      this._authorizationMiddleware.build([RoleEnum.INSTRUCTOR.description]),
+      asyncHandlerMiddleware(
+        this._courseController.updateCourseEnrollmentCriteria
+      )
+    );
+    this._router.post(
       '/:idCourse/image',
       this._imageUploadValidation.build({ fieldName: 'img' }),
-      CourseImageValidator,
+      IdCoursePathParamValidator,
       ValidatorMiddleware.validate,
       this._authenticationMiddleware.use,
       this._authorizationMiddleware.build([RoleEnum.INSTRUCTOR.description]),
       asyncHandlerMiddleware(this._courseController.updateImage)
     );
-    this._router.put(
+    this._router.post(
       '/:idCourse/promotional-video',
       this._videoUploadValidation.build({ fieldName: 'video' }),
-      CourseVideoValidator,
+      IdCoursePathParamValidator,
       ValidatorMiddleware.validate,
       this._authenticationMiddleware.use,
       this._authorizationMiddleware.build([RoleEnum.INSTRUCTOR.description]),

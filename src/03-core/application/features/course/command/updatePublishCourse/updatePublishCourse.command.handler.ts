@@ -6,33 +6,27 @@ import { requestHandler, IRequestHandler } from 'mediatr-ts';
 import IInstructorRepository from '@domain/intructor-aggregate/root/repository/instructor.repository';
 import IUnitOfWork from '@domain/abstract/repository/IUnitOfWork';
 import ICourseRepository from '@domain/courses-aggregate/root/repositories/ICourse.repository';
-import S3Service from '@service/s3.service';
-import S3KeyBuilder, { S3FileType } from '@application/method/S3KeyBuilder';
-import UpdatePromotionalVideoCourseCommand from './updatePromotionalVideoCourse.command';
-import CommonApplicationError from '@application/errors/common-application-error';
 import CourseDomain from '@domain/courses-aggregate/root/course.domain';
+import CommonApplicationError from '@application/errors/common-application-error';
 import InstructorDomain from '@domain/intructor-aggregate/root/instructor.domain';
+import UpdatePublishCourseCommand from './updatePublishCourse.command';
 
 @injectable()
-@requestHandler(UpdatePromotionalVideoCourseCommand)
-class UpdatePromotionalVideoCourseCommandHandler
+@requestHandler(UpdatePublishCourseCommand)
+class UpdatePublishCourseCommandHandler
   implements
-    IRequestHandler<
-      UpdatePromotionalVideoCourseCommand,
-      Result<string, ErrorResult>
-    >
+    IRequestHandler<UpdatePublishCourseCommand, Result<undefined, ErrorResult>>
 {
   constructor(
     @inject(TYPES.ICourseRepository)
     private _courseRepository: ICourseRepository,
     @inject(TYPES.InstructorRepository)
     private _instructorRepository: IInstructorRepository,
-    @inject(TYPES.IUnitOfWork) private readonly _unitOfWork: IUnitOfWork,
-    @inject(TYPES.IS3Service) private readonly _s3Service: S3Service
+    @inject(TYPES.IUnitOfWork) private readonly _unitOfWork: IUnitOfWork
   ) {}
   async handle(
-    command: UpdatePromotionalVideoCourseCommand
-  ): Promise<Result<string, ErrorResult>> {
+    command: UpdatePublishCourseCommand
+  ): Promise<Result<undefined, ErrorResult>> {
     const fetchEntitiesResult = await this.fetchEntities(
       command.idInstructor,
       command.idCourse
@@ -40,35 +34,20 @@ class UpdatePromotionalVideoCourseCommandHandler
     if (fetchEntitiesResult.isErr()) {
       return err(fetchEntitiesResult.error);
     }
-    const { courseDomain } = fetchEntitiesResult.value;
+    const { courseDomain, instructorDomain } = fetchEntitiesResult.value;
 
-    const s3Key = S3KeyBuilder.buildCourseKey(
-      'instructorid',
-      S3FileType.VIDEO,
-      'courseid',
-      'video' + courseDomain.properties.title
-    );
-
-    const resultSetVideoS3Key = courseDomain.promotionalVideoS3KeySet(s3Key);
-    if (resultSetVideoS3Key.isErr()) {
-      return err(resultSetVideoS3Key.error);
+    const result = courseDomain.publish();
+    if (result.isErr()) {
+      return err(result.error);
     }
-
     try {
-      // Upload image to S3
-      const fileUrl = await this._s3Service.uploadFile(
-        s3Key,
-        command.file.buffer,
-        command.file.mimetype
-      );
-
       await this._unitOfWork.startTransaction();
       await this._courseRepository.modify(courseDomain);
       await this._unitOfWork.commit();
 
-      return ok(fileUrl);
+      return ok(undefined);
     } catch (error) {
-      // await this._unitOfWork.rollback();
+      await this._unitOfWork.rollback();
       return err(
         new ErrorResult(
           'Error uploading image or updating course',
@@ -132,4 +111,4 @@ class UpdatePromotionalVideoCourseCommandHandler
     });
   }
 }
-export default UpdatePromotionalVideoCourseCommandHandler;
+export default UpdatePublishCourseCommandHandler;

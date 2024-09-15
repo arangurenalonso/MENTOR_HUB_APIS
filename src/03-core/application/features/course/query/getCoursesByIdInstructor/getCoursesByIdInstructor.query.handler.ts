@@ -11,7 +11,6 @@ import CourseDomain, {
 } from '@domain/courses-aggregate/root/course.domain';
 import InstructorDomain from '@domain/intructor-aggregate/root/instructor.domain';
 import ICourseRepository from '@domain/courses-aggregate/root/repositories/ICourse.repository';
-import courseEntity from '@persistence/entities/courses-aggregate/course.entity';
 import S3Service from '@service/s3.service';
 
 @injectable()
@@ -90,36 +89,32 @@ class GetCoursesByIdInstructorQueryHandler
   ): Promise<Result<CourseDomain[], ErrorResult>> {
     try {
       // Generar las URLs firmadas para todos los cursos en paralelo
-      const coursesWithSignedUrls = await Promise.all([
-        ...coursesDomain.map(async (courseDomain) => {
-          console.log('courseDomain.imgS3Key', courseDomain.imgS3Key);
+      const coursesWithSignedUrls = await Promise.all(
+        coursesDomain.map(async (courseDomain) => {
+          // Procesar la imagen del curso
+          if (courseDomain.imgS3Key !== null) {
+            const signedImgUrl = await this._s3Service.getFileUrl(
+              courseDomain.imgS3Key
+            );
 
-          if (courseDomain.imgS3Key === null) {
-            return courseDomain;
+            if (signedImgUrl !== null) {
+              courseDomain.imgUrl = signedImgUrl;
+            }
           }
-          const signedUrl = await this._s3Service.getFileUrl(
-            courseDomain.imgS3Key
-          );
-          if (signedUrl === null) {
-            return courseDomain;
+
+          // Procesar el video promocional del curso
+          if (courseDomain.promotionalVideoS3Key !== null) {
+            const signedVideoUrl = await this._s3Service.getFileUrl(
+              courseDomain.promotionalVideoS3Key
+            );
+            if (signedVideoUrl !== null) {
+              courseDomain.promotionalVideoUrl = signedVideoUrl;
+            }
           }
-          courseDomain.imgUrl = signedUrl;
-          return courseDomain;
-        }),
-        ...coursesDomain.map(async (courseDomain) => {
-          if (courseDomain.promotionalVideoS3Key === null) {
-            return courseDomain;
-          }
-          const signedUrl = await this._s3Service.getFileUrl(
-            courseDomain.promotionalVideoS3Key
-          );
-          if (signedUrl === null) {
-            return courseDomain;
-          }
-          courseDomain.promotionalVideoUrl = signedUrl;
-          return courseDomain;
-        }),
-      ]);
+
+          return courseDomain; // Retornar el curso con las URLs asignadas
+        })
+      );
 
       return ok(coursesWithSignedUrls);
     } catch (error) {

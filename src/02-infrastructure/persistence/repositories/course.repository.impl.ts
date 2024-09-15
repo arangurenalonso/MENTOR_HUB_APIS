@@ -82,28 +82,45 @@ class CourseRepository
   ): SelectQueryBuilder<CourseEntity> => {
     const userEntity = this._repository
       .createQueryBuilder('course')
-      .leftJoinAndSelect('course.requirements', 'requirements')
-      .leftJoinAndSelect('course.intendedLearners', 'intendedLearners')
-      .leftJoinAndSelect('course.learningObjectives', 'learningObjectives')
+      .leftJoinAndSelect(
+        'course.requirements',
+        'requirements',
+        'requirements.active = :isActive',
+        { isActive: true }
+      )
+      .leftJoinAndSelect(
+        'course.learningObjectives',
+        'learningObjectives',
+        'learningObjectives.active = :isActive',
+        { isActive: true }
+      )
+      .leftJoinAndSelect(
+        'course.intendedLearners',
+        'intendedLearners',
+        'intendedLearners.active = :isActive',
+        { isActive: true }
+      )
       .leftJoinAndSelect('course.level', 'level')
       .leftJoinAndSelect('course.subCategory', 'subCategory')
       .leftJoinAndSelect('subCategory.category', 'category')
+      .innerJoinAndSelect('course.instructor', 'instructor')
+      .innerJoinAndSelect('instructor.naturalPerson', 'naturalPerson')
       .where(where, parameters)
-      .andWhere('course.active = :isActive', { isActive: true })
-      .andWhere(
-        'requirements.active = :isActive OR requirements.active IS NULL',
-        {
-          isActive: true,
-        }
-      )
-      .andWhere(
-        'intendedLearners.active = :isActive  OR intendedLearners.active IS NULL',
-        { isActive: true }
-      )
-      .andWhere(
-        'learningObjectives.active = :isActive  OR learningObjectives.active IS NULL',
-        { isActive: true }
-      );
+      .andWhere('course.active = :isActive', { isActive: true });
+    // .andWhere(
+    //   '(requirements.active = :isActiveRequirement OR requirements.active IS NULL)',
+    //   {
+    //     isActiveRequirement: true,
+    //   }
+    // )
+    // .andWhere(
+    //   '(intendedLearners.active = :isActiveIntendedLearners  OR intendedLearners.active IS NULL)',
+    //   { isActiveIntendedLearners: true }
+    // )
+    // .andWhere(
+    //   '(learningObjectives.active = :isActiveLearningObjective OR learningObjectives.active IS NULL)',
+    //   { isActiveLearningObjective: true }
+    // );
 
     return userEntity;
   };
@@ -138,6 +155,7 @@ class CourseRepository
         idInstructor: idInstructor,
       }
     ).getMany();
+    console.log('coursesEntity', coursesEntity);
 
     const coursesDomain = CourseDTO.toDomainList(coursesEntity);
     if (coursesDomain.isErr()) {
@@ -267,11 +285,25 @@ class CourseRepository
 
   async register(courseDomain: CourseDomain): Promise<string> {
     const courseEntity = CourseDTO.toEntity(courseDomain);
+
+    const learningObjectives = LearningObjectiveDTO.toEntityArray(
+      courseDomain.properties.id,
+      courseDomain.properties.learningObjectives
+    );
+    const intendedLearners = IntendedLearnerDTO.toEntityArray(
+      courseDomain.properties.id,
+      courseDomain.properties.intendedLearners
+    );
+    const requirements = RequirementDTO.toEntityArray(
+      courseDomain.properties.id,
+      courseDomain.properties.requirements
+    );
+
     this.create(courseEntity);
     await Promise.all([
-      this._learningObjectivRepository.save(courseEntity.learningObjectives),
-      this._intendedLearnerRepository.save(courseEntity.intendedLearners),
-      this._requirementRepository.save(courseEntity.requirements),
+      this._learningObjectivRepository.save(learningObjectives),
+      this._intendedLearnerRepository.save(intendedLearners),
+      this._requirementRepository.save(requirements),
     ]);
     return courseEntity.id!;
   }
@@ -295,15 +327,18 @@ class CourseRepository
       this.repository.save(courseEntity),
       this.updateEntities<LearningObjectiveEntity>(
         learningObjectives,
-        this._learningObjectivRepository
+        this._learningObjectivRepository,
+        { idCourse: courseDomain.properties.id }
       ),
       this.updateEntities<IntendedLearnerEntity>(
         intendedLearners,
-        this._intendedLearnerRepository
+        this._intendedLearnerRepository,
+        { idCourse: courseDomain.properties.id }
       ),
       this.updateEntities<RequirementEntity>(
         requirements,
-        this._requirementRepository
+        this._requirementRepository,
+        { idCourse: courseDomain.properties.id }
       ),
     ]);
   }

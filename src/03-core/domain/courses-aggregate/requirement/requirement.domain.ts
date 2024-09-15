@@ -9,7 +9,7 @@ export type RequirementDomainProperties = {
   description: string;
 };
 export type RequirementDomainArgs = {
-  id?: string;
+  id?: string | null;
   description: string;
 };
 

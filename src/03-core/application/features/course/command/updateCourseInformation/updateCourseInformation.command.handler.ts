@@ -5,7 +5,6 @@ import { injectable, inject } from 'inversify';
 import { requestHandler, IRequestHandler } from 'mediatr-ts';
 import IInstructorRepository from '@domain/intructor-aggregate/root/repository/instructor.repository';
 import IUnitOfWork from '@domain/abstract/repository/IUnitOfWork';
-import CreateCourseCommand from './createCourse.command';
 import CommonApplicationError from '@application/errors/common-application-error';
 import InstructorDomain from '@domain/intructor-aggregate/root/instructor.domain';
 import LevelDomain from '@domain/courses-aggregate/level/level.domain';
@@ -13,11 +12,14 @@ import SubCategoryDomain from '@domain/courses-aggregate/sub-category/sub-catego
 import ICourseRepository from '@domain/courses-aggregate/root/repositories/ICourse.repository';
 import CourseDomain from '@domain/courses-aggregate/root/course.domain';
 import InstructorApplicationErrors from '@application/errors/instructor-application.error';
+import UpdateCourseInformationCommand from './updateCourseInformation.command';
+import CourseApplicationErrors from '@application/errors/course-application.error';
 
 @injectable()
-@requestHandler(CreateCourseCommand)
-class CreateCourseCommandHandler
-  implements IRequestHandler<CreateCourseCommand, Result<string, ErrorResult>>
+@requestHandler(UpdateCourseInformationCommand)
+class UpdateCourseInformationCommandHandler
+  implements
+    IRequestHandler<UpdateCourseInformationCommand, Result<void, ErrorResult>>
 {
   constructor(
     @inject(TYPES.ICourseRepository)
@@ -27,60 +29,62 @@ class CreateCourseCommandHandler
     @inject(TYPES.IUnitOfWork) private readonly _unitOfWork: IUnitOfWork
   ) {}
   async handle(
-    command: CreateCourseCommand
-  ): Promise<Result<string, ErrorResult>> {
+    command: UpdateCourseInformationCommand
+  ): Promise<Result<void, ErrorResult>> {
     const fetchEntitiesResult = await this.fetchEntities(
-      command.userConnected.idUser,
+      command.idInstructor,
       command.idLevel,
-      command.idSubCategory
+      command.idSubCategory,
+      command.idCourse
     );
     if (fetchEntitiesResult.isErr()) {
       return err(fetchEntitiesResult.error);
     }
 
-    const { instructorDomain, levelDomain, subCategoryDomain } =
+    const { instructorDomain, levelDomain, subCategoryDomain, courseDomain } =
       fetchEntitiesResult.value;
-    const idCourse = await this.createCourse(
-      instructorDomain,
+
+    if (
+      courseDomain.properties.idInstructor !== instructorDomain.properties.id
+    ) {
+      return err(
+        CourseApplicationErrors.COURSE_BELONGS_TO_OTHER_INSTRUCTOR(
+          courseDomain.properties.id
+        )
+      );
+    }
+
+    const updateResult = await this.updateCourse(
+      courseDomain,
       levelDomain,
       subCategoryDomain,
       command.title,
       command.description
     );
-    if (idCourse.isErr()) {
-      return err(idCourse.error);
+    if (updateResult.isErr()) {
+      return err(updateResult.error);
     }
-    return ok(idCourse.value);
+    return ok(undefined);
   }
-  private async createCourse(
-    instructor: InstructorDomain,
+  private async updateCourse(
+    course: CourseDomain,
     level: LevelDomain,
     subCategory: SubCategoryDomain,
     title: string,
     description: string
-  ): Promise<Result<string, ErrorResult>> {
-    const courseResult = CourseDomain.create({
+  ): Promise<Result<void, ErrorResult>> {
+    const updateInformationResult = course.updateCourseInformation({
       title,
       description,
-      idInstructor: instructor.id,
       level,
-      subCategory: subCategory,
-      learningObjectives: [],
-      intendedLearners: [],
-      requirements: [],
-      publish: false,
+      subCategory,
     });
-
-    if (courseResult.isErr()) {
-      return err(courseResult.error);
+    if (updateInformationResult.isErr()) {
+      return err(updateInformationResult.error);
     }
-
-    const course = courseResult.value;
-
-    let courseId = '';
     try {
       await this._unitOfWork.startTransaction();
-      courseId = await this._unitOfWork.courseRepository.register(course);
+      await this._unitOfWork.courseRepository.modify(course);
       this._unitOfWork.collectDomainEvents([course]);
       await this._unitOfWork.commit();
     } catch (error) {
@@ -90,28 +94,35 @@ class CreateCourseCommandHandler
       return err(InstructorApplicationErrors.CREATE_ERROR(`${error}`));
     }
 
-    return ok(courseId);
+    return ok(undefined);
   }
   private async fetchEntities(
     idInstructor: string,
     idLevel: string,
-    idSubCategory: string
+    idSubCategory: string,
+    idCourse: string
   ): Promise<
     Result<
       {
         instructorDomain: InstructorDomain;
         levelDomain: LevelDomain;
         subCategoryDomain: SubCategoryDomain;
+        courseDomain: CourseDomain;
       },
       ErrorResult
     >
   > {
-    const [instructorDomainResult, levelDomainResult, subCategoryDomainResult] =
-      await Promise.all([
-        this._instructorRepository.getInstructorById(idInstructor),
-        this._courseRepository.getLevelById(idLevel),
-        this._courseRepository.getSubCategoryById(idSubCategory),
-      ]);
+    const [
+      instructorDomainResult,
+      levelDomainResult,
+      subCategoryDomainResult,
+      courseDomainResult,
+    ] = await Promise.all([
+      this._instructorRepository.getInstructorById(idInstructor),
+      this._courseRepository.getLevelById(idLevel),
+      this._courseRepository.getSubCategoryById(idSubCategory),
+      this._courseRepository.getCourseById(idCourse),
+    ]);
 
     if (instructorDomainResult.isErr()) {
       return err(instructorDomainResult.error);
@@ -121,6 +132,9 @@ class CreateCourseCommandHandler
     }
     if (subCategoryDomainResult.isErr()) {
       return err(subCategoryDomainResult.error);
+    }
+    if (courseDomainResult.isErr()) {
+      return err(courseDomainResult.error);
     }
 
     const instructorDomain = instructorDomainResult.value;
@@ -156,12 +170,24 @@ class CreateCourseCommandHandler
         ])
       );
     }
+    const courseDomain = courseDomainResult.value;
+    if (!courseDomain) {
+      return err(
+        CommonApplicationError.notFound('Course', [
+          {
+            property: 'id',
+            value: idCourse,
+          },
+        ])
+      );
+    }
 
     return ok({
       instructorDomain: instructorDomain,
       levelDomain: levelDomain,
       subCategoryDomain: subCategoryDomain,
+      courseDomain: courseDomain,
     });
   }
 }
-export default CreateCourseCommandHandler;
+export default UpdateCourseInformationCommandHandler;

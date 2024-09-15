@@ -9,7 +9,7 @@ export type LearningObjectiveDomainProperties = {
   description: string;
 };
 export type LearningObjectiveDomainArgs = {
-  id?: string;
+  id?: string | null;
   description: string;
 };
 

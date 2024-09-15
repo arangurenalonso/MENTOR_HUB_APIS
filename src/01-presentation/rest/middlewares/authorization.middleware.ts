@@ -24,8 +24,6 @@ class AuthorizationMiddleware {
 
         for (const roleAllowed of rolesAllowed) {
           if (rolesString.includes(roleAllowed.trim().toUpperCase())) {
-            console.log('Paso');
-
             return next();
           }
         }

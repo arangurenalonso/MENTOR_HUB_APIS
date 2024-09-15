@@ -20,6 +20,7 @@ import RequirementDomain, {
 } from '../requirement/requirement.domain';
 import CourseImageS3Key from './value-object/course-img-s3-key.value-object';
 import CoursePromotionalVideoS3Key from './value-object/course-promotional-video-s3-key.value-object';
+import CourseErrors from './error/course.error';
 
 export type CourseDomainProperties = {
   id: string;
@@ -33,6 +34,8 @@ export type CourseDomainProperties = {
   learningObjectives: LearningObjectiveDomainProperties[];
   intendedLearners: IntendedLearnerDomainProperties[];
   requirements: RequirementDomainProperties[];
+  instructor?: InstructorInformation;
+  publish: boolean;
 };
 
 type CourseDomainCreateArg = {
@@ -47,6 +50,15 @@ type CourseDomainCreateArg = {
   learningObjectives: LearningObjectiveDomain[];
   intendedLearners: IntendedLearnerDomain[];
   requirements: RequirementDomain[];
+  instructorName?: string;
+  publish: boolean;
+};
+
+type UpdateCourseInformationArg = {
+  title: string;
+  description: string;
+  level: LevelDomain;
+  subCategory: SubCategoryDomain;
 };
 
 type CourseDomainConstructor = {
@@ -61,10 +73,17 @@ type CourseDomainConstructor = {
   learningObjectives: LearningObjectiveDomain[];
   intendedLearners: IntendedLearnerDomain[];
   requirements: RequirementDomain[];
+  instructorName?: string;
+  publish: boolean;
 };
 
+type InstructorInformation = {
+  id: string;
+  name: string;
+};
 class CourseDomain extends BaseDomain<CourseId> {
   private _idInstructor: InstructorId;
+  private _instructor?: InstructorInformation;
   private _level: LevelDomain;
   private _subCategory: SubCategoryDomain;
   private _title: CourseTitle;
@@ -72,11 +91,11 @@ class CourseDomain extends BaseDomain<CourseId> {
   private _learningObjectives: LearningObjectiveDomain[];
   private _intendedLearners: IntendedLearnerDomain[];
   private _requirements: RequirementDomain[];
-
   private _imgS3Key: CourseImageS3Key | null;
   private _promotionalVideoS3Key: CoursePromotionalVideoS3Key | null;
   private _imgUrl: string | null = null;
   private _promotionalVideoUrl: string | null = null;
+  private _publish: boolean = false;
 
   private constructor(properties: CourseDomainConstructor) {
     super(properties.id);
@@ -90,6 +109,13 @@ class CourseDomain extends BaseDomain<CourseId> {
     this._requirements = properties.requirements;
     this._imgS3Key = properties.imgS3Key;
     this._promotionalVideoS3Key = properties.promotionalVideoS3Key;
+    this._publish = properties.publish;
+    this._instructor = properties.instructorName
+      ? {
+          id: properties.idInstructor.value,
+          name: properties.instructorName,
+        }
+      : undefined;
   }
 
   public static create(
@@ -139,8 +165,50 @@ class CourseDomain extends BaseDomain<CourseId> {
       requirements: args.requirements,
       imgS3Key,
       promotionalVideoS3Key,
+      instructorName: args.instructorName,
+      publish: args.publish,
     });
     return ok(instructorDomain);
+  }
+  updateCourseInformation(
+    args: UpdateCourseInformationArg
+  ): Result<undefined, ErrorResult> {
+    const resultTitle = CourseTitle.create(args.title);
+    if (resultTitle.isErr()) {
+      return err(resultTitle.error);
+    }
+
+    const resultDescription = CourseDescription.create(args.description);
+
+    if (resultDescription.isErr()) {
+      return err(resultDescription.error);
+    }
+
+    this._title = resultTitle.value;
+    this._description = resultDescription.value;
+    this._level = args.level;
+    this._subCategory = args.subCategory;
+    return ok(undefined);
+  }
+  updateCourseEntrollmentCriteria(
+    requirementDomain: RequirementDomain[],
+    intendedLearnerDomain: IntendedLearnerDomain[],
+    learningObjectiveDomain: LearningObjectiveDomain[]
+  ): Result<undefined, ErrorResult> {
+    if (requirementDomain.length == 0) {
+      return err(CourseErrors.EMPTY_REQUIREMENTS());
+    }
+    if (intendedLearnerDomain.length == 0) {
+      return err(CourseErrors.EMPTY_INTENDED_LEARNERS());
+    }
+    if (learningObjectiveDomain.length == 0) {
+      return err(CourseErrors.EMPTY_LEARNING_OBJECTIVES());
+    }
+    this._requirements = requirementDomain;
+    this._intendedLearners = intendedLearnerDomain;
+    this._learningObjectives = learningObjectiveDomain;
+
+    return ok(undefined);
   }
   get imgS3Key() {
     return this._imgS3Key?.value || null;
@@ -170,7 +238,25 @@ class CourseDomain extends BaseDomain<CourseId> {
   set promotionalVideoUrl(url: string) {
     this._promotionalVideoUrl = url;
   }
-
+  publish(): Result<undefined, ErrorResult> {
+    if (this._requirements.length == 0) {
+      return err(CourseErrors.EMPTY_REQUIREMENTS());
+    }
+    if (this._intendedLearners.length == 0) {
+      return err(CourseErrors.EMPTY_INTENDED_LEARNERS());
+    }
+    if (this._learningObjectives.length == 0) {
+      return err(CourseErrors.EMPTY_LEARNING_OBJECTIVES());
+    }
+    if (!this._imgS3Key) {
+      return err(CourseErrors.EMPTY_IMG());
+    }
+    if (!this._promotionalVideoS3Key) {
+      return err(CourseErrors.EMPTY_VIDEO());
+    }
+    this._publish = true;
+    return ok(undefined);
+  }
   get properties(): CourseDomainProperties {
     return {
       id: this._id.value,
@@ -190,6 +276,8 @@ class CourseDomain extends BaseDomain<CourseId> {
       ),
       imgUrl: this._imgUrl || null,
       promotionalVideoUrl: this._promotionalVideoUrl || null,
+      instructor: this._instructor,
+      publish: this._publish,
     };
   }
 }

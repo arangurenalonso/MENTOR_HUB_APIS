@@ -8,10 +8,6 @@ const AvailabilityValidation = [
     .withMessage(messagesValidator.array('availability')),
 
   body('availability')
-    .isArray()
-    .withMessage(messagesValidator.array('availability')),
-
-  body('availability')
     .custom((value) => Array.isArray(value) && value.length > 0)
     .withMessage(messagesValidator.notEmptyArray('availability')),
 

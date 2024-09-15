@@ -12,7 +12,7 @@ abstract class BaseEntity {
   id: string = uuidv4();
 
   @Column({ type: 'boolean', default: true })
-  active: boolean = true;
+  active: boolean = true; 
 
   // @CreateDateColumn({ name: 'created_at' })
   // createdAt?: Date = new Date();

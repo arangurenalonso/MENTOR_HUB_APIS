@@ -17,6 +17,9 @@ class CourseEntity extends BaseEntity {
   })
   title!: string;
 
+  @Column({ type: 'boolean', default: false })
+  publish: boolean = false;
+
   @Column({ type: 'jsonb', nullable: false })
   description?: Record<string, any>;
 

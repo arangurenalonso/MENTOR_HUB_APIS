@@ -2,7 +2,7 @@ import messagesValidator from '@domain/helpers/messages-validator';
 
 import { body, param } from 'express-validator';
 
-const CourseImageValidator = [
+const IdCoursePathParamValidator = [
   param('idCourse')
     .notEmpty()
     .withMessage(messagesValidator.required('idCourse'))
@@ -10,4 +10,4 @@ const CourseImageValidator = [
     .withMessage(messagesValidator.guid('idCourse')),
 ];
 
-export default CourseImageValidator;
+export default IdCoursePathParamValidator;

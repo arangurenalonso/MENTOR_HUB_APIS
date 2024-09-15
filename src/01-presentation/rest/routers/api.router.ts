@@ -5,7 +5,6 @@ import TYPES from '@config/inversify/identifiers';
 import InstructorRoutes from './instructor/instructor.route';
 import MasterRoutes from './master/masters.route';
 import CourseRoutes from './course/course.route';
-import { Multer } from 'multer';
 
 @injectable()
 class ApiRouter {

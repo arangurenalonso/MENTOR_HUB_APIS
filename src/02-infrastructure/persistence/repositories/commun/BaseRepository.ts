@@ -13,11 +13,14 @@ abstract class BaseRepository<T extends ObjectLiteral>
   // }
   async updateEntities<T extends BaseEntity>(
     entities: T[],
-    repository: Repository<T>
+    repository: Repository<T>,
+
+    additionalWhere: FindOptionsWhere<T> = {}
   ): Promise<void> {
     const entityIds = entities.map((entity) => entity.id);
     const entitiesToDeactivate = await repository.find({
       where: {
+        ...additionalWhere,
         id: Not(In(entityIds)),
         active: true,
       } as FindOptionsWhere<T>,

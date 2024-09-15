@@ -16,7 +16,9 @@ class RequirementId {
     this._value = value;
   }
 
-  public static create(value?: string): Result<RequirementId, ErrorResult> {
+  public static create(
+    value?: string | null
+  ): Result<RequirementId, ErrorResult> {
     if (value === null || value === undefined) {
       value = uuidv4();
     }

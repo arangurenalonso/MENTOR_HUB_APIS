@@ -17,7 +17,7 @@ class LearningObjectiveId {
   }
 
   public static create(
-    value?: string
+    value?: string | null
   ): Result<LearningObjectiveId, ErrorResult> {
     if (value === null || value === undefined) {
       value = uuidv4();

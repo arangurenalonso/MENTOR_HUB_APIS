@@ -9,7 +9,7 @@ export type IntendedLearnerDomainProperties = {
   description: string;
 };
 export type IntendedLearnerDomainArgs = {
-  id?: string;
+  id?: string | null;
   description: string;
 };
 

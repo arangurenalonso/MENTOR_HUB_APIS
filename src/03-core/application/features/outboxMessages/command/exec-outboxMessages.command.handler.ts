@@ -16,7 +16,7 @@ class ExecOutboxMessagesCommandHandler
   ) {}
   async handle(command: ExecOutboxMessagesCommand): Promise<void> {
     const domainsEvents = await this._outboxMessage.getDomainEvents();
-    console.log('domainsEvents', domainsEvents);
+    // console.log('domainsEvents', domainsEvents);
 
     for (const domainEvent of domainsEvents) {
       try {

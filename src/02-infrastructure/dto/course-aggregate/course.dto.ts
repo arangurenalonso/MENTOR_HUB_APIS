@@ -61,6 +61,8 @@ class CourseDTO {
       requirements,
       imgS3Key: entity.imgS3Key || null,
       promotionalVideoS3Key: entity.promotionalVideoS3Key || null,
+      instructorName: entity.instructor?.naturalPerson?.name || undefined,
+      publish: entity.publish,
     });
     if (domainResult.isErr()) {
       return err(domainResult.error);
@@ -85,6 +87,7 @@ class CourseDTO {
     entity.id = domain.properties.id;
     entity.idInstructor = domain.properties.idInstructor;
     entity.title = domain.properties.title;
+    entity.publish = domain.properties.publish;
     entity.imgS3Key = domain.imgS3Key || undefined;
     entity.promotionalVideoS3Key = domain.promotionalVideoS3Key || undefined;
 
